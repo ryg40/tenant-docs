@@ -1,0 +1,50 @@
+---
+// A static terminal frame of one capture. `id` is `<project>/<name>`.
+// The spec is `captures/<id>.json` and the output is `captures/<id>.txt`. See `captures/README.md`.
+// The frame is the one place of the command on a page. A step with a frame has no code block for the same command.
+// A long output folds. The fold needs JavaScript, so the full output shows when JavaScript is off.
+// `Cast` puts the player of the recording into the slot.
+import { Aside } from '@astrojs/starlight/components';
+import { ansiToHtml } from './ansi';
+import { loadCapture } from './capture';
+import Terminal from './Terminal.astro';
+
+interface Props {
+	id: string;
+}
+
+// An output with more lines than this folds.
+const FOLD_OVER = 24;
+
+const { id } = Astro.props;
+const { spec, output } = loadCapture(id);
+const rendered = output !== undefined ? ansiToHtml(output) : undefined;
+const folds = rendered !== undefined && rendered.lines > FOLD_OVER;
+---
+
+{
+	spec ? (
+		<Terminal title={spec.title} command={spec.command} tag={rendered ? undefined : 'Not recorded'} tone="warn">
+			{rendered ? (
+				<div class="sn-term-out" data-sn-output data-folded={folds ? '' : undefined}>
+					<pre class="sn-term-scroll"><code set:html={rendered.html} /></pre>
+				</div>
+			) : (
+				<p class="sn-term-note">
+					The capture <code>{id}</code> has no recorded output yet.
+				</p>
+			)}
+			{folds && (
+				<button type="button" class="sn-term-fold" data-sn-fold aria-expanded="false" data-pagefind-ignore>
+					<span class="sn-when-folded">Show all {rendered.lines} lines</span>
+					<span class="sn-when-open">Show fewer lines</span>
+				</button>
+			)}
+			<slot />
+		</Terminal>
+	) : (
+		<Aside type="caution" title="Capture not recorded">
+			The capture <code>{id}</code> has no recorded output yet.
+		</Aside>
+	)
+}

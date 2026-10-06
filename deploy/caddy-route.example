@@ -1,0 +1,8 @@
+# The route of the site for the reverse proxy, in Caddyfile syntax.
+# `scripts/deploy.sh route` prints this block with the host of SITE_URL in place of docs.example.
+# The site is public, so the route has no private-network restriction.
+docs.example {
+    # A browser keeps to HTTPS for this host for one year. Remove the line if you do not want that.
+    header Strict-Transport-Security "max-age=31536000"
+    reverse_proxy tenant-docs:8080
+}

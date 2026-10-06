@@ -1,0 +1,8 @@
+{
+  "title": "The runtime check after the install",
+  "stage": 6,
+  "order": 1040,
+  "command": "python3 scripts/tenant_pi.py check-runtime",
+  "setup": [],
+  "mode": "manual"
+}

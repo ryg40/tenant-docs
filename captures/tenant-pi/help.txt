@@ -1,0 +1,26 @@
+usage: tenant_pi.py [-h]
+                    {compare,carry,inventory,list,check-runtime,init-private,validate,plan,generate}
+                    ...
+
+Offline, new-profile-only tenant-pi CLI (Python 3.11+).
+
+positional arguments:
+  {compare,carry,inventory,list,check-runtime,init-private,validate,plan,generate}
+    compare             redacted field comparison of two explicit profile
+                        directories
+    carry               print overlay patches that adopt owner-owned changes
+                        of a compare report
+    inventory           names-only resource list of one explicit profile
+                        directory
+    list                read-only state list of the candidate directories
+                        under one explicit parent
+    check-runtime       compare the installed Pi, Node and Python with
+                        manifest.runtime
+    init-private        create a new private directory for the overlay and its
+                        records
+    validate            validate a private local overlay
+    plan                plan a private local overlay
+    generate            generate a private local overlay
+
+options:
+  -h, --help            show this help message and exit

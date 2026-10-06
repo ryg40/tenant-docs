@@ -1,0 +1,20 @@
+{
+  "title": "Run the offline checks of the kit",
+  "stage": 1,
+  "order": 110,
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -q && \\\n  PYTHONDONTWRITEBYTECODE=1 python3 scripts/publish_check.py && \\\n  python3 scripts/tenant_pi.py check-runtime",
+  "exit": 1,
+  "setup": [
+    "rm \"$HOME/<the URL of the tenant-pi repository>\"",
+    "git -C \"$HOME/tenant-pi\" remote set-url origin /srv/tenant-pi.git",
+    "cd \"$HOME/tenant-pi\""
+  ],
+  "replace": [
+    {
+      "what": "the run time of the tests",
+      "match": "Ran \\d+ tests? in ([0-9.]+)s",
+      "with": "<seconds>"
+    }
+  ],
+  "mode": "scripted"
+}

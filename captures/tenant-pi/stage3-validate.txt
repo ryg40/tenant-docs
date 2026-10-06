@@ -1,0 +1,1 @@
+{"scope":"offline structural and supported-input checks only","valid":true}

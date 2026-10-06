@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action carry",
+  "order": 164,
+  "command": "python3 scripts/tenant_pi.py carry --help",
+  "setup": [],
+  "mode": "scripted"
+}

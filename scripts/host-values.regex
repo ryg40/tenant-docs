@@ -1,0 +1,117 @@
+# Host values and credentials: generic regular expressions.
+#
+# scripts/scan.py reports each match in a tracked file, a capture and the built site.
+# This file is tracked and public. It holds no value of one host.
+# The values of one host go into scripts/host-values.local.deny, which Git ignores.
+# scripts/host-values.allow holds the exceptions.
+#
+# Format: one rule for each line, two fields:
+#   <name> <regex>
+# <name>   lowercase letters, digits and "-". A name that starts with "credential-"
+#          is a credential rule: the report does not show its value, and the allow
+#          list does not apply to it.
+# <regex>  Python "re" syntax, the rest of the line. The reported value is group 1
+#          when the regex has a group, and the full match otherwise.
+# A line "define <NAME> <regex>" gives a macro. A later line uses it as {NAME}.
+# A line that starts with "#" is a comment.
+#
+# The scan reads this file like each other tracked file. So a regex must not
+# match its own text. Write one letter as a class when it does: [r]oot.
+
+# --- private network addresses ---
+#
+# The character before an IPv4 address is not a letter, a digit or one of
+# _ . + : < > ~ ^ ! - and the address does not follow "==", ">=", "<=", "~=" or "!=".
+# The character after it is not a letter, a digit, "_" or "-", and not a "."
+# with a letter or a digit after it. So a version pin gives no finding, and an
+# address in a URL, after a blank, a quote, "@" or "=" gives one.
+# The documentation ranges and the loopback addresses are not private: no rule.
+
+define OCTET (?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])
+define BEFORE (?<![0-9A-Za-z_.+:<>~^!-])(?<![=<>~!]=)
+define AFTER (?![0-9A-Za-z_-])(?!\.[0-9A-Za-z_])
+# 10/8
+define NET_A 10\.{OCTET}\.{OCTET}\.{OCTET}
+# 172.16/12
+define NET_B 172\.(?:1[6-9]|2[0-9]|3[01])\.{OCTET}\.{OCTET}
+# 192.168/16
+define NET_C 192\.168\.{OCTET}\.{OCTET}
+# 100.64/10: shared address space, carrier-grade NAT, overlay networks
+define NET_SHARED 100\.(?:6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.{OCTET}\.{OCTET}
+# 169.254/16: link-local
+define NET_LINK 169\.254\.{OCTET}\.{OCTET}
+
+private-ip-10 {BEFORE}({NET_A}){AFTER}
+private-ip-172 {BEFORE}({NET_B}){AFTER}
+private-ip-192 {BEFORE}({NET_C}){AFTER}
+private-ip-100 {BEFORE}({NET_SHARED}){AFTER}
+private-ip-169 {BEFORE}({NET_LINK}){AFTER}
+# An address of one of these five ranges directly after the end of a tag.
+# The built site writes inline code as a "code" tag, then the address. The
+# character before the address is then ">", and the five rules above do not
+# accept it. A tag starts with "<" and a letter or "/", and it is on one line.
+# A version pin such as "pkg>1.2.3.4" has no tag before the ">": no finding.
+define TAG <[A-Za-z/][^<>\n]*>
+define NET_ANY (?:{NET_A}|{NET_B}|{NET_C}|{NET_SHARED}|{NET_LINK})
+private-ip-after-tag {TAG}({NET_ANY}){AFTER}
+# The same, for a tag that starts on a line before. Its last line has no "<"
+# before the ">", and the ">" follows the quote that ends an attribute value.
+# A version pin has no quote directly before its ">": no finding.
+private-ip-after-tag-end (?m)^[^<>\n]*["'][ \t]*/?>({NET_ANY}){AFTER}
+# An address directly after the end of an HTML comment.
+private-ip-after-comment -->({NET_ANY}){AFTER}
+# IPv6 unique local addresses: "fcXX:" or "fdXX:", then a group or ":"
+private-ip-ula (?i)(?<![0-9A-Za-z_.:-])(f[cd][0-9a-f]{2}:(?:[0-9a-f]{1,4}:|:)[0-9a-f:]*)
+# IPv6 link-local addresses
+private-ip-fe80 (?i)(?<![0-9A-Za-z_.:-])(fe[89ab][0-9a-f]:(?:[0-9a-f]{1,4}:|:)[0-9a-f:]*)
+
+# --- paths of one host ---
+#
+# A path counts only at its start: after a blank, a quote, "=", ":" or "(".
+# A relative path (src/home/x), a path below "~" and a URL path give no finding.
+# A placeholder with "<" or "$" gives no finding: /home/<user>, /home/$USER.
+# A path directly after "://" is at its start too: a "file" URL has no host
+# name before its path.
+
+# The home directory of a user on Linux and macOS
+home-path-unix (?<![A-Za-z0-9_.~-])(/(?:home|Users)/[A-Za-z0-9_][A-Za-z0-9_.-]*)
+# The home directory of the administrator. A "/" before it is a part of a
+# longer path, or of the "://" before the user name of a URL: no finding.
+# Only the full "://" before it is the start of a path.
+home-path-root (?:(?<![A-Za-z0-9_.~/-])|(?<=://))(/[r]oot)(?![A-Za-z0-9_.-])
+# The home directory of a user on Windows
+home-path-windows (?i)(?<![A-Za-z0-9])([a-z]:\\Users\\[A-Za-z0-9_][A-Za-z0-9_.-]*)
+# An install path below /opt
+opt-path (?<![A-Za-z0-9_.~-])(/opt/[A-Za-z0-9_][A-Za-z0-9_.-]*)
+
+# --- internal URLs ---
+
+define USERINFO (?:[^\s/@"'<>]*@)?
+
+# A URL whose host name ends with a name that is not public
+internal-url-tld (?i)(?<![A-Za-z0-9+.-])([a-z][a-z0-9+.-]*://{USERINFO}(?:[a-z0-9-]+\.)+(?:lan|local|localdomain|internal|intranet|corp|home|home\.arpa|ts\.net))(?![A-Za-z0-9-])(?!\.[A-Za-z0-9])
+# A URL whose host name has one label only, for example the name of a machine
+# in a local network. "localhost" gives no finding.
+internal-url-host (?i)(?<![A-Za-z0-9+.-])((?:https?|wss?|ssh|s?ftp|git|rsync|smb|nfs|ldaps?|redis|mqtt|amqp|postgres(?:ql)?|mysql|mongodb)://{USERINFO}(?!localhost(?![a-z0-9-]))[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?![A-Za-z0-9-])(?!\.[A-Za-z0-9-])
+
+# --- credentials ---
+
+credential-private-key -----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY(?: BLOCK)?-----
+credential-github-token \b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{40,})
+credential-gitlab-token \bglpat-[A-Za-z0-9_-]{20,}
+credential-aws-key-id \b(?:AKIA|ASIA)[0-9A-Z]{16}\b
+credential-slack-token \bxox[abeoprs]-[0-9A-Za-z-]{10,}
+credential-google-api-key \bAIza[0-9A-Za-z_-]{35}\b
+credential-npm-token \bnpm_[A-Za-z0-9]{36}\b
+credential-hf-token \bhf_[A-Za-z0-9]{30,}\b
+# An API key with the prefix "sk-" and one digit or more
+credential-sk-key \bsk-(?=[A-Za-z0-9_-]*[0-9])[A-Za-z0-9_-]{20,}
+# A JSON Web Token
+credential-jwt \beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}
+# A password in a URL. A placeholder with "<", "$", "{" or "%" gives no finding.
+credential-url-password (?i)[a-z][a-z0-9+.-]*://[^\s/:@"'<>]+:[^\s/@"'<>${}%*\\]{3,}@[a-z0-9]
+# An Authorization header with a literal value
+credential-auth-header (?i)\bauthorization["']?[ \t]*[:=][ \t]*["']?(?:bearer|token|basic)[ \t]+(?=[A-Za-z0-9+/_.=-]*[0-9])[A-Za-z0-9+/_.=-]{16,}
+# A literal value of 24 characters or more for a name with "token", "secret",
+# "password" or "key". The value has one letter and one digit or more.
+credential-assignment (?i)(?:token|secret|passw(?:or)?d|api[_-]?key|access[_-]?key|private[_-]?key)[a-z0-9_]*["']?[ \t]*[:=][ \t]*["']?(?=[A-Za-z0-9+/_.-]*[0-9])(?=[A-Za-z0-9+/_.-]*[A-Za-z])[A-Za-z0-9+/_-]{24,}

@@ -1,0 +1,8 @@
+{
+  "title": "Test the global npm prefix",
+  "stage": 6,
+  "order": 1020,
+  "command": "p=\"$(npm config get prefix)\"; test -w \"$p/lib/node_modules\" && test -w \"$p/bin\" && echo writable || echo \"not writable\"",
+  "setup": [],
+  "mode": "manual"
+}

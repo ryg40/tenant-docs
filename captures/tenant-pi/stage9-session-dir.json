@@ -1,0 +1,8 @@
+{
+  "title": "The session directory of the shell",
+  "stage": 9,
+  "order": 1330,
+  "command": "ls -la \"$PI_CODING_AGENT_SESSION_DIR\"",
+  "setup": [],
+  "mode": "manual"
+}

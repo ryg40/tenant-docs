@@ -1,0 +1,32 @@
+---
+title: Reference
+description: "Where the reference files of {{project}} are."
+sidebar:
+  order: 1
+---
+
+import DocVersion from '@/components/DocVersion.astro';
+
+{/* docgen: a script writes this page. Do not edit it by hand. */}
+
+<DocVersion project="{{project}}" />
+
+The reference files of {{project}} are in the project repository. This page names each file by its path. To read a file, open that path in your clone of the repository.
+
+The files of the release that this page shows are the source of facts for this site.
+
+{{#if troubleshooting}}
+## Troubleshooting
+
+This site has no troubleshooting page. The troubleshooting guide is this file of the project repository:
+
+`{{troubleshooting}}`
+
+{{/if}}
+{{docs_sections}}
+
+{{#if site_pages}}
+## Pages on this site
+
+{{site_pages}}
+{{/if}}

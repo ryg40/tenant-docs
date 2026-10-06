@@ -1,0 +1,1 @@
+[0m[01;32mbuild.sh[0m*  [01;34mdrafts[0m/  empty.md  [01;36mlatest[0m@  plan.md  tasks.md

@@ -1,0 +1,521 @@
+/* Styles of the page components: the terminal frame, the code block, the recording player and the diagrams.
+   `Capture`, `Cast` and the Mermaid integration write the markup. Each color comes from `soft-night.css`. */
+:root {
+	/* The terminal palette: the 16 ANSI colors in Soft Night. The static frame and the player share it.
+	   Soft Night has no magenta and no cyan. They are mixes of coral, mint and the note blue. */
+	--sn-term-bg: var(--sn-well);
+	--sn-term-fg: var(--sn-ink);
+	--sn-term-0: color-mix(in srgb, var(--sn-rule) 60%, var(--sn-faint));
+	/* Color 0 as a text color. The ground color above is too dark for text: the contrast must be 4.7 or more. */
+	--sn-term-0-ink: color-mix(in srgb, var(--sn-rule) 35%, var(--sn-faint));
+	--sn-term-1: var(--sn-coral);
+	--sn-term-2: var(--sn-sea);
+	--sn-term-3: var(--sn-warn);
+	--sn-term-4: var(--sn-blue);
+	--sn-term-5: color-mix(in srgb, var(--sn-coral) 50%, var(--sn-blue));
+	--sn-term-6: color-mix(in srgb, var(--sn-sea) 50%, var(--sn-blue));
+	--sn-term-7: var(--sn-muted);
+	--sn-term-8: var(--sn-faint);
+	--sn-term-9: var(--sn-coral-ink);
+	--sn-term-10: var(--sn-sea-ink);
+	--sn-term-11: color-mix(in srgb, var(--sn-warn) 60%, var(--sn-ink));
+	--sn-term-12: var(--sn-blue-ink);
+	--sn-term-13: color-mix(in srgb, var(--sn-coral-ink) 50%, var(--sn-blue-ink));
+	--sn-term-14: color-mix(in srgb, var(--sn-sea-ink) 50%, var(--sn-blue-ink));
+	--sn-term-15: var(--sn-ink);
+
+	/* The outline of a diagram node. */
+	--sn-diagram-edge: color-mix(in srgb, var(--sn-sea) 40%, var(--sn-rule));
+}
+
+/* The terminal window frame. */
+.sn-term {
+	margin: 1.5rem 0;
+	border: 1px solid var(--sn-rule);
+	border-radius: 10px;
+	background: var(--sn-term-bg);
+	overflow: hidden;
+	font-family: var(--__sl-font-mono);
+	font-size: var(--sl-text-code);
+	line-height: 1.6;
+}
+/* `pre` has `font-family: monospace` in each browser. Each browser gives that name another font,
+   so the frame must give its own font to `pre`. */
+.sn-term pre {
+	margin: 0;
+	overflow-x: auto;
+	font: inherit;
+	white-space: pre;
+	tab-size: 4;
+}
+.sn-term code {
+	font: inherit;
+}
+.sn-term :is(button, pre):focus-visible {
+	outline-offset: -3px;
+}
+.sn-term-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.45rem 0.9rem;
+	border-bottom: 1px solid var(--sn-rule);
+	background: var(--sn-band);
+	color: var(--sn-ink);
+	font-family: var(--__sl-font);
+	font-size: var(--sl-text-sm);
+}
+.sn-term-dots {
+	display: flex;
+	flex: none;
+	gap: 0.35rem;
+}
+.sn-term-dots i {
+	width: 0.65rem;
+	height: 0.65rem;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--sn-coral) 75%, var(--sn-band));
+}
+.sn-term-dots i:nth-child(2) {
+	background: color-mix(in srgb, var(--sn-warn) 75%, var(--sn-band));
+}
+.sn-term-dots i:nth-child(3) {
+	background: color-mix(in srgb, var(--sn-sea) 75%, var(--sn-band));
+}
+.sn-term-title {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.sn-term-tag {
+	flex: none;
+	padding: 0.05rem 0.55rem;
+	border: 1px solid var(--sn-rule);
+	border-radius: 999px;
+	color: var(--sn-muted);
+	font-size: var(--sl-text-xs);
+}
+.sn-term-tag[data-tone='warn'] {
+	border-color: var(--sn-warn-soft);
+	background: var(--sn-warn-soft);
+	color: var(--sn-warn);
+}
+
+/* The command line and its copy button. */
+.sn-term-cmd {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding-inline-end: 0.5rem;
+	border-bottom: 1px solid var(--sn-fine);
+	background: color-mix(in srgb, var(--sn-panel) 55%, var(--sn-term-bg));
+}
+.sn-term-cmd:last-child {
+	border-bottom: 0;
+}
+.sn-term-cmd pre {
+	flex: 1;
+	min-width: 0;
+	padding: 0.6rem 0.9rem;
+	color: var(--sn-ink);
+}
+.sn-term-prompt {
+	color: var(--sn-sea);
+	user-select: none;
+}
+.sn-term-copy,
+.sn-cast-switch {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: 0.4rem;
+	min-height: 2rem;
+	padding: 0 0.65rem;
+	border: 1px solid var(--sn-rule);
+	border-radius: 8px;
+	background: var(--sn-panel);
+	color: var(--sn-sea-ink);
+	font-family: var(--__sl-font);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	cursor: pointer;
+}
+.sn-term-copy:hover,
+.sn-cast-switch:hover {
+	border-color: var(--sn-sea);
+	background: var(--sn-raise);
+}
+.sn-term-copy.is-done {
+	border-color: var(--sn-sea);
+	background: var(--sn-sea);
+	color: var(--sn-dark);
+}
+
+/* The output. A long output folds: the button below it shows all lines. */
+.sn-term-out {
+	position: relative;
+}
+.sn-term-out pre {
+	padding: 0.75rem 0.9rem;
+	color: var(--sn-term-fg);
+}
+.sn-term-out[data-folded] {
+	max-height: calc(16 * 1.6em + 0.75rem);
+	overflow: hidden;
+}
+.sn-term-out[data-folded]::after {
+	content: '';
+	position: absolute;
+	inset: auto 0 0;
+	height: 4.5em;
+	background: linear-gradient(transparent, var(--sn-term-bg));
+	pointer-events: none;
+}
+.sn-term-fold {
+	display: block;
+	width: 100%;
+	padding: 0.5rem 0.9rem;
+	border: 0;
+	border-top: 1px solid var(--sn-fine);
+	background: var(--sn-band);
+	color: var(--sn-sea-ink);
+	font-family: var(--__sl-font);
+	font-size: var(--sl-text-sm);
+	font-weight: 600;
+	cursor: pointer;
+}
+.sn-term-fold:hover {
+	background: var(--sn-raise);
+}
+.sn-term-fold[aria-expanded='true'] .sn-when-folded,
+.sn-term-fold[aria-expanded='false'] .sn-when-open {
+	display: none;
+}
+.sn-term-note {
+	margin: 0;
+	padding: 0.75rem 0.9rem;
+	color: var(--sn-warn);
+	font-family: var(--__sl-font);
+	font-size: var(--sl-text-sm);
+}
+/* The copy and the fold need JavaScript. Without it, the full output shows and the buttons go. */
+@media (scripting: none) {
+	.sn-term-out[data-folded] {
+		max-height: none;
+	}
+	.sn-term-out[data-folded]::after,
+	.sn-term-fold,
+	.sn-term-copy {
+		display: none;
+	}
+}
+
+/* ANSI colors and styles of the output. `src/components/ansi.ts` writes the classes. */
+.sn-fg-0 { color: var(--sn-term-0-ink); }
+.sn-fg-1 { color: var(--sn-term-1); }
+.sn-fg-2 { color: var(--sn-term-2); }
+.sn-fg-3 { color: var(--sn-term-3); }
+.sn-fg-4 { color: var(--sn-term-4); }
+.sn-fg-5 { color: var(--sn-term-5); }
+.sn-fg-6 { color: var(--sn-term-6); }
+.sn-fg-7 { color: var(--sn-term-7); }
+.sn-fg-8 { color: var(--sn-term-8); }
+.sn-fg-9 { color: var(--sn-term-9); }
+.sn-fg-10 { color: var(--sn-term-10); }
+.sn-fg-11 { color: var(--sn-term-11); }
+.sn-fg-12 { color: var(--sn-term-12); }
+.sn-fg-13 { color: var(--sn-term-13); }
+.sn-fg-14 { color: var(--sn-term-14); }
+.sn-fg-15 { color: var(--sn-term-15); }
+.sn-bg-0, .sn-bg-as-fg-0 { --sn-bg: var(--sn-term-0); }
+.sn-bg-1, .sn-bg-as-fg-1 { --sn-bg: var(--sn-term-1); }
+.sn-bg-2, .sn-bg-as-fg-2 { --sn-bg: var(--sn-term-2); }
+.sn-bg-3, .sn-bg-as-fg-3 { --sn-bg: var(--sn-term-3); }
+.sn-bg-4, .sn-bg-as-fg-4 { --sn-bg: var(--sn-term-4); }
+.sn-bg-5, .sn-bg-as-fg-5 { --sn-bg: var(--sn-term-5); }
+.sn-bg-6, .sn-bg-as-fg-6 { --sn-bg: var(--sn-term-6); }
+.sn-bg-7, .sn-bg-as-fg-7 { --sn-bg: var(--sn-term-7); }
+.sn-bg-8, .sn-bg-as-fg-8 { --sn-bg: var(--sn-term-8); }
+.sn-bg-9, .sn-bg-as-fg-9 { --sn-bg: var(--sn-term-9); }
+.sn-bg-10, .sn-bg-as-fg-10 { --sn-bg: var(--sn-term-10); }
+.sn-bg-11, .sn-bg-as-fg-11 { --sn-bg: var(--sn-term-11); }
+.sn-bg-12, .sn-bg-as-fg-12 { --sn-bg: var(--sn-term-12); }
+.sn-bg-13, .sn-bg-as-fg-13 { --sn-bg: var(--sn-term-13); }
+.sn-bg-14, .sn-bg-as-fg-14 { --sn-bg: var(--sn-term-14); }
+.sn-bg-15, .sn-bg-as-fg-15 { --sn-bg: var(--sn-term-15); }
+.sn-bg-ink { --sn-bg: var(--sn-term-fg); }
+/* A background color is soft, so that light text stays clear on it. */
+[class*='sn-bg-'] {
+	background: color-mix(in srgb, var(--sn-bg) 30%, var(--sn-term-bg));
+}
+/* Dark text on a color, and reversed text: the background takes the full color. */
+.sn-fg-0[class*='sn-bg-'],
+.sn-fg-ground,
+[class*='sn-bg-as-fg-'],
+.sn-bg-ink {
+	background: var(--sn-bg);
+	color: var(--sn-dark);
+}
+.sn-bold { font-weight: 700; }
+.sn-dim { opacity: 0.7; }
+.sn-italic { font-style: italic; }
+.sn-underline { text-decoration: underline; }
+.sn-strike { text-decoration: line-through; }
+
+/* A code block. The copy button has its own column at the end of the frame, as in the command line
+   of the terminal frame. The column is outside the scroll area, so the button covers no text. */
+.expressive-code {
+	--ec-frm-inlBtnFg: var(--sn-sea-ink);
+	--ec-frm-inlBtnBg: var(--sn-panel);
+	--ec-frm-inlBtnBgIdleOpa: 1;
+	--ec-frm-inlBtnBgHoverOrFocusOpa: 1;
+	--ec-frm-inlBtnBgActOpa: 1;
+	--ec-frm-inlBtnBrd: var(--sn-rule);
+	--ec-frm-inlBtnBrdOpa: 1;
+	/* The check mark of the button after a copy. It is a mask, so its color has no effect. */
+	--sn-check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+.expressive-code .frame {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+}
+.expressive-code .frame > .header {
+	grid-column: 1 / -1;
+}
+/* The code has the copy column after it. The border of the frame goes around the two parts. */
+.expressive-code .frame > pre:not(:last-child) {
+	border-inline-end-width: 0;
+	border-start-end-radius: 0;
+	border-end-end-radius: 0;
+}
+.expressive-code .frame > .copy {
+	position: relative;
+	inset: auto;
+	gap: 0;
+	align-items: flex-start;
+	padding: 0.4rem 0.5rem 0.4rem 0.4rem;
+	border: var(--ec-brdWd) solid var(--ec-brdCol);
+	border-inline-start-width: 0;
+	border-start-end-radius: calc(var(--ec-brdRad) + var(--ec-brdWd));
+	border-end-end-radius: calc(var(--ec-brdRad) + var(--ec-brdWd));
+	background: var(--code-background);
+}
+.expressive-code .frame:is(.has-title, .is-terminal) > .copy {
+	border-block-start-width: 0;
+	border-start-end-radius: 0;
+}
+/* The button always shows. The first line needs no free space for it. */
+.expressive-code .copy button {
+	align-self: flex-start;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 8px;
+	opacity: 1;
+}
+.expressive-code .copy button:hover div {
+	background: var(--sn-raise);
+}
+.expressive-code .copy button:hover::before {
+	border-color: var(--sn-sea);
+}
+.expressive-code :nth-child(1 of .ec-line) .code {
+	padding-inline-end: var(--ec-codePadInl);
+}
+/* After a copy, the button takes the mint color and a check mark. The text "Copied!" is for a screen reader:
+   a tooltip beside the button covers the code. The script puts the text into the live region before the button. */
+.expressive-code .copy .feedback {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+.expressive-code .copy [aria-live]:not(:empty) ~ button div {
+	background: var(--sn-sea);
+}
+.expressive-code .copy [aria-live]:not(:empty) ~ button::before {
+	border-color: var(--sn-sea);
+}
+.expressive-code .copy [aria-live]:not(:empty) ~ button::after {
+	background-color: var(--sn-dark);
+	-webkit-mask-image: var(--sn-check-icon);
+	mask-image: var(--sn-check-icon);
+}
+/* Without JavaScript, the button does not show. The code takes the full frame again. */
+@media (scripting: none) {
+	.expressive-code .frame > pre:not(:last-child) {
+		border-inline-end-width: var(--ec-brdWd);
+		border-end-end-radius: calc(var(--ec-brdRad) + var(--ec-brdWd));
+	}
+	.expressive-code .frame:not(.has-title, .is-terminal) > pre:not(:last-child) {
+		border-start-end-radius: calc(var(--ec-brdRad) + var(--ec-brdWd));
+	}
+}
+
+/* The recording. `Cast` adds a button below the frame of `Capture`. The frame shows the output as text first.
+   The button puts the player in the place of the command line and of the text: the recording shows the
+   command as the session typed it. So the frame never shows the command two times.
+   The asciinema player takes the terminal palette through the theme `soft-night`.
+   `Cast` writes the `--sn-cast-*` values: the player reads hex colors only. */
+.sn-cast {
+	display: block;
+	margin: 1.5rem 0;
+}
+.sn-cast .sn-term {
+	margin: 0;
+}
+.sn-cast[data-view='text'] :is(.sn-cast-player, .sn-when-recording),
+.sn-cast[data-view='recording'] :is(.sn-term-cmd, .sn-term-out, .sn-term-fold, .sn-term-note, .sn-when-text) {
+	display: none;
+}
+/* Two classes: the rule must win over the default palette of the player. */
+.ap-player.asciinema-player-theme-soft-night {
+	--term-color-foreground: var(--sn-cast-fg);
+	--term-color-background: var(--sn-cast-bg);
+	--term-color-0: var(--sn-cast-0);
+	--term-color-1: var(--sn-cast-1);
+	--term-color-2: var(--sn-cast-2);
+	--term-color-3: var(--sn-cast-3);
+	--term-color-4: var(--sn-cast-4);
+	--term-color-5: var(--sn-cast-5);
+	--term-color-6: var(--sn-cast-6);
+	--term-color-7: var(--sn-cast-7);
+	--term-color-8: var(--sn-cast-8);
+	--term-color-9: var(--sn-cast-9);
+	--term-color-10: var(--sn-cast-10);
+	--term-color-11: var(--sn-cast-11);
+	--term-color-12: var(--sn-cast-12);
+	--term-color-13: var(--sn-cast-13);
+	--term-color-14: var(--sn-cast-14);
+	--term-color-15: var(--sn-cast-15);
+}
+.sn-cast-player {
+	overflow-x: auto;
+	background: var(--sn-term-bg);
+}
+/* The player makes the text fit its width. On a narrow screen the player keeps a width
+   that a person can read, and the frame scrolls to the side. */
+.sn-cast-player div.ap-wrapper {
+	min-width: 30rem;
+}
+.sn-cast-player div.ap-wrapper div.ap-player {
+	display: block;
+	border-radius: 0;
+}
+.sn-cast-tools {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1rem;
+	margin: 0.5rem 0 0;
+	color: var(--sn-faint);
+	font-size: var(--sl-text-xs);
+}
+.sn-cast-tools[hidden] {
+	display: none;
+}
+.sn-cast-fail {
+	color: var(--sn-warn);
+}
+.sn-cast-fail:empty {
+	display: none;
+}
+.sn-cast-tools kbd {
+	padding: 0.05rem 0.35rem;
+	border: 1px solid var(--sn-rule);
+	border-radius: 5px;
+	background: var(--sn-panel);
+	color: var(--sn-muted);
+	font-family: var(--__sl-font-mono);
+}
+
+/* A key name in the page text. */
+.sl-markdown-content kbd:not(:where(.not-content *)) {
+	padding: 0.05rem 0.4rem;
+	border: 1px solid var(--sn-rule);
+	border-radius: 5px;
+	background: var(--sn-panel);
+	color: var(--sn-ink);
+	font-family: var(--__sl-font-mono);
+	font-size: var(--sl-text-code-sm);
+}
+
+/* A diagram: the SVG that the Mermaid integration renders, and its text form. */
+.sn-diagram {
+	margin: 1.5rem 0;
+	border: 1px solid var(--sn-rule);
+	border-radius: 10px;
+	background: var(--sn-panel);
+	overflow: hidden;
+	/* The width of the figure selects the form of the diagram. */
+	container: sn-diagram / inline-size;
+}
+.sn-diagram-view {
+	overflow-x: auto;
+}
+.sn-diagram-view:focus-visible {
+	outline-offset: -3px;
+}
+.sn-diagram-view svg {
+	display: block;
+	max-width: 100%;
+	min-width: var(--sn-diagram-min);
+	height: auto;
+	margin-inline: auto;
+	font-family: var(--__sl-font);
+}
+/* A diagram can have a second form for a narrow column. The Mermaid integration writes both forms.
+   A rule in the SVG of each form shows the narrow form in a column where the wide form does not fit. */
+.sn-diagram-view .sn-diagram-narrow {
+	display: none;
+}
+/* A narrow column: a phone, or a small window with the sidebar. No label is smaller than 11px there.
+   The Mermaid integration has the same width as `NARROW_COLUMN`. */
+@container sn-diagram (max-width: 640px) {
+	.sn-diagram-view svg {
+		min-width: var(--sn-diagram-min-narrow);
+	}
+}
+.sn-diagram figcaption {
+	padding: 0.5rem 0.9rem;
+	border-top: 1px solid var(--sn-fine);
+	color: var(--sn-muted);
+	font-size: var(--sl-text-sm);
+	text-align: center;
+}
+.sn-diagram-text {
+	border-top: 1px solid var(--sn-fine);
+	background: var(--sn-band);
+	color: var(--sn-muted);
+	font-size: var(--sl-text-sm);
+}
+.sn-diagram-text summary {
+	padding: 0.45rem 0.9rem;
+	color: var(--sn-sea-ink);
+	font-weight: 600;
+	cursor: pointer;
+}
+.sn-diagram-text summary:focus-visible {
+	outline-offset: -3px;
+}
+.sn-diagram-text ol {
+	margin: 0;
+	padding: 0.25rem 0.9rem 0.75rem 2.6rem;
+}
+.sn-diagram-text b {
+	color: var(--sn-ink);
+	font-weight: 600;
+}
+.sn-diagram-text pre {
+	margin: 0;
+	padding: 0.25rem 0.9rem 0.75rem;
+	overflow-x: auto;
+	font-family: var(--__sl-font-mono);
+	font-size: var(--sl-text-code-sm);
+}

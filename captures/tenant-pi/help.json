@@ -1,0 +1,7 @@
+{
+  "title": "The help of the command line",
+  "order": 150,
+  "command": "python3 scripts/tenant_pi.py --help",
+  "setup": [],
+  "mode": "scripted"
+}

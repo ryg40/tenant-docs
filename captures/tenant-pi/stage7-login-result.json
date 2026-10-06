@@ -1,0 +1,8 @@
+{
+  "title": "Pi after the login with an API key",
+  "stage": 7,
+  "order": 1110,
+  "command": "\"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [],
+  "mode": "manual"
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Create the private directory",
+  "stage": 2,
+  "order": 200,
+  "command": "python3 scripts/tenant_pi.py init-private --dir \"$HOME/.config/tenant-pi\"",
+  "setup": [
+    "mkdir -p \"$HOME/.config\""
+  ],
+  "mode": "scripted"
+}

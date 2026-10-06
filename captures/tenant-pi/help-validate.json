@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action validate",
+  "order": 156,
+  "command": "python3 scripts/tenant_pi.py validate --help",
+  "setup": [],
+  "mode": "scripted"
+}

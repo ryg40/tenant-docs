@@ -1,0 +1,50 @@
+[
+	{
+		"slug": "tenant-pi",
+		"name": "tenant-pi",
+		"summary": "A guided kit that generates a new, separate Pi profile from a private JSON overlay.",
+		"docs": "full"
+	},
+	{
+		"slug": "tenant-pi-durable",
+		"name": "tenant-pi-durable",
+		"summary": "Customizations and deployment files for agents built on the pi-durable harness.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-web",
+		"name": "tenant-web",
+		"summary": "A private artifact service with the Walkr review loop for agent work.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-maps",
+		"name": "tenant-maps",
+		"summary": "Self-contained architecture maps and a planning Workbench, built from reviewed JSON data.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-comfy",
+		"name": "tenant-comfy",
+		"summary": "A coordination repository for a self-maintained, portable ComfyUI stack.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-skills",
+		"name": "tenant-skills",
+		"summary": "A source, evaluation and release catalog for Agent Skills.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-artifacts",
+		"name": "tenant-artifacts",
+		"summary": "A desktop app that shows agent artifacts and links the tenant tools.",
+		"docs": "overview"
+	},
+	{
+		"slug": "tenant-trip-builder",
+		"name": "tenant-trip-builder",
+		"summary": "City research storage and a trip planning backend.",
+		"docs": "overview"
+	}
+]

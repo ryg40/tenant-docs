@@ -1,0 +1,34 @@
+---
+// Shows which release of a project a page describes. The value comes from `src/data/versions.json`.
+import versions from '@/data/versions.json';
+
+interface Props {
+	project: keyof typeof versions;
+}
+
+const { project } = Astro.props;
+const version = versions[project];
+---
+
+<p class="doc-version not-content">
+	This page describes <b>{project}</b> release <code>{version.release}</code> of the branch <code>{version.branch}</code>.
+</p>
+
+<style>
+	.doc-version {
+		margin: 0 0 1.25rem;
+		padding: 0.5rem 0.8rem;
+		border: 1px solid var(--sn-coral-soft);
+		border-inline-start: 3px solid var(--sn-coral);
+		border-radius: 8px;
+		background: var(--sn-panel);
+		color: var(--sn-muted);
+		font-size: var(--sl-text-sm);
+	}
+	b {
+		color: var(--sn-ink);
+	}
+	code {
+		color: var(--sn-coral-ink);
+	}
+</style>

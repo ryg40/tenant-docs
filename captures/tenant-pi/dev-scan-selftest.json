@@ -1,0 +1,10 @@
+{
+  "title": "The negative control of the scanner",
+  "order": 860,
+  "ref": "main",
+  "command": "scripts/scan.sh selftest",
+  "setup": [
+    "export PATH=\"/usr/local/scanner:$PATH\""
+  ],
+  "mode": "scripted"
+}

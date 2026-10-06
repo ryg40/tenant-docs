@@ -1,0 +1,7 @@
+{"version":3,"term":{"cols":72,"rows":8},"timestamp":1791164873,"command":"sh check.sh","env":{"SHELL":"/bin/sh"}}
+[0.001, "o", "Check notes/empty.md "]
+[0.801, "o", "\u001b[33mempty\u001b[0m\r\nCheck notes/plan.md "]
+[0.801, "o", "\u001b[32mok\u001b[0m\r\nCheck notes/tasks.md "]
+[0.801, "o", "\u001b[32mok\u001b[0m\r\n"]
+[0.501, "o", "\u001b[1m3 files checked.\u001b[0m\r\n"]
+[0.000, "x", "0"]

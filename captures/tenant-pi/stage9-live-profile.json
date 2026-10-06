@@ -1,0 +1,8 @@
+{
+  "title": "The directory of the live profile",
+  "stage": 9,
+  "order": 1320,
+  "command": "ls -la \"$HOME/.pi\"",
+  "setup": [],
+  "mode": "manual"
+}

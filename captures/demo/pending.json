@@ -1,0 +1,7 @@
+{
+  "title": "Count the words of the plan",
+  "order": 50,
+  "command": "wc -w notes/plan.md",
+  "setup": [],
+  "mode": "manual"
+}

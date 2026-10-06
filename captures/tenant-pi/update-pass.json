@@ -1,0 +1,9 @@
+{
+  "title": "One pass of the update loop",
+  "order": 780,
+  "command": "python3 scripts/tenant_pi.py validate \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" && \\\npython3 scripts/tenant_pi.py generate \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --target \"$HOME/.pi/profiles/main-2026-10-06\" \\\n  --launcher \"$HOME/.config/tenant-pi/launch-main-2026-10-06.sh\" && \\\npython3 scripts/tenant_pi.py compare \\\n  --left \"$HOME/.pi/profiles/main-2026-10-05\" \\\n  --right \"$HOME/.pi/profiles/main-2026-10-06\" \\\n  > \"$HOME/.config/tenant-pi/report-main.json\" && \\\npython3 scripts/tenant_pi.py carry \\\n  --report \"$HOME/.config/tenant-pi/report-main.json\" \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --right \"$HOME/.pi/profiles/main-2026-10-06\"",
+  "setup": [
+    "sed -i 's#\"agentDir\": *\"[^\"]*\"#\"agentDir\": \"'\"$HOME\"'/.pi/profiles/main-2026-10-06\"#' \"$HOME/.config/tenant-pi/overlay.json\""
+  ],
+  "mode": "scripted"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "tenant-docs",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "check": "scripts/check.sh",
+    "check:links": "python3 scripts/check_links.py",
+    "check:scan": "python3 scripts/scan.py",
+    "lint:ste": "python3 scripts/lint_ste.py",
+    "test": "python3 scripts/run_tests.py",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.5",
+    "asciinema-player": "^3.17.0",
+    "astro": "^7.2.10",
+    "beautiful-mermaid": "^1.1.3",
+    "sharp": "^0.35.3"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

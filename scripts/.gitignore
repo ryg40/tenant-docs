@@ -1,0 +1,4 @@
+# The local deny list of scripts/scan.py holds the values of one host.
+/host-values.local.deny
+# The bytecode cache of Python holds the absolute path of the checkout.
+__pycache__/

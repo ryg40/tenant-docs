@@ -1,0 +1,9 @@
+{
+  "title": "Create a private directory",
+  "order": 620,
+  "command": "python3 scripts/tenant_pi.py init-private \\\n  --dir \"$HOME/.config/tenant-pi-work\" | \\\n  python3 -m json.tool",
+  "setup": [
+    "mkdir -p \"$HOME/.config\""
+  ],
+  "mode": "scripted"
+}

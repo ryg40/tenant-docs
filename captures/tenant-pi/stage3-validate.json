@@ -1,0 +1,8 @@
+{
+  "title": "Validate the overlay",
+  "stage": 3,
+  "order": 300,
+  "command": "python3 scripts/tenant_pi.py validate --overlay \"$HOME/.config/tenant-pi/overlay.json\"",
+  "setup": [],
+  "mode": "scripted"
+}

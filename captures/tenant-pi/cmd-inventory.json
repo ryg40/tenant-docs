@@ -1,0 +1,11 @@
+{
+  "title": "List the resource names of one profile",
+  "order": 630,
+  "command": "python3 scripts/tenant_pi.py inventory --dir \"$HOME/.pi/profiles/hand-made\" | \\\n  python3 -m json.tool",
+  "setup": [
+    "mkdir -p \"$HOME/.pi/profiles/hand-made/extensions\" \"$HOME/.pi/profiles/hand-made/skills/meeting-notes\" \"$HOME/.pi/profiles/hand-made/prompts\"",
+    "touch \"$HOME/.pi/profiles/hand-made/extensions/status-line.ts\" \"$HOME/.pi/profiles/hand-made/prompts/review.md\"",
+    "printf '%s\\n' '{\"defaultThinkingLevel\":\"high\",\"packages\":[\"npm:pi-mcp-adapter\",{\"source\":\"'\"$HOME\"'/git/owner-skills\",\"skills\":[\"release-notes\"]}]}' > \"$HOME/.pi/profiles/hand-made/settings.json\""
+  ],
+  "mode": "scripted"
+}

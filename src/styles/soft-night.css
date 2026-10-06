@@ -1,0 +1,652 @@
+/* Soft Night for Starlight. One dark theme, no light mode.
+   Tokens follow the TenantFleet Soft Night reference: layered navy, mint for action,
+   coral for dated notes, straw for warnings. No web fonts.
+
+   Contrast: each text token (ink, muted, faint, sea, sea-ink, coral, coral-ink, warn) has a ratio
+   of 4.7 or more on each dark ground token. That is WCAG AA. On a mint ground, use `--sn-dark`.
+   Do not use `--sl-color-gray-4`, `--sn-rule` or `--sn-fine` for text. They are for rules and marks. */
+:root,
+:root[data-theme='dark'],
+::backdrop {
+	color-scheme: dark;
+
+	--sn-ground: #111924;
+	--sn-panel: #182231;
+	--sn-panel2: #1e2a3b;
+	--sn-band: #151e2c;
+	--sn-raise: #25334a;
+	--sn-well: #0e1520;
+	--sn-rule: #2f3e55;
+	--sn-fine: #263449;
+	--sn-ink: #eef1ea;
+	--sn-muted: #b9c5d3;
+	--sn-faint: #98a8bb;
+	--sn-dark: #0f1a24;
+	--sn-sea: #86d6c6;
+	--sn-sea-ink: #a9e6da;
+	--sn-sea-soft: #1f3b3f;
+	--sn-coral: #f59c86;
+	--sn-coral-ink: #ffb9a8;
+	--sn-coral-soft: #402b2d;
+	--sn-warn: #f0d197;
+	--sn-warn-soft: #38321f;
+	--sn-tip: #2a3a52;
+	/* Blue is for terminal output only: the ANSI colors 4 and 12. */
+	--sn-blue: #8fb4e8;
+	--sn-blue-ink: #c9dcf6;
+
+	/* The gray scale of Starlight. In the dark theme, `white` is the strongest text and `black` is the page ground. */
+	--sl-color-white: var(--sn-ink);
+	--sl-color-gray-1: #dde3e6;
+	--sl-color-gray-2: var(--sn-muted);
+	--sl-color-gray-3: var(--sn-faint);
+	--sl-color-gray-4: #5f7089;
+	--sl-color-gray-5: var(--sn-rule);
+	--sl-color-gray-6: var(--sn-panel);
+	--sl-color-gray-7: var(--sn-raise);
+	--sl-color-black: var(--sn-ground);
+
+	--sl-color-accent-low: var(--sn-sea-soft);
+	--sl-color-accent: var(--sn-sea);
+	--sl-color-accent-high: var(--sn-sea-ink);
+
+	--sl-color-text: var(--sn-muted);
+	--sl-color-text-accent: var(--sn-sea-ink);
+	/* Text on a mint ground: the skip link, the primary button. */
+	--sl-color-text-invert: var(--sn-dark);
+	--sl-color-bg: var(--sn-ground);
+	--sl-color-bg-nav: var(--sn-band);
+	--sl-color-bg-sidebar: var(--sn-band);
+	--sl-color-bg-inline-code: var(--sn-panel2);
+	--sl-color-bg-accent: var(--sn-sea-ink);
+	--sl-color-hairline-light: var(--sn-rule);
+	--sl-color-hairline: var(--sn-fine);
+	--sl-color-hairline-shade: var(--sn-well);
+	--sl-color-backdrop-overlay: rgb(14 21 32 / 0.7);
+
+	/* Asides and badges. Note: navy. Tip and success: mint. Caution: straw. Danger: coral. */
+	--sl-color-blue-low: var(--sn-tip);
+	--sl-color-blue: var(--sn-muted);
+	--sl-color-blue-high: var(--sn-ink);
+	--sl-color-purple-low: var(--sn-sea-soft);
+	--sl-color-purple: var(--sn-sea);
+	--sl-color-purple-high: var(--sn-sea-ink);
+	--sl-color-green-low: var(--sn-sea-soft);
+	--sl-color-green: var(--sn-sea);
+	--sl-color-green-high: var(--sn-sea-ink);
+	--sl-color-orange-low: var(--sn-warn-soft);
+	--sl-color-orange: var(--sn-warn);
+	--sl-color-orange-high: #f7e4bf;
+	--sl-color-red-low: var(--sn-coral-soft);
+	--sl-color-red: var(--sn-coral);
+	--sl-color-red-high: var(--sn-coral-ink);
+
+	/* Starlight gives each badge a pure white text. */
+	--sl-badge-default-text: var(--sn-ink);
+	--sl-badge-note-text: var(--sn-ink);
+	--sl-badge-danger-text: var(--sn-ink);
+	--sl-badge-success-text: var(--sn-ink);
+	--sl-badge-caution-text: var(--sn-ink);
+	--sl-badge-tip-text: var(--sn-ink);
+
+	/* Shadows take the tone of the well, not pure black. */
+	--sl-shadow-sm: 0 1px 2px rgb(7 11 17 / 0.4);
+	--sl-shadow-md: 0 6px 16px rgb(7 11 17 / 0.4);
+	--sl-shadow-lg: 0 20px 48px rgb(7 11 17 / 0.6);
+
+	--sl-font: 'Avenir Next', 'Nunito Sans', 'Nunito', 'Lato', 'Trebuchet MS', 'Ubuntu', 'Cantarell',
+		'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', 'Liberation Sans', 'DejaVu Sans', sans-serif;
+
+	/* Layout: a low top bar, a narrow sidebar, and the page in a framed panel. */
+	--sl-nav-height: 3.5rem;
+	--sl-nav-gap: 0.75rem;
+	--sl-menu-button-size: 2.5rem;
+	--sl-sidebar-width: 16.5rem;
+	--sn-frame-gap: 0.5rem;
+	--sn-frame-radius: 16px;
+
+	/* A compact heading scale. */
+	--sl-text-h1: 1.875rem;
+	--sl-text-h2: 1.375rem;
+	--sl-text-h3: 1.1875rem;
+	--sl-text-h4: 1.0625rem;
+	--sl-text-h5: 1rem;
+}
+
+@media (min-width: 50em) {
+	:root {
+		--sl-nav-pad-x: 1.25rem;
+		--sl-text-h1: 2.25rem;
+		--sl-text-h2: 1.5rem;
+		--sl-text-h3: 1.25rem;
+		--sl-text-h4: 1.125rem;
+	}
+}
+
+html {
+	scrollbar-color: var(--sn-rule) transparent;
+}
+
+::selection {
+	background: var(--sn-sea);
+	color: var(--sn-dark);
+}
+
+:focus-visible {
+	outline: 2px solid var(--sn-sea);
+	outline-offset: 2px;
+}
+
+/* ---------- The frame: the top bar and the sidebar are one band, and the page is a panel in it. ---------- */
+
+.page > .header {
+	border-bottom: 0;
+}
+
+@media screen {
+	.main-frame {
+		padding-inline: calc(var(--sl-content-inline-start, 0rem) + var(--sn-frame-pad-start, var(--sn-frame-gap)))
+			var(--sn-frame-gap);
+		padding-bottom: var(--sn-frame-gap);
+	}
+
+	/* The frame does not move when the page scrolls. Its shadow hides the page outside the round corners. */
+	.main-frame::after {
+		content: '';
+		position: fixed;
+		z-index: 1;
+		top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+		bottom: var(--sn-frame-gap);
+		inset-inline: calc(var(--sl-content-inline-start, 0rem) + var(--sn-frame-pad-start, var(--sn-frame-gap)))
+			var(--sn-frame-gap);
+		border: 1px solid var(--sn-rule);
+		border-radius: var(--sn-frame-radius);
+		box-shadow: 0 0 0 2rem var(--sn-band);
+		pointer-events: none;
+	}
+}
+
+@media (min-width: 50rem) {
+	/* The sidebar has its own padding, so the panel starts at the edge of the sidebar. */
+	:root[data-has-sidebar] {
+		--sn-frame-pad-start: 0rem;
+	}
+	.sidebar-pane {
+		border-inline-end: 0;
+	}
+}
+
+/* The title and the text of a page are one block. */
+.content-panel + .content-panel {
+	border-top: 0;
+	padding-top: 0;
+}
+
+/* ---------- Top bar ---------- */
+
+/* Search button. */
+site-search > button[data-open-modal] {
+	border-radius: 10px;
+}
+@media (min-width: 50rem) {
+	site-search > button[data-open-modal] {
+		height: 2.25rem;
+		background: var(--sn-well);
+		color: var(--sn-faint);
+	}
+	site-search > button[data-open-modal]:hover {
+		border-color: var(--sn-sea);
+		color: var(--sn-ink);
+	}
+}
+site-search > button[data-open-modal] > kbd {
+	background: var(--sn-panel2);
+	color: var(--sn-muted);
+}
+
+/* The menu button of a narrow screen. Starlight draws a light disc. */
+button.sl-menu-button {
+	border: 1px solid var(--sn-rule);
+	border-radius: 10px;
+	padding: 0.625rem;
+	background: var(--sn-panel);
+	color: var(--sn-ink);
+	box-shadow: none;
+}
+button.sl-menu-button:hover,
+button.sl-menu-button:has(~ :popover-open) {
+	background: var(--sn-raise);
+	border-color: var(--sn-sea);
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar-pane {
+	background: var(--sn-band);
+}
+.sidebar-content {
+	padding-top: 0.75rem;
+}
+.sidebar-content ul {
+	--sl-sidebar-item-padding-inline: 0.75rem;
+}
+/* No guide lines. A nested list moves in by its padding only. */
+.sidebar-content ul ul li {
+	margin-inline-start: 0;
+	border-inline-start: 0;
+	padding-inline-start: 0;
+}
+.sidebar-content ul ul ul li {
+	padding-inline-start: 0.75rem;
+}
+.sidebar-content .top-level > li + li {
+	margin-top: 1.25rem;
+}
+.sidebar-content li + li,
+.sidebar-content summary + ul {
+	margin-top: 2px;
+}
+.sidebar-content a {
+	border-radius: 10px;
+	padding-block: 0.45rem;
+	color: var(--sn-muted);
+}
+.sidebar-content a.large {
+	font-size: var(--sl-text-base);
+	font-weight: 400;
+}
+.sidebar-content a:hover,
+.sidebar-content a:focus-visible {
+	background: var(--sn-panel2);
+	color: var(--sn-ink);
+}
+.sidebar-content a[aria-current='page'],
+.sidebar-content a[aria-current='page']:hover,
+.sidebar-content a[aria-current='page']:focus {
+	background: var(--sn-sea-soft);
+	color: var(--sn-sea-ink);
+	font-weight: 600;
+}
+/* A group label is a small heading. */
+.sidebar-content summary {
+	border-radius: 10px;
+	padding-block: 0.4rem;
+	color: var(--sn-faint);
+}
+.sidebar-content summary:hover {
+	color: var(--sn-ink);
+}
+.sidebar-content summary .large {
+	font-size: var(--sl-text-base);
+	font-weight: 650;
+	color: var(--sn-ink);
+}
+@media (min-width: 50rem) {
+	.sidebar-content a,
+	.sidebar-content a.large,
+	.sidebar-content summary .large {
+		font-size: var(--sl-text-sm);
+	}
+	.sidebar-content a {
+		padding-block: 0.4rem;
+	}
+}
+.mobile-preferences {
+	border-top-color: var(--sn-fine);
+}
+/* The site has no social link and no theme switch, so this row is empty. */
+.mobile-preferences:not(:has(a, button, select)) {
+	display: none;
+}
+
+/* ---------- Page outline ---------- */
+
+@media (min-width: 72rem) {
+	.right-sidebar {
+		border-inline-start: 0;
+	}
+}
+.right-sidebar-panel {
+	padding-top: 1.75rem;
+}
+.right-sidebar-panel h2 {
+	margin-bottom: 0.75rem;
+	padding-inline-start: 0.5rem;
+	font-size: var(--sl-text-sm);
+	font-weight: 650;
+	color: var(--sn-ink);
+}
+/* One rule at the side of the list. The current heading has a mint mark on it. */
+starlight-toc nav > ul {
+	border-inline-start: 1px solid var(--sn-rule);
+}
+starlight-toc a {
+	margin-inline-start: -1px;
+	border-inline-start: 1px solid transparent;
+	border-radius: 0;
+	padding-block: 0.35rem;
+	padding-inline-start: calc(1rem * var(--depth) + 1rem);
+	color: var(--sn-faint);
+	font-size: var(--sl-text-sm);
+}
+starlight-toc a:hover {
+	color: var(--sn-ink);
+}
+starlight-toc a[aria-current='true'] {
+	border-inline-start-color: var(--sn-sea);
+	color: var(--sn-sea-ink);
+	font-weight: 600;
+}
+
+/* The outline bar of a narrow screen. */
+mobile-starlight-toc nav {
+	border-top: 0;
+	background: var(--sn-band);
+}
+mobile-starlight-toc summary {
+	border-bottom: 0;
+}
+mobile-starlight-toc .toggle {
+	border-radius: 10px;
+	background: var(--sn-panel);
+	color: var(--sn-muted);
+}
+mobile-starlight-toc details[open] .toggle,
+mobile-starlight-toc details .toggle:hover {
+	border-color: var(--sn-sea);
+	color: var(--sn-ink);
+}
+mobile-starlight-toc .dropdown {
+	margin-inline: var(--sn-frame-gap);
+	border: 1px solid var(--sn-rule);
+	border-radius: 12px;
+	background: var(--sn-panel);
+}
+mobile-starlight-toc .dropdown a {
+	border-top-color: var(--sn-fine);
+}
+
+/* ---------- Search dialog ---------- */
+
+site-search dialog {
+	border-color: var(--sn-rule);
+	background: var(--sn-panel);
+	color: var(--sn-muted);
+}
+@media (min-width: 50rem) {
+	site-search dialog {
+		border-radius: 16px;
+	}
+}
+#starlight__search {
+	--pagefind-ui-primary: var(--sn-sea-ink);
+	--pagefind-ui-text: var(--sn-muted);
+	--pagefind-ui-background: var(--sn-well);
+	--pagefind-ui-border: var(--sn-rule);
+	--pagefind-ui-tag: var(--sn-panel2);
+	--pagefind-ui-border-radius: 10px;
+	--sl-search-corners: 10px;
+}
+#starlight__search input:focus {
+	--pagefind-ui-border: var(--sn-sea);
+	outline: 2px solid var(--sn-sea);
+	outline-offset: 0;
+}
+#starlight__search .pagefind-ui__search-input::placeholder {
+	color: var(--sn-faint);
+	opacity: 1;
+}
+#starlight__search .pagefind-ui__search-clear:focus {
+	outline: 2px solid var(--sn-sea);
+	outline-offset: -2px;
+}
+#starlight__search .pagefind-ui__message {
+	color: var(--sn-muted);
+}
+#starlight__search .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)),
+#starlight__search .pagefind-ui__result-nested {
+	background: var(--sn-ground);
+}
+#starlight__search .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):hover,
+#starlight__search .pagefind-ui__result-title:not(:where(.pagefind-ui__result-nested *)):focus-within,
+#starlight__search .pagefind-ui__result-nested:hover,
+#starlight__search .pagefind-ui__result-nested:focus-within {
+	outline: 2px solid var(--sn-sea);
+	outline-offset: -2px;
+	background: var(--sn-sea-soft);
+}
+#starlight__search .pagefind-ui__result-link:focus-visible {
+	outline: 0;
+}
+#starlight__search .pagefind-ui__result-excerpt {
+	color: var(--sn-muted);
+}
+#starlight__search mark {
+	color: var(--sn-sea-ink);
+}
+#starlight__search .pagefind-ui__button {
+	border-color: var(--sn-rule);
+	background: var(--sn-panel2);
+	color: var(--sn-ink);
+}
+#starlight__search .pagefind-ui__button:hover {
+	border-color: var(--sn-sea);
+	background: var(--sn-raise);
+}
+
+/* ---------- Page content ---------- */
+
+/* Round panels. */
+.sl-markdown-content .starlight-aside,
+.card,
+.sl-link-card,
+starlight-file-tree {
+	border-radius: 14px;
+}
+.card,
+.sl-link-card {
+	background: var(--sn-panel);
+	border-color: var(--sn-rule);
+	box-shadow: none;
+}
+.card {
+	padding: clamp(1rem, calc(0.5rem + 1.5vw), 1.5rem);
+}
+.card .title {
+	font-size: var(--sl-text-lg);
+}
+.card .icon {
+	border-radius: 8px;
+}
+.sl-link-card {
+	padding: 1rem 1.15rem;
+}
+.sl-link-card .title {
+	font-size: var(--sl-text-base);
+}
+.sl-link-card .description {
+	color: var(--sn-muted);
+	font-size: var(--sl-text-sm);
+}
+.sl-link-card:hover,
+.sl-link-card:focus-within {
+	background: var(--sn-raise);
+	border-color: var(--sn-sea);
+}
+.sl-link-card:hover .icon,
+.sl-link-card:focus-within .icon {
+	color: var(--sn-sea);
+}
+/* The ring goes around the card, not around the title in it. */
+.sl-link-card a:focus-visible {
+	outline: 0;
+}
+.sl-link-card:has(a:focus-visible) {
+	outline: 2px solid var(--sn-sea);
+	outline-offset: 2px;
+}
+.sl-markdown-content :not(pre) > code {
+	border-radius: 6px;
+}
+.sl-markdown-content a:hover:not(:where(.not-content *)) {
+	color: var(--sn-ink);
+}
+.sl-markdown-content kbd {
+	border: 1px solid var(--sn-rule);
+	border-bottom-width: 2px;
+	border-radius: 6px;
+	padding: 0.05rem 0.4rem;
+	background: var(--sn-panel);
+	color: var(--sn-ink);
+	font-size: var(--sl-text-code-sm);
+}
+starlight-file-tree {
+	background: var(--sn-well);
+}
+
+/* Buttons. The primary button is mint with dark text. */
+.sl-link-button.primary,
+.sl-link-button.primary:hover {
+	color: var(--sn-dark);
+}
+.sl-link-button.primary:hover {
+	background: var(--sn-sea);
+	border-color: var(--sn-sea);
+}
+.sl-link-button.secondary {
+	border-color: var(--sn-rule);
+}
+.sl-link-button.secondary:hover {
+	border-color: var(--sn-sea);
+	background: var(--sn-panel2);
+}
+.sl-link-button.minimal:hover {
+	color: var(--sn-sea-ink);
+}
+@media (min-width: 50rem) {
+	.sl-link-button {
+		padding: 0.7rem 1.15rem;
+	}
+}
+
+/* Tabs. */
+starlight-tabs [role='tablist'] {
+	border-bottom-color: var(--sn-fine);
+}
+starlight-tabs .tab > [role='tab'] {
+	--sl-tab-color-border: var(--sn-fine);
+	padding: 0.5rem 1rem;
+	color: var(--sn-muted);
+}
+starlight-tabs .tab > [role='tab']:hover {
+	color: var(--sn-ink);
+}
+starlight-tabs .tab > [role='tab'][aria-selected='true'] {
+	--sl-tab-color-border: var(--sn-sea);
+	color: var(--sn-ink);
+}
+
+/* Steps: the number is mint on the mint tint. */
+.sl-steps > li::before {
+	background: var(--sn-sea-soft);
+	box-shadow: none;
+	color: var(--sn-sea-ink);
+}
+.sl-steps > li::after {
+	background: var(--sn-fine);
+}
+
+/* Tables: fine rules, a band for the head. The border takes the width of the table. */
+.sl-markdown-content table:not(:where(.not-content *)) {
+	width: fit-content;
+	max-width: 100%;
+	border: 1px solid var(--sn-fine);
+	border-radius: 12px;
+	border-spacing: 0;
+}
+.sl-markdown-content th:not(:where(.not-content *)) {
+	background: var(--sn-band);
+	color: var(--sn-ink);
+}
+.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+	border-bottom-color: var(--sn-fine);
+	padding-inline: 1rem;
+}
+.sl-markdown-content tr:last-child > td:not(:where(.not-content *)) {
+	border-bottom: 0;
+}
+.sl-markdown-content tr:nth-child(2n):not(:where(.not-content *)) {
+	background: var(--sn-panel);
+}
+
+/* Previous and next links. */
+.pagination-links a {
+	border-color: var(--sn-rule);
+	border-radius: 14px;
+	background: var(--sn-panel);
+	box-shadow: none;
+}
+.pagination-links a:hover {
+	border-color: var(--sn-sea);
+	background: var(--sn-raise);
+}
+.pagination-links .link-title {
+	font-size: var(--sl-text-lg);
+	font-weight: 600;
+}
+
+/* The home page and the 404 page. */
+.hero .tagline {
+	color: var(--sn-muted);
+}
+
+/* The skip link. */
+a.sl-skip-link:focus {
+	border-radius: 10px;
+	color: var(--sn-dark);
+	outline-offset: 2px;
+}
+
+@media print {
+	.main-frame::after {
+		display: none;
+	}
+}
+
+/* ---------- Print: dark text on white paper. This is not a light mode of the screen. ---------- */
+
+@media print {
+	:root,
+	:root[data-theme='dark'] {
+		color-scheme: light;
+		--sn-ground: #ffffff;
+		--sn-panel: #ffffff;
+		--sn-panel2: #f1f3f5;
+		--sn-band: #f6f7f8;
+		--sn-raise: #f1f3f5;
+		--sn-well: #f6f7f8;
+		--sn-rule: #c5ccd4;
+		--sn-fine: #dde2e7;
+		--sn-ink: #10161d;
+		--sn-muted: #2b3540;
+		--sn-faint: #4a5665;
+		--sn-dark: #10161d;
+		--sn-sea: #0f6b5c;
+		--sn-sea-ink: #0b5448;
+		--sn-sea-soft: #e3f3ef;
+		--sn-coral: #a23f27;
+		--sn-coral-ink: #8a3520;
+		--sn-coral-soft: #fbe9e4;
+		--sn-warn: #7a5a0c;
+		--sn-warn-soft: #fbf3dc;
+		--sn-tip: #e9eef5;
+		--sn-blue: #1f4f96;
+		--sn-blue-ink: #173d75;
+		--sl-color-gray-1: #1c242d;
+		--sl-color-gray-4: #6b7786;
+		--sl-color-orange-high: #5c4409;
+	}
+	.main-frame::after {
+		display: none;
+	}
+}

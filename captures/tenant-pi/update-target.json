@@ -1,0 +1,9 @@
+{
+  "title": "The new target in the overlay",
+  "order": 700,
+  "command": "grep agentDir \"$HOME/.config/tenant-pi/overlay.json\"",
+  "setup": [
+    "sed -i 's#\"agentDir\": *\"[^\"]*\"#\"agentDir\": \"'\"$HOME\"'/.pi/profiles/main-2026-10-05\"#' \"$HOME/.config/tenant-pi/overlay.json\""
+  ],
+  "mode": "scripted"
+}

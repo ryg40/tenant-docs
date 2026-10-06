@@ -1,0 +1,47 @@
+{
+    "commands": {
+        "editDisplayOnly": "${EDITOR:-vi} /home/alex/.config/tenant-pi-work/overlay.json",
+        "gitInitDisplayOnly": "git init /home/alex/.config/tenant-pi-work",
+        "validateDisplayOnly": "python3 /home/alex/tenant-pi/scripts/tenant_pi.py validate --overlay /home/alex/.config/tenant-pi-work/overlay.json --local-dir /home/alex/.config/tenant-pi-work"
+    },
+    "complete": true,
+    "created": [
+        {
+            "kind": "directory",
+            "mode": "0700",
+            "path": "/home/alex/.config/tenant-pi-work"
+        },
+        {
+            "kind": "directory",
+            "mode": "0700",
+            "path": "/home/alex/.config/tenant-pi-work/inputs"
+        },
+        {
+            "kind": "file",
+            "mode": "0600",
+            "path": "/home/alex/.config/tenant-pi-work/.gitignore"
+        },
+        {
+            "kind": "file",
+            "mode": "0600",
+            "path": "/home/alex/.config/tenant-pi-work/accepted-drift.md"
+        },
+        {
+            "kind": "file",
+            "mode": "0600",
+            "path": "/home/alex/.config/tenant-pi-work/install-log.md"
+        },
+        {
+            "kind": "file",
+            "mode": "0600",
+            "path": "/home/alex/.config/tenant-pi-work/overlay.json"
+        },
+        {
+            "kind": "file",
+            "mode": "0600",
+            "path": "/home/alex/.config/tenant-pi-work/registry.json"
+        }
+    ],
+    "directory": "/home/alex/.config/tenant-pi-work",
+    "warnings": []
+}

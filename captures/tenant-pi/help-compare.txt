@@ -1,0 +1,6 @@
+usage: tenant_pi.py compare [-h] --left LEFT --right RIGHT
+
+options:
+  -h, --help     show this help message and exit
+  --left LEFT    absolute path of the previous candidate or profile
+  --right RIGHT  absolute path of the new candidate

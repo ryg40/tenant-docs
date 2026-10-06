@@ -1,0 +1,13 @@
+usage: tenant_pi.py check-runtime [-h] [--pi PI] [--node NODE]
+                                  [--python PYTHON] [--manifest MANIFEST]
+
+options:
+  -h, --help           show this help message and exit
+  --pi PI              absolute path of the pi executable (default: pi on
+                       PATH)
+  --node NODE          absolute path of the node executable (default: node on
+                       PATH)
+  --python PYTHON      absolute path of the python3 executable (default:
+                       python3 on PATH)
+  --manifest MANIFEST  reviewed kit manifest (override remains strictly
+                       validated)

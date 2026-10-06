@@ -1,0 +1,57 @@
+{
+    "accepted": [],
+    "changes": [
+        {
+            "change": "changed",
+            "field": "/overlay/target/agentDir",
+            "file": ".tenant-pi/choices.json"
+        }
+    ],
+    "left": {
+        "drift": {
+            "fields": [],
+            "metadata": "unchanged",
+            "status": "none"
+        },
+        "kind": "candidate",
+        "path": "/home/alex/.pi/profiles/main",
+        "state": "complete"
+    },
+    "manualSwitch": "Switching profiles is a manual PI_CODING_AGENT_DIR launch choice. The kit moves no auth, session, memory, queue, or keychain data and guarantees no rollback.",
+    "markers": [
+        {
+            "change": "changed",
+            "field": "/provenance/generatedAt",
+            "file": ".tenant-pi/state.json"
+        }
+    ],
+    "right": {
+        "drift": {
+            "fields": [],
+            "metadata": "unchanged",
+            "status": "none"
+        },
+        "kind": "candidate",
+        "path": "/home/alex/.pi/profiles/main-2026-10-05",
+        "state": "complete"
+    },
+    "scope": {
+        "filesRead": [
+            "settings.json",
+            ".tenant-pi/choices.json",
+            ".tenant-pi/state.json",
+            "hermes-memory-config.json",
+            "mcp-adapter.json"
+        ],
+        "note": "Declared kit files only. Private values show as markers; auth, sessions, memory, queues, and caches are never read."
+    },
+    "summary": {
+        "accepted": 0,
+        "added": 0,
+        "changed": 1,
+        "markers": 1,
+        "removed": 0,
+        "unchanged": 130,
+        "unsupported": 0
+    },
+    "unchanged": [

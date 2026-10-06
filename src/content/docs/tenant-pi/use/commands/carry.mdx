@@ -1,0 +1,110 @@
+---
+title: carry
+description: Print the overlay patches that keep the choices of a candidate. The action applies nothing.
+sidebar:
+  order: 9
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`carry` reads a `compare` report and prints JSON patches for the overlay. The patches give the overlay the choices that the right side of the report records. The action never applies a patch and never writes a file.
+
+The next candidate comes from the overlay. So a choice that you want to keep must be in the overlay.
+
+```sh
+python3 scripts/tenant_pi.py compare --left "$HOME/.pi/profiles/main" \
+  --right "$HOME/.pi/profiles/main-trial" > "$HOME/.config/tenant-pi/report-trial.json"
+python3 scripts/tenant_pi.py carry --report "$HOME/.config/tenant-pi/report-trial.json" \
+  --overlay "$HOME/.config/tenant-pi/overlay.json" --right "$HOME/.pi/profiles/main-trial"
+```
+
+## Options
+
+<Capture id="tenant-pi/help-carry" />
+
+| Option | Meaning |
+| --- | --- |
+| `--report <file>` | Required. The JSON output of an earlier `compare` run. |
+| `--overlay <file>` | Required. The overlay that the patches are for. |
+| `--right <dir>` | Required. The right side of the report. It must be the exact `right.path` text of the report. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+## What it reads
+
+- The report, the overlay and the manifest.
+- The declared files of `--right`. These are the files that [`compare`](/tenant-pi/use/commands/compare/#what-it-reads) opens.
+
+The action opens no other file. It writes nothing, starts no process and opens no network connection.
+
+## Output
+
+<Capture id="tenant-pi/cmd-carry" />
+
+In the capture, the candidate `main-trial` comes from a copy of the overlay. The copy has one more key: `ownerPackages`. `carry` prints the patch that adds the key to the main overlay.
+
+| Key | Content |
+| --- | --- |
+| `patches` | A list of RFC 6902 patches: `op`, `path` and `value`. The `op` is `add`, `replace` or `remove`. |
+| `notCarried` | Each report change that gives no patch, with the `file`, the `field` and the `reason`. |
+| `patchedOverlay` | The result of the overlay check with all patches applied: `valid`, or `invalid` with the rule. |
+| `scope` | The fixed list of the owner-owned keys, and a fixed note. |
+
+### The keys that carry
+
+Only a change under one of these overlay keys gives a patch: `roles`, `modelRoutes`, `selection`, `endpoints`, `env`, `ownerPackages`, `unmanaged`, `memory` and `ownerResources`.
+
+A patch value comes only from the overlay copy in `.tenant-pi/choices.json` of the right side. It never comes from `settings.json` or from the report.
+
+Warning: a patch prints an overlay value, for example an endpoint URL, a model name or a package path. Treat the output like the overlay itself.
+
+### Reasons in `notCarried`
+
+| Reason | Meaning |
+| --- | --- |
+| `rendered_field` | The change is in a file that the kit renders from the overlay, for example `settings.json`. An edit by hand inside Pi has no overlay value. |
+| `not_owner_owned` | The field is outside the list of keys, for example `target`, `paths`, `inputs` or `state.json`. |
+| `consent_decision` | The change is under `consent`. A consent is your decision. `carry` never prints a patch for it. |
+| `field_unmapped` | The key is in the list, but the field has a form without an overlay path. |
+| `right_overlay_missing` | The right side has no `.tenant-pi/choices.json`. |
+| `right_overlay_invalid` | The overlay copy of the right side fails the overlay rules. |
+| `overlay_matches` | The overlay has the value of the right side already. |
+
+## Apply the patches
+
+1. Read each patch.
+2. Edit the overlay by hand, or use an RFC 6902 tool.
+3. Run [`validate`](/tenant-pi/use/commands/validate/) on the edited overlay.
+4. Run [`generate`](/tenant-pi/use/commands/generate/) into a new target.
+5. Run [`compare`](/tenant-pi/use/commands/compare/) between the right side and the new candidate.
+
+Only the target path and the `notCarried` fields differ in that last report.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The patches are on standard output. The list can be empty. |
+| 2 | The action refuses the input. Standard error has one JSON object. Standard output is empty. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `report_right_mismatch: report.right.path` | `--right` differs from `right.path` of the report. |
+| `absolute_path: carry.right` | `--right` is not an absolute path. |
+| `report_shape: report` | The report is not an object with a `changes` list. |
+| `read_or_json: carry.report` | The report file is absent, is not JSON, or is a link. |
+| A rule of `validate` | The `--overlay` file fails the overlay rules. |
+
+## Limits
+
+- `carry` does not make an overlay value from a rendered value. An edit by hand of `settings.json` is `rendered_field`.
+- A patch can need a key outside the list. `patchedOverlay` then names the rule, and you add the key by hand.
+- A new memory module needs a consent change. Set `consent` in the overlay yourself.
+
+## Reference file
+
+`docs/carry.md` in the project repository. It has the table from each report field to its patch path.

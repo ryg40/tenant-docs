@@ -1,0 +1,112 @@
+---
+title: generate
+description: Write a new profile into a target directory that does not exist.
+sidebar:
+  order: 6
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`generate` writes a new profile from the overlay. The target directory must not exist. The action never writes into a directory that exists, so a profile in use cannot change.
+
+```sh
+python3 scripts/tenant_pi.py generate --overlay "$HOME/.config/tenant-pi/overlay.json" \
+  --target "$HOME/.pi/profiles/main" --launcher "$HOME/.config/tenant-pi/launch-main.sh"
+```
+
+## Options
+
+<Capture id="tenant-pi/help-generate" />
+
+| Option | Meaning |
+| --- | --- |
+| `--overlay <file>` | Required. The overlay file. |
+| `--target <dir>` | Required. The absolute path of the new profile directory. |
+| `--launcher <path>` | The absolute path of a launcher file that does not exist. |
+| `--registry <file>` | A JSON file with the thinking levels of each model that you confirm. |
+| `--require-role <role>` | Marks one role as required. Repeat the option for more roles. |
+| `--local-dir <dir>` | The absolute directory that holds the input files of the overlay. The default is `.local` in the kit clone. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+Rules for the target:
+
+- `--target` must be equal to `target.agentDir` of the overlay, byte for byte.
+- The target must not exist.
+- The parent of the target must exist and must belong to you.
+- The target must be outside the kit clone.
+
+Use the same `--registry`, `--local-dir` and `--require-role` options as for [`validate`](/tenant-pi/use/commands/validate/) and [`plan`](/tenant-pi/use/commands/plan/).
+
+## What it writes
+
+| Path | Mode | When |
+| --- | --- | --- |
+| `<target>` and `<target>/.tenant-pi` | `0700` | Always. |
+| `<target>/settings.json` | `0600` | Always. |
+| `<target>/.tenant-pi/choices.json` | `0600` | Always. |
+| `<target>/.tenant-pi/state.json` | `0600` | Always. |
+| `<target>/hermes-memory-config.json` | `0600` | With the Hermes module. |
+| `<target>/mcp-adapter.json` | `0600` | With the MCP module. |
+| The launcher file | `0700` | With `--launcher`, after the profile is complete. |
+
+- `.tenant-pi/choices.json` holds a copy of the overlay. Treat it as private.
+- `.tenant-pi/state.json` records what produced the files: the Pi pin, the enabled components, the time `generatedAt` and the commit `kitCommit`.
+- `kitCommit` is `unknown` when the kit directory has no Git metadata.
+- The launcher file has two lines: `#!/bin/sh` and one `exec env` line with the launch line of the plan.
+
+The action installs no package and does not start Pi. With `--launcher`, it reads the environment value `HOME`.
+
+## Output
+
+<Capture id="tenant-pi/cmd-generate" />
+
+The capture writes the candidate `main-2026-10-05` of the [candidate update loop](/tenant-pi/use/candidate-update/).
+
+The output has each key of the [`plan`](/tenant-pi/use/commands/plan/#output) output, and these keys:
+
+| Key | Content |
+| --- | --- |
+| `candidate_created` | `true` when the target directory exists after the run. |
+| `complete`, `filesComplete` | `true` when the action wrote each file. |
+| `runtimeReady` | Always `false`. The kit cannot prove the runtime. |
+| `warnings` | Empty, or `cleanup_failed: target.descriptors`. The profile is complete in that case. |
+| `commands.launchStatus` | `manual_review_required` after a complete generation. |
+| `launcher` | With `--launcher`: the path, the mode and the state of the launcher file. |
+
+A complete file set is not a working Pi. Authentication and the packages are your steps.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The profile is complete. With `--launcher`, the launcher file is complete too. |
+| 1 | The profile is complete, but the launcher file is not. The report is on standard output, and `launcher.error` names the rule. |
+| 2 | A refusal or a failed generation. Standard error has one JSON object. The action writes no launcher file. |
+
+After exit code 2, read `candidate_created` in the error object:
+
+- `false`: the action created nothing.
+- `true`: the directory exists but is incomplete. Inspect it. The kit has no rollback and does not delete it.
+
+Warning: keep an incomplete directory as it is until you inspect it. Choose a new target name for the next run.
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `target_exists: target` | The target exists. |
+| `invalid_plan: target_mismatch: plan.targetAgentDir` | `--target` differs from `target.agentDir` of the overlay. |
+| `unsafe_path: target.parents` | The parent of the target does not exist, or a directory above it is a link. |
+| `unsafe_parent_owner: target.parent` | Root owns the parent of the target, and you are not root. |
+| `under_kit: overlay.target.agentDir` | The target is the kit clone or is under it. |
+| `pi_login_blocked: overlay.modelRoutes.gateway.auth` | The gateway uses `auth: "login"`. This release blocks that choice. |
+| `target_exists: launcher.path` | The launcher file exists. The check runs before the action creates the target. |
+
+`generate` also has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals) and of the launcher path in [`plan`](/tenant-pi/use/commands/plan/#common-refusals).
+
+## Reference files
+
+`docs/generator.md`, `docs/profile-write.md` and `docs/launcher.md` in the project repository.

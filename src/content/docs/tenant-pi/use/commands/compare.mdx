@@ -1,0 +1,101 @@
+---
+title: compare
+description: Compare two profile directories field by field, without private values.
+sidebar:
+  order: 8
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`compare` reads the declared files of two profile directories and reports each field that differs. A private field shows as a marker, without its value. The action writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py compare --left "$HOME/.pi/profiles/main" \
+  --right "$HOME/.pi/profiles/main-2026-10-05"
+```
+
+## Options
+
+<Capture id="tenant-pi/help-compare" />
+
+| Option | Meaning |
+| --- | --- |
+| `--left <dir>` | Required. The absolute path of the previous candidate or profile. |
+| `--right <dir>` | Required. The absolute path of the new candidate. |
+
+The two paths must differ.
+
+## What it reads
+
+The action opens only these files of each side:
+
+| File | When the file is absent |
+| --- | --- |
+| `settings.json` | The action stops with `settings_missing`. |
+| `.tenant-pi/choices.json` | The side has the kind `settings_only` or `incomplete_metadata`. |
+| `.tenant-pi/state.json` | The side has the kind `settings_only` or `incomplete_metadata`. |
+| `hermes-memory-config.json` | Nothing. The file exists only with the Hermes module. |
+| `mcp-adapter.json` | Nothing. The file exists only with the MCP module. |
+
+- The action never lists a directory.
+- `auth.json`, `models.json`, `mcp.json`, sessions, memory stores and caches stay unread.
+- A profile that the kit did not generate can be a side. It compares as `settings_only`.
+
+## Output
+
+<Capture id="tenant-pi/cmd-compare" />
+
+Before this capture, the session added the key `defaultThinkingLevel` to `settings.json` of the right side by hand. The edit stands in for a change that Pi makes. The command stops the output at the list `unchanged`.
+
+| Key | Content |
+| --- | --- |
+| `left`, `right` | The path, the `kind`, the `state` and the `drift` of each side. |
+| `changes` | One entry for each declared field that differs: `added`, `removed` or `changed`. |
+| `unchanged` | The declared fields that are equal on both sides. Names only. |
+| `unsupported` | The fields that the comparison does not interpret, for example a key that Pi wrote. |
+| `accepted` | The differences that the `unmanaged` list of the overlay accepts, with the reason. |
+| `markers` | `generatedAt` and `kitCommit` of `state.json`, when they differ. The entry never shows a value. |
+| `summary` | The count of each class. |
+| `manualSwitch` | A fixed statement: a switch between profiles is a manual launch choice. |
+
+### Values and markers
+
+A change entry shows a value only for a field with a closed public form. Examples are a boolean, a fixed enumeration such as `defaultThinkingLevel`, and a version. Each other field is a marker. The entry then says only that the field changed.
+
+A marker covers the target path, a provider name, a model name, an endpoint, an environment reference and a local path.
+
+### Drift
+
+For a side of the kind `candidate`, the report builds the settings again from the recorded choices. It then compares them with the `settings.json` in the directory.
+
+| `drift.status` | Meaning |
+| --- | --- |
+| `none` | The file still agrees with its recorded choices. |
+| `owner_edits` | `fields` lists the settings keys that changed after generation. The report shows no value. |
+| `not_computable` | The recorded choices do not pass the rules of this kit release. This is usual for a candidate of an older kit release. |
+
+`drift.metadata` is `changed` when `choices.json` changed after generation.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The report is on standard output. The exit code is 0 also when the sides differ. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `same_directory: compare.right` | `--left` and `--right` are the same path. |
+| `absolute_path: compare.left` | A side is a relative path. The field names the side. |
+| `settings_missing: left` | A side has no `settings.json`. The field names the side. |
+| `unsupported_schema_version` | A side comes from a kit with another schema version. |
+| `read_or_json` | A path component is a symbolic link, or a file is not JSON. |
+
+## Reference file
+
+`docs/candidate-compare.md` in the project repository. It has the full list of the fields that show a value.

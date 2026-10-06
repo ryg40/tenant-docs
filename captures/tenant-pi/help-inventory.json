@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action inventory",
+  "order": 166,
+  "command": "python3 scripts/tenant_pi.py inventory --help",
+  "setup": [],
+  "mode": "scripted"
+}

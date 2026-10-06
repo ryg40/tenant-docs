@@ -1,0 +1,53 @@
+---
+title: "{{project}}"
+description: "{{summary}}"
+sidebar:
+  label: Overview
+  order: 0
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import DocVersion from '@/components/DocVersion.astro';
+
+{/* docgen: sources of this page, at the ref {{ref}}:
+{{sources}}
+*/}
+
+<DocVersion project="{{project}}" />
+
+{/* docgen:slot what-it-is | 30-90 words | text | Say what {{project}} is and what it does, in three to five short sentences. Give each special word of the project its own sentence that says what the word means. Take the facts from the README. */}
+TODO(docgen:what-it-is)
+{/* docgen:end */}
+
+## How the parts fit
+
+{/* docgen:diagram parts | pending | One `flowchart LR` with one node for each part of the table below. Draw one arrow for each line of the list below, with the words of that line as its label. */}
+{/* docgen:end-diagram */}
+
+{/* docgen:slot parts | 30-220 words | table | Give a table with the columns Part and What it is. One row for each main part that the README names: a program, a service, a file or a directory. Three to eight rows. */}
+TODO(docgen:parts)
+{/* docgen:end */}
+
+{/* docgen:slot parts-flow | 8-150 words | numbered | Give a numbered list. One line for each connection between two parts of the table above: the part that gives, what it gives, the part that gets it. Do not draw a diagram. A larger model draws it from this list. If the README states no connection, write: The README states no connection between the parts. */}
+TODO(docgen:parts-flow)
+{/* docgen:end */}
+
+## Who it is for
+
+{/* docgen:slot audience | 15-90 words | list | Give a list of two to four items. Each item names one kind of user and the task that {{project}} does for that user. Take the items from the README. */}
+TODO(docgen:audience)
+{/* docgen:end */}
+
+## What it does not do
+
+{/* docgen:slot limits | 5-140 words | list | Give a list of the things that the README says {{project}} does not do or must not do. One item for each thing. Do not add a limit of your own. If the README states no such thing, write: The README states no limit. */}
+TODO(docgen:limits)
+{/* docgen:end */}
+
+## Status
+
+{/* docgen:slot status | 5-80 words | text | Copy the status that the README states: the version, what works and what is not tested. Do not make the status better. If the README states no status, write: The README states no status. */}
+TODO(docgen:status)
+{/* docgen:end */}
+
+{{where_next}}

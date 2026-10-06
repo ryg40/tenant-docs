@@ -1,0 +1,8 @@
+{
+  "title": "Gate 3: the sample overlay",
+  "order": 830,
+  "ref": "main",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py --overlay config/config.example.json",
+  "setup": [],
+  "mode": "scripted"
+}

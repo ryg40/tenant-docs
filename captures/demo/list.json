@@ -1,0 +1,15 @@
+{
+  "title": "List the demo files",
+  "order": 10,
+  "command": "ls -F --color=always notes",
+  "setup": [
+    "mkdir -p notes/drafts",
+    "printf 'Plan\\n\\n1. Write the page.\\n2. Build the site.\\n' > notes/plan.md",
+    "printf 'Tasks\\n' > notes/tasks.md",
+    ": > notes/empty.md",
+    "printf '#!/bin/sh\\necho build\\n' > notes/build.sh",
+    "chmod +x notes/build.sh",
+    "ln -s plan.md notes/latest"
+  ],
+  "mode": "manual"
+}

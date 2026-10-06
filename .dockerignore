@@ -1,0 +1,13 @@
+node_modules
+dist
+.astro
+.git
+.gitea
+.github
+.vscode
+.env
+.env.*
+!.env.example
+*.log
+Dockerfile
+compose.yaml

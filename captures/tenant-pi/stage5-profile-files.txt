@@ -1,0 +1,5 @@
+/home/alex/.pi/profiles/main
+/home/alex/.pi/profiles/main/.tenant-pi
+/home/alex/.pi/profiles/main/.tenant-pi/choices.json
+/home/alex/.pi/profiles/main/.tenant-pi/state.json
+/home/alex/.pi/profiles/main/settings.json

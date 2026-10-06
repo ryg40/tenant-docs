@@ -1,0 +1,8 @@
+{
+  "title": "The documentation check",
+  "order": 850,
+  "ref": "main",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/doc_check.py",
+  "setup": [],
+  "mode": "scripted"
+}

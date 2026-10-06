@@ -1,0 +1,8 @@
+[30m color 0 [90m bright 0 [0;40m back 0 [0m
+[31m color 1 [91m bright 1 [0;41m back 1 [0m
+[32m color 2 [92m bright 2 [0;42m back 2 [0m
+[33m color 3 [93m bright 3 [0;43m back 3 [0m
+[34m color 4 [94m bright 4 [0;44m back 4 [0m
+[35m color 5 [95m bright 5 [0;45m back 5 [0m
+[36m color 6 [96m bright 6 [0;46m back 6 [0m
+[37m color 7 [97m bright 7 [0;47m back 7 [0m

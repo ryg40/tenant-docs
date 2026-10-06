@@ -1,0 +1,96 @@
+---
+title: Command reference
+description: Each action of the tenant-pi command line, with real output.
+sidebar:
+  label: Summary
+  order: 1
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+The kit has one command line: `scripts/tenant_pi.py`. It has nine actions. Run an action from the kit clone with Python 3.11 or later.
+
+```sh
+cd ~/tenant-pi
+python3 scripts/tenant_pi.py <action> [options]
+```
+
+<Capture id="tenant-pi/help" />
+
+## Find an action
+
+| Action | Use it to | What it writes |
+| --- | --- | --- |
+| [`check-runtime`](/tenant-pi/use/commands/check-runtime/) | Compare the installed Pi, Node and Python with the versions that the kit requires. | One temporary directory. The action removes it. |
+| [`init-private`](/tenant-pi/use/commands/init-private/) | Create the private directory for the overlay and its records. | One new directory with five files and an empty `inputs/` directory. |
+| [`validate`](/tenant-pi/use/commands/validate/) | Check the overlay offline. | Nothing. |
+| [`plan`](/tenant-pi/use/commands/plan/) | See the files, the readiness gaps and the commands before a generation. | Nothing. |
+| [`generate`](/tenant-pi/use/commands/generate/) | Write a new profile into a directory that does not exist. | One new profile directory. With `--launcher`, also one launcher file. |
+| [`list`](/tenant-pi/use/commands/list/) | See each candidate under one parent directory. | Nothing. |
+| [`compare`](/tenant-pi/use/commands/compare/) | Compare two profile directories field by field. | Nothing. |
+| [`carry`](/tenant-pi/use/commands/carry/) | Get overlay patches from a `compare` report. | Nothing. |
+| [`inventory`](/tenant-pi/use/commands/inventory/) | List the resource names of one profile directory. | Nothing. |
+
+Each action has its own help text. Run `python3 scripts/tenant_pi.py <action> --help`.
+
+## Words on these pages
+
+| Word | Meaning |
+| --- | --- |
+| Kit clone | Your copy of the tenant-pi repository. The examples use `~/tenant-pi`. |
+| Private directory | A directory outside the clone that only you can read. The examples use `~/.config/tenant-pi`. |
+| Overlay | The JSON file with your choices. It is `overlay.json` in the private directory. |
+| Profile | The directory that holds the configuration of one Pi installation. |
+| Target | The directory of a new profile. It must not exist before `generate`. |
+| Candidate | A profile directory that `generate` wrote. The examples use `~/.pi/profiles/main`. |
+| Launcher file | A small script that starts Pi with one profile. |
+
+## Output
+
+Each action prints one JSON object on one line. The keys are in sorted order.
+
+Many captures on these pages send the output through `python3 -m json.tool`. That command adds line breaks and indents. It changes no value.
+
+The captures come from a clean container. A path in a capture is a path of that container.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The action is complete. |
+| 1 | `check-runtime`: one tool or more does not match. `generate --launcher`: the profile is complete, but the launcher file is not. The report is on standard output. |
+| 2 | The action refuses the input, or a write fails. Standard error has one JSON object. |
+
+A refused action prints this object on standard error:
+
+```json
+{"candidate_created": false, "error": "<rule>: <field>"}
+```
+
+- The `error` text has the form `rule: field`. It never holds a path, a value or a secret.
+- `candidate_created` is `true` only when a directory exists after the failure. Inspect that directory.
+- The kit has no rollback. It deletes nothing.
+
+The capture shows one refusal. `generate` gets a target that exists.
+
+<Capture id="tenant-pi/cmd-refusal" />
+
+A wrong option also gives exit code 2. Python then prints a usage text, not a JSON object.
+
+## Rules of each action
+
+- No action edits a profile that exists.
+- No action installs a package.
+- No action opens a network connection.
+- Only `check-runtime` starts a process.
+- No action reads `auth.json`, `models.json`, a session or a memory store.
+- No action writes, prints or resolves a secret value.
+
+[Modules and privacy](/tenant-pi/use/modules-and-privacy/#what-the-kit-never-does) has the full list.
+
+## More help
+
+The troubleshooting guide lists each diagnostic and its fix. It is the file `docs/guides/troubleshooting.md` of the project repository. See [Reference](/tenant-pi/reference/).

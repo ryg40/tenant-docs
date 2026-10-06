@@ -1,0 +1,14 @@
+---
+// A note for a page that has no content yet. `issue` is the tenant-docs issue that writes the page.
+import { Aside } from '@astrojs/starlight/components';
+
+interface Props {
+	issue: number;
+}
+
+const { issue } = Astro.props;
+---
+
+<Aside type="caution" title="Planned page">
+	This page has no content yet. Issue {issue} of the tenant-docs repository tracks it.
+</Aside>

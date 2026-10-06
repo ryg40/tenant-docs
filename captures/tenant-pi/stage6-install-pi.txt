@@ -1,0 +1,6 @@
+[1mnpm[22m [33mwarn[39m [94mdeprecated[39m node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 121 packages in 4s
+
+9 packages are looking for funding
+  run `npm fund` for details

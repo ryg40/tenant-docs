@@ -1,0 +1,7 @@
+{
+  "title": "Print the overlay patches",
+  "order": 754,
+  "command": "python3 scripts/tenant_pi.py carry \\\n  --report \"$HOME/.config/tenant-pi/report-main.json\" \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --right \"$HOME/.pi/profiles/main-2026-10-05\" | \\\n  python3 -m json.tool",
+  "setup": [],
+  "mode": "scripted"
+}

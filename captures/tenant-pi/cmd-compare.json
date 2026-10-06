@@ -1,0 +1,9 @@
+{
+  "title": "Compare after an edit inside a candidate",
+  "order": 760,
+  "command": "python3 scripts/tenant_pi.py compare \\\n  --left \"$HOME/.pi/profiles/main\" \\\n  --right \"$HOME/.pi/profiles/main-2026-10-05\" | \\\n  python3 -m json.tool | \\\n  sed '/\"unchanged\": \\[/q'",
+  "setup": [
+    "grep -q defaultThinkingLevel \"$HOME/.pi/profiles/main-2026-10-05/settings.json\" || sed -i 's/^{/{\"defaultThinkingLevel\":\"high\",/' \"$HOME/.pi/profiles/main-2026-10-05/settings.json\""
+  ],
+  "mode": "scripted"
+}

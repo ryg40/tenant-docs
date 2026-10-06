@@ -1,0 +1,8 @@
+usage: tenant_pi.py init-private [-h] --dir DIR [--overlay OVERLAY]
+
+options:
+  -h, --help         show this help message and exit
+  --dir DIR          absolute path of the absent private directory; its parent
+                     exists
+  --overlay OVERLAY  overlay whose target the directory must stay outside of;
+                     repeat for more overlays

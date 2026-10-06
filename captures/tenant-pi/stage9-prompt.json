@@ -1,0 +1,8 @@
+{
+  "title": "A prompt of one line and the reply of the model",
+  "stage": 9,
+  "order": 1305,
+  "command": "\"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [],
+  "mode": "manual"
+}

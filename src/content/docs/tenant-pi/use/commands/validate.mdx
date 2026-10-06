@@ -1,0 +1,92 @@
+---
+title: validate
+description: Check the overlay offline before you plan or generate a profile.
+sidebar:
+  order: 4
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`validate` checks the overlay offline. It checks the structure and the supported-input rules. It writes nothing.
+
+Run it after each edit of the overlay. The section [Output](#output) shows the command and its result.
+
+## Options
+
+<Capture id="tenant-pi/help-validate" />
+
+| Option | Meaning |
+| --- | --- |
+| `--overlay <file>` | Required. The overlay file. |
+| `--registry <file>` | A JSON file with the thinking levels of each model that you confirm. |
+| `--require-role <role>` | Marks one role as required. Repeat the option for more roles. |
+| `--local-dir <dir>` | The absolute directory that holds the input files of the overlay. The default is `.local` in the kit clone. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+Add an option only when the overlay needs it:
+
+- Give `--registry` when `modelRoutes` of the overlay names a model for a role or for the cycle.
+- Give `--local-dir` when the overlay enables the `mcp` module. The action then reads `inputs/mcp-adapter.json` from that directory.
+- The roles are `interactive`, `review`, `worker`, `research` and `memory`.
+- The action validates a `--manifest` override with the same strict rules.
+
+The registry has this whole shape:
+
+```json
+{"<provider>": {"<model>": ["<thinking level>"]}}
+```
+
+The registry is a record of your choice. It is not a model catalog, and it is not the Pi file `models.json`.
+
+`validate` does not stop for a required role that the overlay does not set. `plan` then shows the gap `required_role_missing`.
+
+## What it reads
+
+| File | When |
+| --- | --- |
+| The overlay | Always. |
+| The manifest | Always. |
+| The registry | When you give `--registry`. |
+| `inputs/mcp-adapter.json` under `--local-dir` | When the overlay enables `mcp`. |
+
+The action reads each file through one bounded loader:
+
+- The file is a regular file of 1 MiB at most.
+- The loader follows no symbolic link.
+- The loader refuses JSON with more than 64 nesting levels.
+- The loader refuses a JSON object that repeats a key.
+
+The action starts no process and opens no network connection. It reads no environment value and no credential file.
+
+## Output
+
+<Capture id="tenant-pi/cmd-validate" />
+
+`"valid": true` means that the overlay passes the offline rules. It does not prove that Pi can start the profile.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The overlay is valid. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `read_or_json: overlay.file` | The file is absent, is not JSON, or is a link. |
+| `input_path: overlay.file` | The path has a `.` or `..` segment. |
+| `registry_required: registry` | The overlay has `modelRoutes` with a role or a cycle model, and you give no `--registry`. |
+| `registry_without_routes: registry` | You give `--registry`, but the overlay has no `modelRoutes`. |
+| `blocked_component: overlay.selection.enable` | The overlay enables a `blocked` module. |
+| `missing_dependency: overlay.selection.enable` | An enabled module requires a module that is not enabled. |
+| `under_kit: overlay.target.agentDir` | `target.agentDir` is the kit clone or is under it. |
+| `unknown_fields: overlay` | The overlay has a key that this release does not define. |
+
+## Reference file
+
+`docs/generator.md` in the project repository. `docs/candidate-compare.md` lists more overlay rules and their corrections.

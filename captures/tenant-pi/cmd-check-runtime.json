@@ -1,0 +1,7 @@
+{
+  "title": "Compare the installed tools with the pins",
+  "order": 600,
+  "command": "python3 scripts/tenant_pi.py check-runtime | \\\n  python3 -m json.tool",
+  "setup": [],
+  "mode": "scripted"
+}

@@ -1,0 +1,8 @@
+{
+  "title": "Launch Pi with the launcher file",
+  "stage": 8,
+  "order": 1200,
+  "command": "\"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [],
+  "mode": "manual"
+}

@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action list",
+  "order": 168,
+  "command": "python3 scripts/tenant_pi.py list --help",
+  "setup": [],
+  "mode": "scripted"
+}

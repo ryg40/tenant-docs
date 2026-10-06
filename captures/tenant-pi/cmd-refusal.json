@@ -1,0 +1,12 @@
+{
+  "title": "A refused action",
+  "order": 610,
+  "command": "python3 scripts/tenant_pi.py generate \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --target \"$HOME/.pi/profiles/main\"; echo \"exit code: $?\"",
+  "setup": [
+    "mkdir -p \"$HOME/.config\" \"$HOME/.pi/profiles\"",
+    "test -e \"$HOME/.config/tenant-pi/overlay.json\" || python3 scripts/tenant_pi.py init-private --dir \"$HOME/.config/tenant-pi\" > /dev/null",
+    "sed -i 's#\"agentDir\": *\"[^\"]*\"#\"agentDir\": \"'\"$HOME\"'/.pi/profiles/main\"#' \"$HOME/.config/tenant-pi/overlay.json\"",
+    "test -e \"$HOME/.pi/profiles/main\" || python3 scripts/tenant_pi.py generate --overlay \"$HOME/.config/tenant-pi/overlay.json\" --target \"$HOME/.pi/profiles/main\" > /dev/null"
+  ],
+  "mode": "scripted"
+}

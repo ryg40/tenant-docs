@@ -1,0 +1,6 @@
+----------------------------------------------------------------------
+Ran 363 tests in <seconds>s
+
+OK (skipped=1)
+publish set valid: 578 files, 106 explicit (not a release approval)
+{"node":{"installed":"22.23.3","required":">=22.22.0 <23","status":"match"},"pi":{"installed":null,"required":"1.0.2","status":"missing"},"python":{"installed":"3.11.2","required":">=3.11","status":"match"}}

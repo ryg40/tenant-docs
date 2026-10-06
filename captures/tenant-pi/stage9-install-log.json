@@ -1,0 +1,8 @@
+{
+  "title": "The install log with one entry",
+  "stage": 9,
+  "order": 1340,
+  "command": "cat \"$HOME/.config/tenant-pi/install-log.md\"",
+  "setup": [],
+  "mode": "manual"
+}

@@ -1,0 +1,11 @@
+usage: tenant_pi.py carry [-h] --report REPORT --overlay OVERLAY --right RIGHT
+                          [--manifest MANIFEST]
+
+options:
+  -h, --help           show this help message and exit
+  --report REPORT      explicit JSON output of a previous compare run
+  --overlay OVERLAY    explicit local JSON choices file that the patches
+                       target
+  --right RIGHT        absolute path of the report's right side
+  --manifest MANIFEST  reviewed kit manifest (override remains strictly
+                       validated)

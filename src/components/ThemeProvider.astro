@@ -1,0 +1,9 @@
+---
+// Soft Night is the only theme. This replaces the light, dark and auto logic of Starlight.
+---
+
+{/* This is intentionally inlined to avoid FOUC. */}
+<script is:inline>
+	document.documentElement.dataset.theme = 'dark';
+	window.StarlightThemeProvider = { updatePickers() {} };
+</script>

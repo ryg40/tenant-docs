@@ -1,0 +1,53 @@
+---
+title: Command reference
+description: "The commands of {{project}}: how to start each one and what it does."
+sidebar:
+  label: Summary
+  order: 1
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+{/* docgen: sources of this page, at the ref {{ref}}:
+{{sources}}
+*/}
+
+<DocVersion project="{{project}}" />
+
+{/* docgen:slot summary | 15-70 words | text | Say how the reader starts the commands of {{project}}: from which directory and with which program. Then say how the reader gets the help text of one command. */}
+TODO(docgen:summary)
+{/* docgen:end */}
+
+{{#if cli}}
+The frame shows the help text of the command line `{{cli_path}}`.
+
+{/* docgen:capture help | 150 | The help text of the command line | run {{cli}} --help */}
+<Capture id="{{project}}/help" />
+
+{{/if}}
+## Find a command
+
+{{#if action_links}}
+The command line has these actions. An action is one function of the command line. Each action has its own page.
+
+{{action_links}}
+
+{{/if}}
+{/* docgen:slot command-table | 20-450 words | table | Give a table with the columns Command, Use it to and What it writes. One row for each of these commands, in this order: {{command_list}}. Put each command in backticks. In the column What it writes, name the files, or write "Nothing". Write "Not stated" when the sources do not say it. */}
+TODO(docgen:command-table)
+{/* docgen:end */}
+
+{{#if no_actions}}
+## Examples
+
+{/* docgen:slot examples | 8-250 words | text | Give two or three commands that the sources show. For each one, write one sentence that says the result, then the command in a `sh` code block. If the sources show no command with its options, write: The sources show no example of a command. */}
+TODO(docgen:examples)
+{/* docgen:end */}
+
+{{/if}}
+## Output and exit codes
+
+{/* docgen:slot output | 8-140 words | text | Say what a command prints when it ends with no error. Then say which exit code a command gives after an error. Take both from the sources or from the help texts. If the sources do not state it, write: The sources do not state the output or the exit codes. */}
+TODO(docgen:output)
+{/* docgen:end */}

@@ -1,0 +1,108 @@
+---
+// The terminal window frame of `Capture`. `Cast` uses it through `Capture`. Pages do not use it directly.
+// The copy button copies the command only. The styles are in `src/styles/components.css`.
+// `data-pagefind-ignore` keeps the prompt and the button labels out of the search index.
+
+interface Props {
+	title: string;
+	command?: string;
+	/** A short label in the title bar, for example "Recording". */
+	tag?: string;
+	/** `warn` shows the label in the warning color. */
+	tone?: 'note' | 'warn';
+}
+
+const { title, command, tag, tone = 'note' } = Astro.props;
+---
+
+<figure class="sn-term not-content" data-sn-term>
+	<figcaption class="sn-term-bar">
+		<span class="sn-term-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+		<span class="sn-term-title">{title}</span>
+		{tag && <span class="sn-term-tag" data-tone={tone}>{tag}</span>}
+	</figcaption>
+	{
+		command && (
+			<div class="sn-term-cmd">
+				<pre class="sn-term-scroll"><span class="sn-term-prompt" aria-hidden="true" data-pagefind-ignore>$ </span><code>{command}</code></pre>
+				<button type="button" class="sn-term-copy" data-sn-copy={command} aria-label="Copy the command" data-pagefind-ignore>
+					<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">
+						<rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+						<path d="M15.5 5.5v-1a2 2 0 0 0-2-2h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1" />
+					</svg>
+					<span data-sn-copy-label>Copy</span>
+				</button>
+				<span class="sr-only" role="status" data-sn-copy-status />
+			</div>
+		)
+	}
+	<slot />
+</figure>
+
+<script>
+	// One listener serves each terminal frame of the page.
+	async function copyText(text: string): Promise<boolean> {
+		try {
+			await navigator.clipboard.writeText(text);
+			return true;
+		} catch {
+			// The clipboard API needs a secure origin. This is the method for the other case.
+			const area = document.createElement('textarea');
+			area.value = text;
+			area.setAttribute('readonly', '');
+			area.style.position = 'fixed';
+			area.style.opacity = '0';
+			document.body.append(area);
+			area.select();
+			const done = document.execCommand('copy');
+			area.remove();
+			return done;
+		}
+	}
+
+	document.addEventListener('click', async (event) => {
+		const target = event.target instanceof Element ? event.target : null;
+
+		const copy = target?.closest<HTMLButtonElement>('[data-sn-copy]');
+		if (copy) {
+			const done = await copyText(copy.dataset.snCopy ?? '');
+			const label = copy.querySelector('[data-sn-copy-label]');
+			const status = copy.parentElement?.querySelector('[data-sn-copy-status]');
+			if (label) label.textContent = done ? 'Copied' : 'Not copied';
+			if (status) status.textContent = done ? 'The command is in the clipboard.' : 'The copy did not work.';
+			copy.classList.toggle('is-done', done);
+			window.setTimeout(() => {
+				if (label) label.textContent = 'Copy';
+				if (status) status.textContent = '';
+				copy.classList.remove('is-done');
+			}, 2000);
+			return;
+		}
+
+		const fold = target?.closest<HTMLButtonElement>('[data-sn-fold]');
+		const frame = fold?.closest<HTMLElement>('[data-sn-term]');
+		const output = frame?.querySelector<HTMLElement>('[data-sn-output]');
+		if (fold && frame && output) {
+			const open = fold.getAttribute('aria-expanded') !== 'true';
+			fold.setAttribute('aria-expanded', String(open));
+			output.toggleAttribute('data-folded', !open);
+			if (!open) frame.scrollIntoView({ block: 'nearest' });
+		}
+	});
+
+	// A wide line makes the frame scroll sideways. A scroll area must take the keyboard focus.
+	// The test has a margin of one pixel: a line that ends at the edge of the frame can scroll by a part of a pixel.
+	function takeFocus(area: Element) {
+		const lines = document.createRange();
+		lines.selectNodeContents(area);
+		const style = getComputedStyle(area);
+		const width = lines.getBoundingClientRect().width + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+		if (width > area.clientWidth - 1) area.setAttribute('tabindex', '0');
+		else area.removeAttribute('tabindex');
+	}
+	const areas = document.querySelectorAll<HTMLElement>('.sn-term-scroll');
+	const observer = new ResizeObserver((entries) => entries.forEach(({ target }) => takeFocus(target)));
+	areas.forEach((area) => observer.observe(area));
+	// A late layout change can make a line wider with no change of the frame size.
+	window.addEventListener('load', () => areas.forEach(takeFocus));
+</script>

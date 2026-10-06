@@ -1,0 +1,39 @@
+---
+title: tenant-trip-builder
+description: City research storage and a trip planning backend.
+---
+
+**Status:** in planning on 2026-10-05. No database, API or frontend exists. One research tool exists.
+
+tenant-trip-builder stores research about cities and uses it to plan trips. The idea has three parts. Research a city one time. Check the evidence again when the facts change. Use the evidence to plan a trip.
+
+## What it is for
+
+Research for a trip takes much time, and its sources become old. The project keeps the evidence, so a later trip can use it again. It checks the evidence again when the facts change.
+
+## Main parts
+
+| Part | What it does |
+| --- | --- |
+| Capture tool | The one tool that loads the pages of a public forum. A test checks it offline. |
+| Researcher rules | How an agent reads the forum safely and with a low token use. |
+| Planning map | The index of the decision tickets: seven core, two prototype and five hardening tickets. |
+| Backend | Planned, with PostgreSQL as the database. |
+| Frontend | Planned. The visual design is a later effort. |
+
+## The plan
+
+The first goal is a working prototype that goes from a capture to a saved trip. One city is the development city, and a second city is the next test. The first version serves one owner and invited guests. Tuning and hardening come later.
+
+## Rules
+
+- Raw research stays outside Git until a person reviews it.
+- A comment is evidence of an opinion. It is not proof of a current fact.
+- The owner starts each research run.
+- The owner approves the location of the prototype database before a prototype ticket starts.
+
+## Connections
+
+tenant-trip-builder is an application. It has no direct link to the other tenant projects. Agents do the research and follow the researcher rules.
+
+This site has one overview page for this project.

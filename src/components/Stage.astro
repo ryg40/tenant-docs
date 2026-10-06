@@ -1,0 +1,94 @@
+---
+// One numbered stage of a workflow, with its diagram, its command and its result.
+// Put a Markdown heading first in the content. Then the stage shows in the page outline.
+// For the single actions inside a stage, use the Starlight `Steps` component.
+// Show each command one time. A command with a capture shows in the frame of `Capture` or `Cast`,
+// in the step that runs it. Each other command shows in a code block.
+
+interface Props {
+	n: number;
+	/** The word before the number. */
+	label?: string;
+	/** A title for a stage that has no Markdown heading. It does not show in the page outline. */
+	title?: string;
+}
+
+const { n, label = 'Stage', title } = Astro.props;
+---
+
+<section class="stage">
+	<div class="stage-head not-content">
+		<span class="stage-num" aria-hidden="true">{n}</span>
+		<p class="stage-label">{label} {n}</p>
+	</div>
+	<div class="stage-body">
+		{title && <p class="stage-title not-content">{title}</p>}
+		<slot />
+	</div>
+</section>
+
+<style>
+	.stage {
+		--num: 2rem;
+		margin-top: 2.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--sn-rule);
+	}
+	.stage-head {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+	.stage-num {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: var(--num);
+		height: var(--num);
+		border: 1px solid var(--sn-sea);
+		border-radius: 50%;
+		background: var(--sn-sea-soft);
+		color: var(--sn-sea-ink);
+		font-weight: 700;
+		line-height: 1;
+	}
+	.stage-label {
+		margin: 0;
+		color: var(--sn-faint);
+		font-size: var(--sl-text-xs);
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.stage-body {
+		margin-top: 0.5rem;
+	}
+	.stage-title {
+		margin: 0;
+		color: var(--sn-ink);
+		font-size: var(--sl-text-h3);
+		font-weight: 600;
+		line-height: var(--sl-line-height-headings);
+	}
+	/* A wide page has room for a rail: the number stands at the left, and a line joins it to the end of the stage. */
+	@media (min-width: 50rem) {
+		.stage {
+			position: relative;
+			padding-inline-start: calc(var(--num) + 1.25rem);
+		}
+		.stage-num {
+			position: absolute;
+			inset-inline-start: 0;
+			top: 0.85rem;
+		}
+		.stage::before {
+			content: '';
+			position: absolute;
+			inset-inline-start: calc(var(--num) / 2);
+			top: calc(0.85rem + var(--num) + 0.4rem);
+			bottom: 0;
+			width: 1px;
+			background: var(--sn-rule);
+		}
+	}
+</style>

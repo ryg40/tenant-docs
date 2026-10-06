@@ -1,0 +1,9 @@
+{
+  "title": "Check the demo files",
+  "order": 20,
+  "command": "sh check.sh",
+  "setup": [
+    "cat > check.sh <<'EOF'\n#!/bin/sh\n# Checks that each note has content. It waits before each result.\ncount=0\nfor file in notes/*.md; do\n  printf 'Check %s ' \"$file\"\n  sleep 0.8\n  if test -s \"$file\"; then\n    printf '\\033[32mok\\033[0m\\n'\n  else\n    printf '\\033[33mempty\\033[0m\\n'\n  fi\n  count=$((count + 1))\ndone\nsleep 0.5\nprintf '\\033[1m%s files checked.\\033[0m\\n' \"$count\"\nEOF"
+  ],
+  "mode": "manual"
+}

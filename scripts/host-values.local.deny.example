@@ -1,0 +1,20 @@
+# Local deny list: the values of your host.
+#
+# Copy this file to scripts/host-values.local.deny and put your values into the copy.
+# Git ignores the copy. Do not put a real value into this example file.
+# scripts/scan.py reads the copy when it exists. A linked worktree uses the
+# copy of the main checkout. The report shows the rule number, not the value.
+#
+# Format: one literal value for each line. The match ignores case and finds
+# the value inside longer text. A line that starts with "#" is a comment.
+#
+# Put these values into the copy:
+#   - the name of the machine
+#   - each domain that only you use
+#   - each user name and account name
+#   - the name of a private network, a private project or a private service
+#
+# Example lines (placeholders):
+# my-machine-name
+# my-private-domain.example
+# my-user-name

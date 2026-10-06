@@ -1,0 +1,7 @@
+{
+  "title": "The launcher file of the new candidate",
+  "order": 756,
+  "command": "cat \"$HOME/.config/tenant-pi/launch-main-2026-10-05.sh\"",
+  "setup": [],
+  "mode": "scripted"
+}

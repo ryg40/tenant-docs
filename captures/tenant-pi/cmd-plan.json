@@ -1,0 +1,7 @@
+{
+  "title": "Plan the new candidate",
+  "order": 720,
+  "command": "python3 scripts/tenant_pi.py plan \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --launcher \"$HOME/.config/tenant-pi/launch-main-2026-10-05.sh\" | \\\n  python3 -m json.tool",
+  "setup": [],
+  "mode": "scripted"
+}

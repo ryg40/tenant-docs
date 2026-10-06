@@ -1,0 +1,8 @@
+{
+  "title": "The launcher file",
+  "stage": 5,
+  "order": 530,
+  "command": "cat \"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [],
+  "mode": "scripted"
+}

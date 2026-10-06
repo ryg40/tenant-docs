@@ -1,0 +1,8 @@
+{
+  "title": "The target after a login and one prompt",
+  "stage": 9,
+  "order": 1310,
+  "command": "ls -la \"$HOME/.pi/profiles/main\"",
+  "setup": [],
+  "mode": "manual"
+}

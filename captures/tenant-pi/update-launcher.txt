@@ -1,0 +1,2 @@
+#!/bin/sh
+exec env env -u PI_CODING_AGENT_SESSION_DIR PI_CODING_AGENT_DIR=/home/alex/.pi/profiles/main-2026-10-05 pi --no-approve

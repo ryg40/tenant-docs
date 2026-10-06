@@ -1,0 +1,41 @@
+{
+    "children": [
+        {
+            "name": "hand-made",
+            "status": "unmanaged"
+        },
+        {
+            "filesComplete": true,
+            "generatedAt": "<UTC time>",
+            "kitCommit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+            "kitSchemaVersion": 1,
+            "name": "main",
+            "piVersion": "1.0.2",
+            "status": "candidate",
+            "unsupported": []
+        },
+        {
+            "filesComplete": true,
+            "generatedAt": "<UTC time>",
+            "kitCommit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+            "kitSchemaVersion": 1,
+            "name": "main-2026-10-05",
+            "piVersion": "1.0.2",
+            "status": "candidate",
+            "unsupported": []
+        }
+    ],
+    "diagnostics": [],
+    "parent": "/home/alex/.pi/profiles",
+    "scope": "Reads only <child>/.tenant-pi/state.json of each direct child directory. Writes nothing and marks no candidate as current.",
+    "summary": {
+        "candidate": 2,
+        "children": 3,
+        "invalid": 0,
+        "notDirectory": 0,
+        "omitted": 0,
+        "symlink": 0,
+        "unmanaged": 1,
+        "unsupported_name": 0
+    }
+}

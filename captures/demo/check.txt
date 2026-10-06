@@ -1,0 +1,4 @@
+Check notes/empty.md [33mempty[0m
+Check notes/plan.md [32mok[0m
+Check notes/tasks.md [32mok[0m
+[1m3 files checked.[0m

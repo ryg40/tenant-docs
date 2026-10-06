@@ -1,0 +1,96 @@
+---
+title: check-runtime
+description: Compare the installed Pi, Node and Python with the versions that the kit requires.
+sidebar:
+  order: 2
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`check-runtime` reads the versions of Pi, Node and Python. It compares each version with the requirement in the manifest of the kit. It is the only action that starts a process.
+
+```sh
+python3 scripts/tenant_pi.py check-runtime
+```
+
+## Options
+
+<Capture id="tenant-pi/help-check-runtime" />
+
+| Option | Meaning |
+| --- | --- |
+| `--pi <path>` | The absolute path of the `pi` executable. The default is `pi` on `PATH`. |
+| `--node <path>` | The absolute path of the `node` executable. The default is `node` on `PATH`. |
+| `--python <path>` | The absolute path of the `python3` executable. The default is `python3` on `PATH`. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+## What it runs
+
+The action runs one command for each tool that it finds. It runs three commands at most.
+
+| Tool | Command | Environment |
+| --- | --- | --- |
+| Pi | `pi --version` | The environment of the caller. `PI_CODING_AGENT_DIR` is an empty temporary directory. |
+| Node | `node --version` | The environment of the caller. |
+| Python | `python3 --version` | The environment of the caller. |
+
+- No shell runs. Each command has a timeout of 20 seconds.
+- A bare `pi` command opens the live profile `~/.pi/agent`. The temporary directory prevents that.
+- The action removes the temporary directory after the Pi command. This directory is the only write.
+- No other command runs: no `npm`, no `git`, no install, no login and no network request.
+- The action reads `PATH` to find a tool. It reads no credential file and no `settings.json`.
+
+## What it compares
+
+The requirements come from `runtime` in `config/manifest.json`.
+
+| Tool | Requirement in this release | Rule |
+| --- | --- | --- |
+| Pi | `1.0.2` | The installed version text is equal to the pin. |
+| Node | `>=22.22.0 <23` | The version is inside the range. |
+| Python | `>=3.11` | The version is inside the range. |
+
+## Output
+
+The report has one entry for each tool: `installed`, `required` and `status`.
+
+<Capture id="tenant-pi/cmd-check-runtime" />
+
+The capture comes from the capture container. A tool that the container does not have shows the status `missing`.
+
+| Status | Meaning | `installed` |
+| --- | --- | --- |
+| `match` | The version satisfies the requirement. | The version |
+| `mismatch` | The version is readable and does not satisfy the requirement. | The version |
+| `missing` | The system cannot find or cannot start the executable. | `null` |
+| `unparsed` | The command gives no usable version: unknown output, an error exit, or a timeout. | `null` |
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | All three tools have the status `match`. |
+| 1 | One tool or more has another status. The report is on standard output. |
+| 2 | Bad input, or the removal of the temporary directory fails. Bad input starts no process. |
+
+Exit code 0 means only that three version numbers agree with the manifest. It does not prove that the profile runs.
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: check-runtime.pi` | `--pi` is not an absolute path. The same rule applies to `--node` and `--python`. |
+| `cleanup_failed: check-runtime.tmpdir` | The removal of the temporary directory fails. The directory stays under `TMPDIR`. |
+
+## Limits
+
+- The action checks the tools that the current shell finds. Run it in the shell that starts Pi.
+- The action does not check `npm` or Git.
+- The action does not install or change a version. A `mismatch` is your decision.
+
+## Reference file
+
+`docs/check-runtime.md` in the project repository.

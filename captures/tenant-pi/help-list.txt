@@ -1,0 +1,5 @@
+usage: tenant_pi.py list [-h] --parent PARENT
+
+options:
+  -h, --help       show this help message and exit
+  --parent PARENT  absolute path of the directory that holds the candidates

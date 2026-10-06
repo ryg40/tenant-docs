@@ -1,0 +1,8 @@
+{
+  "title": "The files of the new profile",
+  "stage": 5,
+  "order": 520,
+  "command": "find \"$HOME/.pi/profiles/main\" | sort",
+  "setup": [],
+  "mode": "scripted"
+}

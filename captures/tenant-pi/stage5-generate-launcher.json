@@ -1,0 +1,10 @@
+{
+  "title": "Generate the profile and the launcher file",
+  "stage": 5,
+  "order": 510,
+  "command": "python3 scripts/tenant_pi.py generate --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --target \"$HOME/.pi/profiles/main\" --launcher \"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [
+    "rm -r \"$HOME/.pi/profiles/main\""
+  ],
+  "mode": "scripted"
+}

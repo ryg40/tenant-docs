@@ -1,0 +1,83 @@
+---
+// The card grid of the home page: one card for each project, with a label for the size of its doc set.
+import { projects } from '@/data/projects';
+
+const labels = { full: 'Full docs', overview: 'Overview' } as const;
+---
+
+<ul class="project-grid not-content">
+	{
+		projects.map((project) => (
+			<li>
+				<a href={`/${project.slug}/`} class:list={['project-card', project.docs]}>
+					<span class="head">
+						<b>{project.name}</b>
+						<span class="label">{labels[project.docs]}</span>
+					</span>
+					<span class="summary">{project.summary}</span>
+				</a>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.project-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+		gap: 1rem;
+		margin: 1.25rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		display: flex;
+	}
+	.project-card {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 1rem;
+		border: 1px solid var(--sn-rule);
+		border-radius: 12px;
+		background: var(--sn-panel);
+		text-decoration: none;
+	}
+	.project-card:hover {
+		border-color: var(--sn-sea);
+		background: var(--sn-raise);
+	}
+	.head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.4rem 0.75rem;
+	}
+	b {
+		color: var(--sn-ink);
+		font-size: var(--sl-text-lg);
+		line-height: 1.3;
+	}
+	.label {
+		padding: 0.1rem 0.6rem;
+		border: 1px solid var(--sn-rule);
+		border-radius: 999px;
+		background: var(--sn-panel2);
+		color: var(--sn-muted);
+		font-size: var(--sl-text-xs);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.full .label {
+		border-color: var(--sn-sea);
+		background: var(--sn-sea-soft);
+		color: var(--sn-sea-ink);
+	}
+	.summary {
+		color: var(--sn-muted);
+		font-size: var(--sl-text-sm);
+		line-height: 1.5;
+	}
+</style>

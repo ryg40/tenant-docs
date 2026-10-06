@@ -1,0 +1,94 @@
+---
+title: inventory
+description: List the package sources and the extension, skill and prompt names of one profile directory.
+sidebar:
+  order: 10
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`inventory` prints the resource names of one profile directory. It prints names only: no file content and no settings value. It works on a profile that the kit did not generate.
+
+```sh
+python3 scripts/tenant_pi.py inventory --dir "$HOME/.pi/profiles/main"
+```
+
+Use it to see the difference between a candidate and an older profile. Run it one time for each directory. Then compare the two outputs by hand or with a text diff tool. The kit has no action that compares two inventories.
+
+## Options
+
+<Capture id="tenant-pi/help-inventory" />
+
+| Option | Meaning |
+| --- | --- |
+| `--dir <dir>` | Required. The absolute path of the profile or candidate directory. |
+
+## What it reads
+
+| Path | Operation | When the path is absent |
+| --- | --- | --- |
+| `<dir>/settings.json` | The action reads the file and uses only the key `packages`. | The action stops with `settings_missing`. |
+| `<dir>/extensions`, `<dir>/skills`, `<dir>/prompts` | The action lists the direct entries: name and kind. It opens no entry. | The list is empty. |
+| `<dir>/.tenant-pi/state.json` | The action checks that the file exists. It does not open the file. | `managed` is `false`. |
+
+The action lists exactly three directories. It does not enter a subdirectory.
+
+`auth.json`, `models.json`, `.tenant-pi/choices.json`, sessions and memory stores stay unopened. The action writes nothing and starts no process.
+
+## Output
+
+<Capture id="tenant-pi/cmd-inventory" />
+
+The directory `hand-made` in the capture is a profile that the kit did not generate. The capture session creates it with two package entries, one extension, one skill and one prompt. Its `settings.json` also has the key `defaultThinkingLevel`. The report does not show that key.
+
+| Key | Content |
+| --- | --- |
+| `dir` | The given path. |
+| `managed` | `true` when `<dir>/.tenant-pi/state.json` exists. It does not say that the candidate is complete. |
+| `packages` | One entry for each item of `settings.packages`, in the order of the file. |
+| `extensions`, `skills`, `prompts` | One `name` and `kind` for each direct entry, in name order. |
+| `summary` | The counts of the four lists. |
+
+A package entry has one of these forms:
+
+| Item in `settings.json` | Entry |
+| --- | --- |
+| A text | `source` holds the text. |
+| An object with a `source` text | `source` holds the text. `filters` holds the names of the other keys. The report never shows a filter value. |
+| A source outside the shown forms | `status` is `unsupported_value`. The report does not show the source. |
+| Each other shape | `status` is `unsupported_shape`. |
+
+The report shows a source only in one of these forms: an absolute path, `npm:<name>` with an optional exact version, or a repository address. A repository address starts with `https://`, `ssh://` or `git:`.
+
+`kind` is `file`, `dir`, `symlink` or `other`. The action never reads or prints the target of a symbolic link.
+
+Warning: a package source prints as the file holds it. Read the `packages` list before you share an inventory.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The report is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object. Standard output is empty. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: inventory.dir` | `--dir` is relative, or it has a segment that the path rule refuses. |
+| `settings_missing: inventory.dir` | The directory or its `settings.json` does not exist. |
+| `read_or_json: inventory.dir.settings.json` | A path component is a symbolic link, or the file is not JSON. |
+| `input_too_large: inventory.dir.settings.json` | `settings.json` is larger than 1 MiB. |
+| `read_or_json: inventory.dir.<name>` | The resource directory `<name>` is a symbolic link or a file. |
+
+## Limits
+
+- A package source is a declaration. The action does not check that the package is installed.
+- Pi can load resources from other places, for example from a project directory. The action lists only the three directories of the profile.
+
+## Reference file
+
+`docs/profile-inventory.md` in the project repository.

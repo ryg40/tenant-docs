@@ -1,0 +1,30 @@
+
+ [38;5;174m[48;5;67m▀[49m▀█[39m  [2mv1.0.2[0m[39m[49m
+ [38;5;67m█▀[39m [38;5;179m█[39m [2mescape interrupt · ctrl+c/ctrl+d clear/exit · / commands · ! bash · ctrl+o more[0m[39m[49m
+ [2mPress ctrl+o to show full startup help and loaded resources.[0m[39m[49m
+
+ [2mPi can explain its own features and look up its docs. Ask it how to use or extend Pi.[0m[39m[49m
+
+
+ What is 2 + 3? Reply with the number only.
+
+
+ [2;3mThe user is asking a simple math question: What is 2 + 3? They want the number only as the
+[0m[39m[49m [2;3mresponse.[0m[39m[49m
+
+ [2;3m2 + 3 = 5[0m[39m[49m
+
+ [2;3mI should reply with just "5".[0m[39m[49m
+
+ 5
+
+
+
+
+
+
+[38;5;6m────────────────────────────────────────────────────────────────────────────────────────────────────
+[7m[39m [0m[39m[49m
+[38;5;6m────────────────────────────────────────────────────────────────────────────────────────────────────
+[2m[39m~
+↑368 ↓45 R832 CH69.3% $0.001 0.5%/262k (auto)                          moonshotai/kimi-k2.6 • medium

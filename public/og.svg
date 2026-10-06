@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="'Avenir Next', 'Nunito Sans', 'Lato', 'Ubuntu', 'Cantarell', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', 'Liberation Sans', 'DejaVu Sans', sans-serif">
+	<title>Tenant Docs</title>
+	<rect width="1200" height="630" fill="#151e2c"/>
+	<rect x="32.5" y="32.5" width="1135" height="565" rx="28" fill="#111924" stroke="#2f3e55"/>
+	<g transform="translate(96 104)">
+		<rect x="0.5" y="0.5" width="87" height="87" rx="22" fill="#182231" stroke="#2f3e55"/>
+		<rect x="19" y="22" width="50" height="10" rx="5" fill="#86d6c6"/>
+		<rect x="19" y="39" width="36" height="10" rx="5" fill="#b9c5d3"/>
+		<rect x="19" y="56" width="25" height="10" rx="5" fill="#f59c86"/>
+	</g>
+	<text x="96" y="318" font-size="104" font-weight="700" fill="#eef1ea" letter-spacing="-1">Tenant Docs</text>
+	<text x="98" y="390" font-size="34" fill="#b9c5d3">Guides for the tenant projects.</text>
+	<text x="98" y="438" font-size="34" fill="#b9c5d3">How to develop, install and use each one.</text>
+	<g font-size="26" font-weight="600">
+		<rect x="96.5" y="494.5" width="149" height="51" rx="25.5" fill="#1f3b3f" stroke="#86d6c6"/>
+		<text x="171" y="529" text-anchor="middle" fill="#a9e6da">Develop</text>
+		<rect x="262.5" y="494.5" width="125" height="51" rx="25.5" fill="#1f3b3f" stroke="#86d6c6"/>
+		<text x="325" y="529" text-anchor="middle" fill="#a9e6da">Install</text>
+		<rect x="404.5" y="494.5" width="99" height="51" rx="25.5" fill="#1f3b3f" stroke="#86d6c6"/>
+		<text x="454" y="529" text-anchor="middle" fill="#a9e6da">Use</text>
+	</g>
+	<g transform="translate(812 162) scale(0.86)">
+		<rect x="0.5" y="0.5" width="343" height="329" rx="24" fill="#182231" stroke="#2f3e55"/>
+		<rect x="0.5" y="0.5" width="343" height="56" rx="24" fill="#151e2c" stroke="#2f3e55"/>
+		<rect x="1" y="33" width="342" height="24" fill="#151e2c"/>
+		<line x1="1" y1="57" x2="343" y2="57" stroke="#2f3e55"/>
+		<circle cx="30" cy="29" r="7" fill="#f59c86"/>
+		<circle cx="54" cy="29" r="7" fill="#f0d197"/>
+		<circle cx="78" cy="29" r="7" fill="#86d6c6"/>
+		<rect x="32" y="92" width="210" height="16" rx="8" fill="#86d6c6"/>
+		<rect x="32" y="132" width="280" height="12" rx="6" fill="#2f3e55"/>
+		<rect x="32" y="160" width="250" height="12" rx="6" fill="#2f3e55"/>
+		<rect x="32" y="188" width="270" height="12" rx="6" fill="#2f3e55"/>
+		<rect x="32" y="232" width="130" height="60" rx="14" fill="#111924" stroke="#2f3e55"/>
+		<rect x="182" y="232" width="130" height="60" rx="14" fill="#111924" stroke="#2f3e55"/>
+		<rect x="48" y="256" width="70" height="10" rx="5" fill="#b9c5d3"/>
+		<rect x="198" y="256" width="56" height="10" rx="5" fill="#f59c86"/>
+	</g>
+</svg>

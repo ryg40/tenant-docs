@@ -1,0 +1,11 @@
+{
+  "title": "Print one overlay patch",
+  "order": 770,
+  "command": "python3 scripts/tenant_pi.py carry \\\n  --report \"$HOME/.config/tenant-pi/report-trial.json\" \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --right \"$HOME/.pi/profiles/main-trial\" | \\\n  python3 -m json.tool",
+  "setup": [
+    "python3 -c 'import json, os, sys; home = os.environ[\"HOME\"]; data = json.load(open(sys.argv[1])); data[\"target\"][\"agentDir\"] = home + \"/.pi/profiles/main-trial\"; data[\"ownerPackages\"] = [home + \"/git/owner-skills\"]; json.dump(data, open(sys.argv[2], \"w\"), indent=2)' \"$HOME/.config/tenant-pi/overlay.json\" \"$HOME/.config/tenant-pi/overlay-trial.json\"",
+    "python3 scripts/tenant_pi.py generate --overlay \"$HOME/.config/tenant-pi/overlay-trial.json\" --target \"$HOME/.pi/profiles/main-trial\" > /dev/null",
+    "python3 scripts/tenant_pi.py compare --left \"$HOME/.pi/profiles/main\" --right \"$HOME/.pi/profiles/main-trial\" > \"$HOME/.config/tenant-pi/report-trial.json\""
+  ],
+  "mode": "scripted"
+}

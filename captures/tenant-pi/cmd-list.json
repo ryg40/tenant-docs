@@ -1,0 +1,14 @@
+{
+  "title": "List the candidates under one parent",
+  "order": 740,
+  "command": "python3 scripts/tenant_pi.py list --parent \"$HOME/.pi/profiles\" | \\\n  python3 -m json.tool",
+  "setup": [],
+  "replace": [
+    {
+      "what": "the time of the generation",
+      "match": "\"generatedAt\": \"([0-9TZ:.+-]+)\"",
+      "with": "<UTC time>"
+    }
+  ],
+  "mode": "scripted"
+}

@@ -1,0 +1,39 @@
+# The project name is fixed, so it does not depend on the directory of the checkout.
+name: tenant-docs
+
+services:
+  tenant-docs:
+    build:
+      context: .
+      args:
+        SITE_URL: ${SITE_URL:?Set SITE_URL in .env}
+        REVISION: ${REVISION:-unknown}
+    image: tenantlab/tenant-docs:local
+    container_name: tenant-docs
+    restart: unless-stopped
+    # The container publishes no port. The reverse proxy reaches port 8080 on the proxy network.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: ${DOCKER_PROXY_NETWORK:?Set DOCKER_PROXY_NETWORK in .env}

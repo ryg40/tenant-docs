@@ -1,0 +1,27 @@
+{
+    "notCarried": [
+        {
+            "field": "/overlay/target/agentDir",
+            "file": ".tenant-pi/choices.json",
+            "reason": "not_owner_owned"
+        }
+    ],
+    "patchedOverlay": {
+        "status": "valid"
+    },
+    "patches": [],
+    "scope": {
+        "note": "Prints only. Review the patches and apply them to the overlay by hand. Values come from the right side's recorded overlay copy.",
+        "ownerOwned": [
+            "roles",
+            "modelRoutes",
+            "selection",
+            "endpoints",
+            "env",
+            "ownerPackages",
+            "unmanaged",
+            "memory",
+            "ownerResources"
+        ]
+    }
+}

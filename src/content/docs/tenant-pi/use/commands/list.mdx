@@ -1,0 +1,95 @@
+---
+title: list
+description: List the candidates under one parent directory, with the kit commit and the generation time of each.
+sidebar:
+  order: 7
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`list` shows each candidate under one parent directory. It answers two questions: which kit commit produced a candidate, and when. It marks no candidate as current, and it deletes nothing.
+
+```sh
+python3 scripts/tenant_pi.py list --parent "$HOME/.pi/profiles"
+```
+
+## Options
+
+<Capture id="tenant-pi/help-list" />
+
+| Option | Meaning |
+| --- | --- |
+| `--parent <dir>` | Required. The absolute path of the directory that holds the candidates. |
+
+## What it reads
+
+- The names of the direct entries of the parent.
+- The file `<child>/.tenant-pi/state.json` of each child directory.
+
+The action reads no other file. `settings.json`, `choices.json`, `auth.json`, sessions and memory stores stay unread. It does not follow a symbolic link. It writes nothing and starts no process.
+
+## Output
+
+<Capture id="tenant-pi/cmd-list" />
+
+The parent in the capture holds two candidates. It also holds the directory `hand-made`, which the kit did not generate.
+
+The placeholder `<UTC time>` replaces each generation time. A real value has the form `2026-01-03T10:00:00Z`. `kitCommit` in the capture is the commit of the release tag.
+
+| Key | Content |
+| --- | --- |
+| `parent` | The given path. |
+| `children` | One row for each child, in name order. |
+| `summary` | The count of each status. `notDirectory` counts the entries that are not a child directory. |
+| `diagnostics` | Static `rule: field` lines. The list is empty when nothing went wrong. |
+| `scope` | A fixed statement of what the action reads. |
+
+Each row has a `name` and a `status`:
+
+| Status | Meaning |
+| --- | --- |
+| `candidate` | The child has a `state.json` of schema version 1. |
+| `unmanaged` | The child has no `.tenant-pi/state.json`. A profile that the kit did not generate has this status. |
+| `symlink` | The child is a symbolic link. The action does not enter it. |
+| `invalid` | `state.json` fails the loader or the schema check. The key `reason` holds a static rule code. |
+| `unsupported_name` | The child name is outside the safe form. `name` is `null`, and the action does not enter the child. |
+
+A `candidate` row has these fields:
+
+| Field | Content |
+| --- | --- |
+| `kitCommit` | The commit of the kit clone at generation time: 40 hex characters, or `unknown`. |
+| `generatedAt` | The UTC time of the generation. |
+| `piVersion` | The Pi pin of the kit at generation time. |
+| `filesComplete` | `true` for a complete candidate, `false` for an incomplete one. |
+| `kitSchemaVersion` | The schema version of the kit. |
+| `unsupported` | The names of the fields that do not have their public form. Such a field shows `null`. |
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The list is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: list.parent` | The path is relative. |
+| `parent_missing: list.parent` | The parent does not exist. |
+| `read_or_json: list.parent` | The parent is a file, or a path component is a symbolic link. |
+| `input_too_large: list.parent` | The parent has more than 4096 direct entries. |
+
+## Limits
+
+- The report shows 1000 children at most. The rest count in `summary.omitted`.
+- `list` shows recorded facts. It does not check that the files of a candidate are still the generated files. Use [`compare`](/tenant-pi/use/commands/compare/) for that.
+- `generatedAt` comes from the clock of the host.
+
+## Reference file
+
+`docs/candidate-list.md` in the project repository.

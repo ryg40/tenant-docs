@@ -1,0 +1,12 @@
+{
+  "title": "The overlay after the edit",
+  "stage": 2,
+  "order": 220,
+  "command": "cat \"$HOME/.config/tenant-pi/overlay.json\"",
+  "setup": [
+    "mkdir -p \"$HOME/.pi/profiles\"",
+    "sed -i 's#\"agentDir\": *\"[^\"]*\"#\"agentDir\": \"'\"$HOME\"'/.pi/profiles/main\"#' \"$HOME/.config/tenant-pi/overlay.json\"",
+    "grep -q \"\\\"agentDir\\\": \\\"$HOME/.pi/profiles/main\\\"\" \"$HOME/.config/tenant-pi/overlay.json\""
+  ],
+  "mode": "scripted"
+}

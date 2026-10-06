@@ -1,0 +1,72 @@
+{
+  "docgen": 1,
+  "name": "v1",
+  "status": "final",
+  "note": "The templates have the page shapes of the tenant-pi pages. The file v1-pages.md records each shape and its template. The owner approved the tenant-pi pages and the doc set of version one on 2026-10-05 (issue 13).",
+  "pages": [
+    {
+      "id": "overview",
+      "path": "index.mdx",
+      "template": "overview",
+      "tree": "release",
+      "doc_sets": ["full", "overview"],
+      "when": "always",
+      "sources": ["README.md"],
+      "nav": {"title": "Overview", "text": "What the project is, who it is for and its status."}
+    },
+    {
+      "id": "install",
+      "path": "install/index.mdx",
+      "template": "install",
+      "tree": "release",
+      "doc_sets": ["full"],
+      "when": "sources",
+      "sources": ["INSTALL.md", "docs/guides/setup.md", "docs/**/install*.md", "docs/**/setup*.md", "docs/install*.md", "docs/setup*.md", "README.md", ".env.example", "compose.yaml", "compose.yml", "docker-compose.yml"],
+      "nav": {"title": "Install", "text": "The four stages, from the sources to a checked result."}
+    },
+    {
+      "id": "commands",
+      "path": "use/commands/index.mdx",
+      "template": "commands",
+      "tree": "release",
+      "doc_sets": ["full"],
+      "when": "entry_points",
+      "sources": ["@entry_points", "docs/**/cli*.md", "docs/**/usage*.md", "docs/**/command*.md", "docs/cli*.md", "docs/usage*.md", "docs/command*.md", "README.md"],
+      "nav": {"title": "Use", "text": "The commands and what each one does."}
+    },
+    {
+      "id": "command",
+      "path": "use/commands/{action}.mdx",
+      "template": "command",
+      "each": "action",
+      "max_pages": 20,
+      "tree": "release",
+      "doc_sets": ["full"],
+      "when": "always",
+      "sources": ["@cli", "docs/{action}.md", "docs/*-{action}.md", "docs/{action}-*.md", "docs/**/{action}.md", "docs/**/*-{action}.md", "docs/**/cli*.md", "docs/cli*.md", "README.md"],
+      "max_sources": 6
+    },
+    {
+      "id": "workflow",
+      "path": "develop/workflow.mdx",
+      "template": "workflow",
+      "tree": "develop",
+      "doc_sets": ["full"],
+      "when": "history",
+      "sources": ["@process_docs", "README.md"],
+      "nav": {"title": "Develop", "text": "How a change goes from its start to a release."}
+    },
+    {
+      "id": "reference",
+      "path": "reference/index.mdx",
+      "template": "reference",
+      "tree": "release",
+      "doc_sets": ["full"],
+      "when": "always",
+      "generated": true,
+      "sources": ["docs/**/*.md", "docs/*.md", "*.md"],
+      "max_sources": 150,
+      "nav": {"title": "Reference", "text": "Where the reference files are."}
+    }
+  ]
+}

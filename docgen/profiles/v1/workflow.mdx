@@ -1,0 +1,58 @@
+---
+title: Development workflow
+description: "How a change to {{project}} goes from its start to a release, and who does each step."
+sidebar:
+  order: 1
+---
+
+import Capture from '@/components/Capture.astro';
+
+{/* docgen: sources of this page, at the ref {{ref}}:
+{{sources}}
+*/}
+
+This page describes the branch `{{ref}}` of {{project}}.
+
+{/* docgen:slot loop | 30-110 words | text | Say in order how a change to {{project}} moves: where it starts, on which branch the work happens, which checks run, where it merges and how a release is made. Use only steps that the sources or the facts show. */}
+TODO(docgen:loop)
+{/* docgen:end */}
+
+## The loop
+
+{/* docgen:diagram loop | pending | One `flowchart TD` with one node for each step of the list below, in the same order. The first line of each node names who does the step. */}
+{/* docgen:end-diagram */}
+
+{/* docgen:slot flow-steps | 20-170 words | numbered | Give a numbered list of the steps of the loop, in order. One line for each step: who does it, then what happens. Five to ten steps. Do not draw a diagram. A larger model draws it from this list. */}
+TODO(docgen:flow-steps)
+{/* docgen:end */}
+
+## The roles
+
+{/* docgen:slot roles | 5-150 words | table | Give a table with the columns Role, Task and Limit. One row for each role that the sources name, for example owner, coordinator, worker or reviewer. If the sources name no role, write: The sources name no role. */}
+TODO(docgen:roles)
+{/* docgen:end */}
+
+## The branches
+
+{/* docgen:slot branches | 20-170 words | table | Give a table with the columns Branch, What it holds and Who writes to it. One row for each branch name of the facts. Add one row for the topic branches when the facts say that the merges use them. */}
+TODO(docgen:branches)
+{/* docgen:end */}
+
+## The checks before a merge
+
+{/* docgen:slot checks | 8-220 words | table | Give a table with the columns Check, Command and Passes when. One row for each check of the sources: tests, hooks, scanner and CI. Copy each command from the sources or from the facts. If the sources name no check, write: The sources name no check before a merge. */}
+TODO(docgen:checks)
+{/* docgen:end */}
+
+{{#if test_command}}
+The frame shows the tests of {{project}} in a clean container.
+
+{/* docgen:capture dev-tests | 800 | The tests of {{project}} | run {{test_command}} */}
+<Capture id="{{project}}/dev-tests" />
+
+{{/if}}
+## The release
+
+{/* docgen:slot release | 6-170 words | numbered | Give a numbered list of the steps that make a release. One line for each step, with its command in backticks when the sources give one. If the sources describe no release process, write: The sources describe no release process. */}
+TODO(docgen:release)
+{/* docgen:end */}

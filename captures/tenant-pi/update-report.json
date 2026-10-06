@@ -1,0 +1,7 @@
+{
+  "title": "Read the comparison report",
+  "order": 752,
+  "command": "python3 -m json.tool \"$HOME/.config/tenant-pi/report-main.json\" | \\\n  sed '/\"unchanged\": \\[/q'",
+  "setup": [],
+  "mode": "scripted"
+}

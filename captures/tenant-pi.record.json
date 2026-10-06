@@ -1,0 +1,269 @@
+{
+  "project": "tenant-pi",
+  "captures": {
+    "cmd-carry": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-check-runtime": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-compare": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-generate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-init-private": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-inventory": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-list": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": [
+        {
+          "what": "the time of the generation",
+          "with": "<UTC time>",
+          "count": 2
+        }
+      ]
+    },
+    "cmd-plan": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-refusal": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "cmd-validate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-doc-check": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-examples": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-publish-check": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-sample-overlay": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-scan-selftest": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": []
+    },
+    "dev-unit-tests": {
+      "ref": "main",
+      "exit": 0,
+      "replaced": [
+        {
+          "what": "the run time of the tests",
+          "with": "<seconds>",
+          "count": 1
+        }
+      ]
+    },
+    "help": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-carry": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-check-runtime": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-compare": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-generate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-init-private": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-inventory": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-list": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-plan": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "help-validate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage1-clone": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage1-clone-checks": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 1,
+      "replaced": [
+        {
+          "what": "the run time of the tests",
+          "with": "<seconds>",
+          "count": 1
+        }
+      ]
+    },
+    "stage2-edit-overlay": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage2-init-private": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage3-validate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage4-plan": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage5-generate": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage5-generate-launcher": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage5-launcher-file": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "stage5-profile-files": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-carry": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-compare": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-launcher": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-pass": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-report": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    },
+    "update-target": {
+      "ref": "portable/20261005-592105f",
+      "commit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+      "exit": 0,
+      "replaced": []
+    }
+  }
+}

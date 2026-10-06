@@ -1,0 +1,134 @@
+---
+// The terminal frame of one capture, with its recording. `id` is `<project>/<name>`, the recording is `captures/<id>.cast`.
+// The frame is the frame of `Capture`: the command with its copy button, and the output as text.
+// A button below the frame plays the recording in the same frame. A page thus shows one frame for one capture.
+// The asciinema player and the recording load from this site, and only when the reader starts the recording.
+// The text frame stays when JavaScript is off, when the `.cast` file is absent, and when the player does not load.
+import 'asciinema-player/dist/bundle/asciinema-player.css';
+import Capture from './Capture.astro';
+import { castUrl, loadCapture } from './capture';
+
+interface Props {
+	id: string;
+}
+
+const { id } = Astro.props;
+const { spec } = loadCapture(id);
+const src = spec ? castUrl(id) : undefined;
+---
+
+{
+	spec && src ? (
+		<sn-cast class="sn-cast not-content" data-src={src} data-view="text">
+			<Capture id={id}>
+				<div class="sn-cast-player" data-cast-player />
+			</Capture>
+			<p class="sn-cast-tools" data-cast-tools hidden data-pagefind-ignore>
+				<button type="button" class="sn-cast-switch" data-cast-switch>
+					<span class="sn-when-text">Play the recording</span>
+					<span class="sn-when-recording">Show the output as text</span>
+				</button>
+				<span class="sn-cast-keys sn-when-recording">
+					Keys in the player: <kbd>Space</kbd> pauses, <kbd>←</kbd> and <kbd>→</kbd> seek.
+				</span>
+				<span class="sn-cast-fail" role="status" data-cast-status />
+			</p>
+		</sn-cast>
+	) : (
+		<Capture id={id} />
+	)
+}
+
+<script>
+	import type { Player } from 'asciinema-player';
+
+	// The player reads its palette as hex values. The Soft Night tokens can be `color-mix()` values,
+	// so the browser resolves each token first.
+	function toHex(color: string): string | undefined {
+		const srgb = color.match(/^color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)/);
+		const rgb = color.match(/^rgba?\(([\d.]+)[, ]+([\d.]+)[, ]+([\d.]+)/);
+		const channels = srgb
+			? srgb.slice(1).map((value) => Math.round(Number(value) * 255))
+			: rgb?.slice(1).map((value) => Math.round(Number(value)));
+		return channels && `#${channels.map((value) => value.toString(16).padStart(2, '0')).join('')}`;
+	}
+
+	function setPalette(target: HTMLElement) {
+		const probe = document.createElement('span');
+		probe.hidden = true;
+		target.append(probe);
+		for (const name of ['fg', 'bg', ...Array.from({ length: 16 }, (_, index) => String(index))]) {
+			probe.style.color = `var(--sn-term-${name})`;
+			const hex = toHex(getComputedStyle(probe).color);
+			if (hex) target.style.setProperty(`--sn-cast-${name}`, hex);
+		}
+		probe.remove();
+	}
+
+	class SnCast extends HTMLElement {
+		#player?: Player;
+		#loading = false;
+
+		connectedCallback() {
+			const tools = this.querySelector<HTMLElement>('[data-cast-tools]');
+			const button = this.querySelector<HTMLButtonElement>('[data-cast-switch]');
+			if (!tools || !button || !this.dataset.src) return;
+			// The button needs JavaScript, so it shows only now.
+			tools.hidden = false;
+			button.addEventListener('click', () => {
+				if (this.#loading) return;
+				if (this.dataset.view === 'recording') this.showText();
+				else this.showRecording().catch((error) => this.fail(button, error));
+			});
+		}
+
+		showText() {
+			this.dataset.view = 'text';
+			void this.#player?.pause();
+		}
+
+		async showRecording() {
+			if (!this.#player) {
+				this.#loading = true;
+				try {
+					this.#player = await this.load();
+				} finally {
+					this.#loading = false;
+				}
+			}
+			this.dataset.view = 'recording';
+			await this.#player.play();
+		}
+
+		// The player and the recording load at the first use of the button.
+		async load(): Promise<Player> {
+			const mount = this.querySelector<HTMLElement>('[data-cast-player]');
+			if (!mount) throw new Error('The frame has no place for the player.');
+			const [{ create }, response] = await Promise.all([import('asciinema-player'), fetch(this.dataset.src ?? '')]);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const data = await response.text();
+			// The player measures its width, so the frame must show the player first.
+			this.dataset.view = 'recording';
+			setPalette(mount);
+			return create({ data }, mount, {
+				theme: 'soft-night',
+				// The font of the frame. Without it, the player has its own font list.
+				terminalFontFamily: getComputedStyle(mount).fontFamily,
+				fit: 'width',
+				controls: true,
+				preload: true,
+				idleTimeLimit: 2,
+			});
+		}
+
+		fail(button: HTMLButtonElement, error: unknown) {
+			console.warn('The recording did not load. The text frame stays.', error);
+			this.dataset.view = 'text';
+			button.hidden = true;
+			const status = this.querySelector('[data-cast-status]');
+			if (status) status.textContent = 'The recording did not load. The frame shows the output as text.';
+		}
+	}
+
+	customElements.define('sn-cast', SnCast);
+</script>

@@ -1,0 +1,5 @@
+usage: tenant_pi.py inventory [-h] --dir DIR
+
+options:
+  -h, --help  show this help message and exit
+  --dir DIR   absolute path of the profile or candidate directory

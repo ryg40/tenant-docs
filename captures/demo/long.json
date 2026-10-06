@@ -1,0 +1,10 @@
+{
+  "title": "List each daily note",
+  "order": 40,
+  "command": "find notes/2026 -type f | sort",
+  "setup": [
+    "mkdir -p notes/2026",
+    "for n in $(seq -w 1 40); do : > notes/2026/day-$n.md; done"
+  ],
+  "mode": "manual"
+}

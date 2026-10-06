@@ -1,0 +1,103 @@
+---
+title: Reference
+description: Where the reference files of tenant-pi are.
+sidebar:
+  order: 1
+---
+
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+The reference files of tenant-pi are in the project repository. This page names each file by its path. To read a file, open that path in your kit clone, for example `~/tenant-pi/docs/generator.md`.
+
+The files of the release that this page shows are the source of facts for this site.
+
+## Troubleshooting
+
+This site has no troubleshooting page. The troubleshooting guide is this file of the project repository:
+
+`docs/guides/troubleshooting.md`
+
+The guide lists each known diagnostic with its exact text, its cause and its fix.
+
+| Section of the guide | Content |
+| --- | --- |
+| How to read a diagnostic | The form `rule: field`, the key `candidate_created` and the exit codes. |
+| Overlay and input | The refusals of `validate`, `plan` and `generate` for the overlay and the registry. |
+| Target, private directory and launcher | The refusals for the target, for `init-private` and for the launcher file. |
+| Comparison and carry | The refusals of `compare` and `carry`. |
+| Runtime and environment | Problems with Pi, Node, `PI_CODING_AGENT_DIR` and the environment of the shell. |
+| Kit checks | Failures of the publish check and of the documentation check. |
+| When nothing here fits | What to keep and what to record. |
+
+## Guides
+
+| File | Topic |
+| --- | --- |
+| `README.md` | The kit in short: the nine stages, the command line and the facts of the release. |
+| `INSTALL.md` | The install stages for an agent that installs a profile for a user. |
+| `docs/guides/setup.md` | The nine stages with exact commands. |
+| `docs/guides/modules.md` | Each module: inputs, source, credentials, state, consent and status. |
+| `docs/guides/candidate-update.md` | Regenerate, compare, carry and switch. |
+| `docs/guides/privacy.md` | What the kit separates, what it never does and what the scanner checks. |
+| `docs/guides/troubleshooting.md` | Each diagnostic and its fix. |
+| `docs/guides/release-checklist.md` | The gates and the steps of a portable release. |
+| `docs/guides/walkthrough-record.md` | The record of one offline run in a clean environment. |
+
+## Command line
+
+| File | Topic | Page on this site |
+| --- | --- | --- |
+| `docs/generator.md` | The contract of `validate`, `plan` and `generate`. | [`validate`](/tenant-pi/use/commands/validate/), [`plan`](/tenant-pi/use/commands/plan/), [`generate`](/tenant-pi/use/commands/generate/) |
+| `docs/profile-plan.md` | How the kit prepares a plan. | [`plan`](/tenant-pi/use/commands/plan/) |
+| `docs/profile-write.md` | The guarded writer of a new target. | [`generate`](/tenant-pi/use/commands/generate/) |
+| `docs/launcher.md` | The launcher file and the option `--launcher`. | [`generate`](/tenant-pi/use/commands/generate/) |
+| `docs/private-directory.md` | The private directory and `init-private`. | [`init-private`](/tenant-pi/use/commands/init-private/) |
+| `docs/check-runtime.md` | The runtime version check. | [`check-runtime`](/tenant-pi/use/commands/check-runtime/) |
+| `docs/candidate-compare.md` | The comparison report, the markers, the drift and the overlay corrections. | [`compare`](/tenant-pi/use/commands/compare/) |
+| `docs/carry.md` | The overlay patches of `carry`. | [`carry`](/tenant-pi/use/commands/carry/) |
+| `docs/candidate-list.md` | The candidate list and the provenance fields. | [`list`](/tenant-pi/use/commands/list/) |
+| `docs/profile-inventory.md` | The names-only inventory of one profile. | [`inventory`](/tenant-pi/use/commands/inventory/) |
+
+## Overlay
+
+| File | Topic |
+| --- | --- |
+| `config/config.example.json` | The sample overlay. `init-private` copies it. |
+| `config/manifest.json` | The manifest: each module with its source, its status and the runtime pins. |
+| `docs/foundation.md` | The source contract: the sources, the overlay and the checks. |
+| `docs/model-routes.md` | The key `modelRoutes` and the registry. |
+| `docs/owner-packages.md` | The key `ownerPackages`: a Pi package that you maintain. |
+| `docs/owner-resources.md` | The key `ownerResources`: your own skills and prompts directories. |
+| `docs/accepted-drift.md` | The key `unmanaged`: accepted drift. |
+
+## Modules
+
+| File | Topic |
+| --- | --- |
+| `docs/memory-modules.md` | The memory modules `hermes` and `wiki`, and the consent rules. |
+| `docs/workflow-modules.md` | The MCP module, the blocked Promptr module and the Herdr skill. |
+| `docs/packages.md` | The two packages in the tree: Tenantext and Promptr. |
+| `docs/resources.md` | The `resources` component and its command inside Pi. |
+| `docs/host-peer-overrides.md` | The correction of host modules in installed extension packages. |
+
+## Concepts
+
+| File | Topic |
+| --- | --- |
+| `docs/profile-lifecycle.md` | The model of the kit: three tiers, the change path and visible drift. |
+
+## Safety and release
+
+| File | Topic |
+| --- | --- |
+| `docs/secret-handling.md` | The scanner `scripts/scan.sh`: findings, modes and blind spots. |
+| `docs/publishing.md` | The command that publishes a portable release. |
+| `docs/remotes.md` | The Git remotes of a tenant-pi clone. |
+
+## Pages on this site
+
+- [Command reference](/tenant-pi/use/commands/): each action with real output.
+- [Candidate update loop](/tenant-pi/use/candidate-update/): regenerate, compare, carry and switch.
+- [Modules and privacy](/tenant-pi/use/modules-and-privacy/): each module, and what the kit keeps separate.

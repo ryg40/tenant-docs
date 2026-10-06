@@ -1,0 +1,23 @@
+# Install log
+
+One entry for each install, regeneration or switch of a profile on this host. Put the newest entry first.
+
+Warning: do not write a secret value in this file. Write the name of a credential, never its value.
+
+## 2026-10-05: first profile, core only
+
+- Kit commit: f47fd90d2015467a92bcec82166323aae7cfe236
+- Overlay: overlay.json
+- Target: /home/alex/.pi/profiles/main
+- Commands: the commands of stages 1 to 6 of the install guide, then `launch-main.sh`, `/login` inside Pi, a prompt of one line, then `pi --version` with the profile
+- Result: check 1 passed, Pi prints 1.0.2. Check 2 passed, Pi starts with no extension error and no peer warning. Check 3 passed, the model gave a reply to a prompt of one line. Check 4 passed, Pi wrote into the target only. Checks 5 and 6 not run, no memory module and no `mcp`.
+- Not verified: the optional modules
+
+## YYYY-MM-DD: short title
+
+- Kit commit: the full commit hash of the kit clone
+- Overlay: the overlay file of this directory that you used
+- Target: the absolute path of the generated profile
+- Commands: the commands that you ran, in order
+- Result: what you checked and what you saw
+- Not verified: what you did not check

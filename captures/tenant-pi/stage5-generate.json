@@ -1,0 +1,8 @@
+{
+  "title": "Generate the profile",
+  "stage": 5,
+  "order": 500,
+  "command": "python3 scripts/tenant_pi.py generate --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --target \"$HOME/.pi/profiles/main\"",
+  "setup": [],
+  "mode": "scripted"
+}

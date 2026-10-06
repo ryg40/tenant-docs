@@ -1,0 +1,106 @@
+---
+title: init-private
+description: Create the private directory that holds the overlay and its records.
+sidebar:
+  order: 3
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`init-private` creates the private directory of one host in one fixed shape. The directory holds the overlay, the registry, the install log and the accepted-drift list. The action copies each file from a template of the kit.
+
+```sh
+mkdir -p "$HOME/.config"
+python3 scripts/tenant_pi.py init-private --dir "$HOME/.config/tenant-pi"
+```
+
+## Options
+
+<Capture id="tenant-pi/help-init-private" />
+
+| Option | Meaning |
+| --- | --- |
+| `--dir <path>` | Required. The absolute path of a directory that does not exist. Its parent exists. The path has 1024 characters at most. |
+| `--overlay <file>` | An overlay file that exists on the host. The new directory must stay outside the `target.agentDir` of that file. Repeat the option for more files. |
+
+Without `--overlay`, the action knows only the sample target of `config/config.example.json`. It does not search for overlays.
+
+## What it creates
+
+| Path | Kind | Mode | Content |
+| --- | --- | --- | --- |
+| `<dir>` | directory | `0700` | |
+| `<dir>/overlay.json` | file | `0600` | A copy of `config/config.example.json`, byte for byte |
+| `<dir>/registry.json` | file | `0600` | `{}` |
+| `<dir>/install-log.md` | file | `0600` | The template of the install log |
+| `<dir>/accepted-drift.md` | file | `0600` | The template of the accepted-drift list |
+| `<dir>/.gitignore` | file | `0600` | A list of names that Git must not track |
+| `<dir>/inputs` | directory | `0700` | Empty. It holds input files, for example `inputs/mcp-adapter.json` |
+
+The action does not edit the overlay copy. The target in the copy is the sample target. Change it before you generate a profile.
+
+The `.gitignore` file ignores these names: `inputs/`, `.env`, `.env.*`, `auth.json`, `models.json`, `mcp-adapter.json`, `sessions/`, `*.key`, `*.pem`, `*.db` and `*.sqlite`.
+
+Warning: the `.gitignore` file is not a security control. Git still tracks a secret in a file with another name. Read `git status` before each commit.
+
+## What it reads
+
+- The five templates of the kit.
+- Each `--overlay` file. The action uses only `target.agentDir` of it.
+- The metadata of the directories above `--dir`.
+- The environment value `HOME`, to find `~/.pi/agent`. It reads no other environment value.
+
+The action starts no process. It runs no Git command and opens no network connection.
+
+## Output
+
+<Capture id="tenant-pi/cmd-init-private" />
+
+The capture creates a second private directory, `tenant-pi-work`. The first one exists from the install.
+
+| Key | Content |
+| --- | --- |
+| `created` | Each created path with its kind and mode. The list has seven entries. |
+| `commands.editDisplayOnly` | The command that opens the overlay in an editor. |
+| `commands.validateDisplayOnly` | The `validate` command for the new overlay. |
+| `commands.gitInitDisplayOnly` | The `git init` line for the directory. |
+| `complete` | `true` when the tree is complete. |
+| `warnings` | Empty, or `cleanup_failed: init-private.descriptors`. The tree is complete in that case. |
+
+The three command lines are display text. The action runs none of them.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The tree is complete. |
+| 2 | A refusal or a failed write. Standard error has one JSON object. |
+
+`candidate_created` is `true` when the directory exists after the failure. The action has no rollback. Inspect the directory and remove it yourself.
+
+## Common refusals
+
+Each refusal of this table changes nothing in the file system.
+
+| Diagnostic | Cause |
+| --- | --- |
+| `target_exists: init-private.dir` | The path exists. The action never adopts a directory. |
+| `parent_missing: init-private.dir.parent` | The parent does not exist. The action does not create a parent. |
+| `under_kit: init-private.dir` | The path is the kit clone or is under it. |
+| `under_pi_agent: init-private.dir` | The path is `~/.pi/agent` or is under it. |
+| `under_overlay_target: init-private.dir` | The path is the target of a known overlay or is under it. |
+| `absolute_path: init-private.dir` | The path is not an absolute path. |
+| `home_required: init-private.home` | `HOME` is not set. |
+| `unsafe_parent_owner: init-private.dir.parent` | Root owns the parent, and you are not root. |
+
+## Limits
+
+- `under_kit` covers only the clone that runs the action. A second clone is not protected.
+- The action does not protect against another process of the same user, or against root.
+
+## Reference file
+
+`docs/private-directory.md` in the project repository.

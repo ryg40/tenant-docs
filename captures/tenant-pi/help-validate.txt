@@ -1,0 +1,18 @@
+usage: tenant_pi.py validate [-h] --overlay OVERLAY [--manifest MANIFEST]
+                             [--registry REGISTRY]
+                             [--require-role REQUIRE_ROLE]
+                             [--local-dir LOCAL_DIR]
+
+options:
+  -h, --help            show this help message and exit
+  --overlay OVERLAY     explicit local JSON choices file
+  --manifest MANIFEST   reviewed kit manifest (override remains strictly
+                        validated)
+  --registry REGISTRY   explicit offline capability JSON map; not Pi
+                        models.json
+  --require-role REQUIRE_ROLE
+                        require an explicit reviewed role; repeat for more
+                        roles
+  --local-dir LOCAL_DIR
+                        absolute directory that holds the fixed overlay.inputs
+                        slots (default: the kit's .local)

@@ -1,0 +1,94 @@
+---
+title: plan
+description: See the files, the readiness gaps and the commands of a profile before you generate it.
+sidebar:
+  order: 5
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`plan` shows what `generate` will write for an overlay. It lists the output paths, the readiness gaps and the commands for the later stages. It writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py plan --overlay "$HOME/.config/tenant-pi/overlay.json"
+```
+
+Read the plan before each `generate`.
+
+## Options
+
+<Capture id="tenant-pi/help-plan" />
+
+| Option | Meaning |
+| --- | --- |
+| `--overlay <file>` | Required. The overlay file. |
+| `--launcher <path>` | The absolute path of a launcher file that does not exist. `plan` only prints the path. |
+| `--registry <file>` | A JSON file with the thinking levels of each model that you confirm. |
+| `--require-role <role>` | Marks one role as required. Repeat the option for more roles. |
+| `--local-dir <dir>` | The absolute directory that holds the input files of the overlay. The default is `.local` in the kit clone. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+Use the same options as for [`validate`](/tenant-pi/use/commands/validate/). `plan` applies each rule of `validate` first.
+
+With `--launcher`, `plan` applies the location rules of the launcher path. It does not check that the file is absent.
+
+## What it reads
+
+`plan` reads the same files as `validate`: the overlay, the manifest, the registry and the MCP input file.
+
+- It makes no change in the file system.
+- It starts no process and opens no network connection.
+- With `--launcher`, it reads the environment value `HOME`. It reads no other environment value.
+
+## Output
+
+<Capture id="tenant-pi/cmd-plan" />
+
+The capture shows the plan of a core-only overlay.
+
+| Key | Content |
+| --- | --- |
+| `targetAgentDir` | The target of the overlay. |
+| `files` | The paths and modes that `generate` will write. |
+| `readinessGaps` | The facts that no offline step can prove. |
+| `commands.setupDisplayOnly` | The dependency commands that you run by hand. |
+| `commands.launchDisplayOnly` | The launch line of the profile. |
+| `commands.launcherDisplayOnly` | The launcher path, when you give `--launcher`. |
+| `commands.launchStatus` | `not_runnable_until_generation_succeeds` in a plan. |
+| `filesComplete` | `false` in a plan. |
+| `runtimeReady` | Always `false`. The kit cannot prove the runtime. |
+| `routeStatus` | The state of each role: `selected`, `required_missing` or `unset`. |
+| `routeSetup` | The setup facts of the model routes. |
+| `memory` | The record of the memory modules, or `null` when none is enabled. |
+| `workflow` | The readiness record of the MCP module and of Promptr. Promptr stays `blocked` in it. |
+| `ownerPackages`, `ownerResources`, `unmanaged` | The lists of the same overlay keys. |
+
+Each command under `commands` is display text. The kit runs none of them.
+
+A core-only plan has three gaps: `target_absence_unverified`, `node_runtime_unverified` and `core_runtime_unverified`. A gap is a fact to carry. It is not an error.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The plan is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+`plan` has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals). The launcher path adds these:
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: launcher.path` | The launcher path is relative. |
+| `under_target: launcher.path` | The launcher path is the target or is under it. |
+| `under_pi_agent: launcher.path` | The launcher path is `~/.pi/agent` or is under it. |
+| `under_kit: launcher.path` | The launcher path is the kit clone or is under it. |
+| `home_required: launcher.home` | `HOME` is not set. |
+
+## Reference files
+
+`docs/generator.md`, `docs/profile-plan.md` and `docs/launcher.md` in the project repository.

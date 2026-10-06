@@ -1,0 +1,8 @@
+Downloading and installing node v22.23.3...
+Downloading https://nodejs.org/dist/v22.23.3/node-v22.23.3-linux-x64.tar.gz...
+######################################################################## 100.0%
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v22.23.3 (npm v10.9.9)
+Creating default alias: [0;32mdefault[0m [0;90m->[0m [0;32m22[0m ([0;90m->[0m [0;32mv22.23.3[0m)
+Now using node v22.23.3 (npm v10.9.9)

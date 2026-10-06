@@ -1,0 +1,9 @@
+{
+  "title": "Generate the new candidate",
+  "order": 730,
+  "command": "python3 scripts/tenant_pi.py generate \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --target \"$HOME/.pi/profiles/main-2026-10-05\" \\\n  --launcher \"$HOME/.config/tenant-pi/launch-main-2026-10-05.sh\" | \\\n  python3 -m json.tool",
+  "setup": [
+    "sleep 1"
+  ],
+  "mode": "scripted"
+}

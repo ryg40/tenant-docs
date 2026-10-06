@@ -1,0 +1,8 @@
+{
+  "title": "Launch Pi, then type /login",
+  "stage": 7,
+  "order": 1100,
+  "command": "\"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "setup": [],
+  "mode": "manual"
+}

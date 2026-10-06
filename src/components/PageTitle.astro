@@ -1,0 +1,66 @@
+---
+// The page title with the section name above it and the description below it.
+// The section name is the path of sidebar groups that holds the current page.
+const { entry, sidebar } = Astro.locals.starlightRoute;
+
+type SidebarEntry = (typeof sidebar)[number];
+
+function trail(entries: SidebarEntry[]): string[] | undefined {
+	for (const item of entries) {
+		if (item.type === 'link') {
+			if (item.isCurrent) return [];
+		} else {
+			const rest = trail(item.entries);
+			if (rest) return [item.label, ...rest];
+		}
+	}
+	return undefined;
+}
+
+const section = (trail(sidebar) ?? []).join(' / ');
+const { title, description } = entry.data;
+---
+
+{section && <p class="section">{section}</p>}
+<h1 id="_top">{title}</h1>
+{description && <p class="lead">{description}</p>}
+
+<script>
+	// A wide table scrolls to the side on a narrow screen. A scroll area must take the keyboard focus.
+	// The script is here because each page with a table has a page title.
+	function takeFocus(table: Element) {
+		if (table.scrollWidth > table.clientWidth) table.setAttribute('tabindex', '0');
+		else table.removeAttribute('tabindex');
+	}
+	const tables = document.querySelectorAll('.sl-markdown-content table:not(.not-content *)');
+	const observer = new ResizeObserver((entries) => entries.forEach(({ target }) => takeFocus(target)));
+	tables.forEach((table) => observer.observe(table));
+</script>
+
+<style>
+	@layer starlight.core {
+		.section {
+			margin-top: 1rem;
+			color: var(--sn-sea-ink);
+			font-size: var(--sl-text-sm);
+			font-weight: 600;
+		}
+		h1 {
+			margin-top: 1rem;
+			font-size: var(--sl-text-h1);
+			line-height: var(--sl-line-height-headings);
+			font-weight: 600;
+			color: var(--sl-color-white);
+		}
+		.section + h1 {
+			margin-top: 0.35rem;
+		}
+		.lead {
+			margin-top: 0.6rem;
+			max-width: 44rem;
+			color: var(--sn-muted);
+			font-size: var(--sl-text-lg);
+			line-height: 1.5;
+		}
+	}
+</style>

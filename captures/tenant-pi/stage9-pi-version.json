@@ -1,0 +1,8 @@
+{
+  "title": "The Pi version with the profile",
+  "stage": 9,
+  "order": 1300,
+  "command": "PI_CODING_AGENT_DIR=\"$HOME/.pi/profiles/main\" pi --version",
+  "setup": [],
+  "mode": "manual"
+}

@@ -1,0 +1,1 @@
+selftest: ok - the rules find the synthetic tokens and each host value

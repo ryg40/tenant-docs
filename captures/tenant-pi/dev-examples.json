@@ -1,0 +1,8 @@
+{
+  "title": "Gate 2: the examples",
+  "order": 820,
+  "ref": "main",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/examples.py",
+  "setup": [],
+  "mode": "scripted"
+}

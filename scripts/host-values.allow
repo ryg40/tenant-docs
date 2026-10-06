@@ -1,0 +1,19 @@
+# Allowed values: exact matches that a generic rule accepts.
+#
+# scripts/scan.py drops a finding of a rule of scripts/host-values.regex when the
+# reported value is exactly one of these values. The list does not apply to a
+# credential rule and not to the local deny list.
+# Add a line only for a value that is the same on each host.
+#
+# Format: one exception for each line, two fields:
+#   <rule> <exact value>
+# A line that starts with "#" is a comment.
+
+# The name that Docker gives to the host machine. It is the same on each host.
+internal-url-tld http://host.docker.internal
+
+# The search library of the site (Pagefind) uses this base to resolve a relative URL.
+internal-url-host https://p
+
+# The capture container gives each capture this neutral home path. It is the same on each host.
+home-path-unix /home/alex

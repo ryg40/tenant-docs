@@ -1,0 +1,10 @@
+{
+  "title": "Clone the kit",
+  "stage": 1,
+  "order": 100,
+  "command": "git clone '<the URL of the tenant-pi repository>' \"$HOME/tenant-pi\"",
+  "setup": [
+    "ln -s /srv/tenant-pi.git \"$HOME/<the URL of the tenant-pi repository>\""
+  ],
+  "mode": "scripted"
+}

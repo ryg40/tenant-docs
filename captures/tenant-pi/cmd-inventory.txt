@@ -1,0 +1,39 @@
+{
+    "dir": "/home/alex/.pi/profiles/hand-made",
+    "extensions": [
+        {
+            "kind": "file",
+            "name": "status-line.ts"
+        }
+    ],
+    "managed": false,
+    "packages": [
+        {
+            "source": "npm:pi-mcp-adapter"
+        },
+        {
+            "filters": [
+                "skills"
+            ],
+            "source": "/home/alex/git/owner-skills"
+        }
+    ],
+    "prompts": [
+        {
+            "kind": "file",
+            "name": "review.md"
+        }
+    ],
+    "skills": [
+        {
+            "kind": "dir",
+            "name": "meeting-notes"
+        }
+    ],
+    "summary": {
+        "extensions": 1,
+        "packages": 2,
+        "prompts": 1,
+        "skills": 1
+    }
+}

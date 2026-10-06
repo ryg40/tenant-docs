@@ -1,0 +1,223 @@
+---
+// The top bar: the logo mark and the site title, the project menu, the search and the section links.
+// The grid rules are those of the default `Header.astro` of Starlight 0.42.
+import config from 'virtual:starlight/user-config';
+
+import Search from 'virtual:starlight/components/Search';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import { projectOfPath } from '@/data/projects';
+import ProjectMenu from './ProjectMenu.astro';
+
+const shouldRenderSearch =
+	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+
+const { siteTitle, siteTitleHref, sidebar } = Astro.locals.starlightRoute;
+
+type SidebarEntry = (typeof sidebar)[number];
+
+function firstHref(entry: SidebarEntry): string | undefined {
+	if (entry.type === 'link') return entry.href;
+	for (const child of entry.entries) {
+		const href = firstHref(child);
+		if (href) return href;
+	}
+	return undefined;
+}
+
+function hasCurrent(entry: SidebarEntry): boolean {
+	return entry.type === 'link' ? entry.isCurrent : entry.entries.some(hasCurrent);
+}
+
+// On a project page, `src/routeData.ts` leaves only the sidebar of that project.
+// Each top-level entry of that sidebar is one section link in the top bar.
+const sections = projectOfPath(Astro.url.pathname)
+	? sidebar.flatMap((entry) => {
+			const href = firstHref(entry);
+			if (!href) return [];
+			// A link names the current page. A group names the section that holds the current page.
+			const current = !hasCurrent(entry) ? undefined : entry.type === 'link' ? 'page' : 'true';
+			return [{ label: entry.label, href, current } as const];
+		})
+	: [];
+---
+
+<div class="header">
+	<div class="title-group sl-flex">
+		<a href={siteTitleHref} class="site-title sl-flex">
+			<svg class="mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+				<rect x="0.5" y="0.5" width="31" height="31" rx="8" class="mark-ground"></rect>
+				<rect x="7" y="8" width="18" height="3.5" rx="1.75" class="mark-sea"></rect>
+				<rect x="7" y="14.25" width="13" height="3.5" rx="1.75" class="mark-muted"></rect>
+				<rect x="7" y="20.5" width="9" height="3.5" rx="1.75" class="mark-coral"></rect>
+			</svg>
+			<span class="site-name" translate="no">{siteTitle}</span>
+		</a>
+		<div class="menu-wrapper print:hidden">
+			<ProjectMenu />
+		</div>
+	</div>
+	<div class="search-group sl-flex print:hidden">
+		{shouldRenderSearch && <Search />}
+	</div>
+	<div class="sl-hidden lg:sl-flex print:hidden right-group">
+		{
+			sections.length > 1 && (
+				<nav class="sections" aria-label="Sections">
+					<ul class="sl-flex">
+						{sections.map((section) => (
+							<li>
+								<a href={section.href} aria-current={section.current}>
+									{section.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			)
+		}
+		<SocialIcons />
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		.header {
+			display: flex;
+			gap: var(--sl-nav-gap);
+			justify-content: space-between;
+			align-items: center;
+			height: 100%;
+		}
+
+		.title-group {
+			align-items: center;
+			gap: 0.75rem;
+			min-width: 0;
+		}
+
+		.site-title {
+			flex: none;
+			align-items: center;
+			gap: 0.6rem;
+			border-radius: 8px;
+			color: var(--sn-ink);
+			font-size: 1.0625rem;
+			font-weight: 650;
+			letter-spacing: 0.005em;
+			text-decoration: none;
+			white-space: nowrap;
+		}
+		.mark {
+			flex: none;
+		}
+		.mark-ground {
+			fill: var(--sn-ground);
+			stroke: var(--sn-rule);
+		}
+		.mark-sea {
+			fill: var(--sn-sea);
+		}
+		.mark-muted {
+			fill: var(--sn-muted);
+		}
+		.mark-coral {
+			fill: var(--sn-coral);
+		}
+
+		.menu-wrapper {
+			min-width: 0;
+		}
+
+		.search-group {
+			flex: none;
+		}
+
+		.right-group {
+			gap: 1rem;
+			align-items: center;
+			justify-content: flex-end;
+		}
+
+		.sections ul {
+			gap: 0.25rem;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		.sections a {
+			display: block;
+			position: relative;
+			padding: 0.4rem 0.7rem;
+			border-radius: 8px;
+			color: var(--sn-muted);
+			font-size: var(--sl-text-sm);
+			font-weight: 500;
+			text-decoration: none;
+			white-space: nowrap;
+		}
+		.sections a:hover {
+			color: var(--sn-ink);
+			background: var(--sn-panel2);
+		}
+		.sections a[aria-current] {
+			color: var(--sn-ink);
+			font-weight: 650;
+		}
+		/* A mint bar under the link of the current section. */
+		.sections a[aria-current]::after {
+			content: '';
+			position: absolute;
+			inset-inline: 0.7rem;
+			bottom: 0;
+			height: 2px;
+			border-radius: 2px;
+			background: var(--sn-sea);
+		}
+
+		/* A narrow screen with a sidebar also holds the menu button. The project menu names the place, so the site name goes. */
+		@media (max-width: 29.99rem) {
+			:global(:root[data-has-sidebar]) .site-name {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+			}
+		}
+
+		@media (min-width: 50rem) {
+			:global(:root[data-has-sidebar]) {
+				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+			}
+			:global(:root:not([data-has-toc])) {
+				--__toc-width: 0rem;
+			}
+			.header {
+				--__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+				--__main-column-fr: calc(
+					(
+							100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+								(2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+								var(--sl-content-width)
+						) / 2
+				);
+				display: grid;
+				grid-template-columns:
+					/* 1 (site title and project menu): runs up until the left edge of the main content column, or the width of the group */
+					minmax(
+						calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
+						auto
+					)
+					/* 2 (search box): all free space that is available. */
+					1fr
+					/* 3 (section links): use the space that these need. */
+					auto;
+				align-content: center;
+			}
+			.search-group {
+				flex: 1;
+			}
+		}
+	}
+</style>

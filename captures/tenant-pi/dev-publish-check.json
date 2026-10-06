@@ -1,0 +1,8 @@
+{
+  "title": "Gate 4: the publish set",
+  "order": 840,
+  "ref": "main",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/publish_check.py",
+  "setup": [],
+  "mode": "scripted"
+}

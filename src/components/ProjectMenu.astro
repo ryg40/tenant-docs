@@ -1,0 +1,206 @@
+---
+// The project menu of the top bar. It is a `<details>` element, so it opens with no script.
+// The script adds the arrow keys, Home, End and Escape, and closes the menu when the focus leaves it.
+import { projects, projectOfPath } from '@/data/projects';
+
+const current = projectOfPath(Astro.url.pathname);
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+---
+
+<details class="project-menu">
+	<summary>
+		<span class="sr-only">{current ? 'Project:' : 'Menu:'}</span>
+		<span class="name">{current ? current.name : 'Projects'}</span>
+		<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+			<path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+		</svg>
+	</summary>
+	<nav aria-label="Projects">
+		<ul>
+			{
+				projects.map((project) => {
+					const href = `/${project.slug}/`;
+					return (
+						<li>
+							<a href={href} aria-current={project === current ? (path === href ? 'page' : 'true') : undefined}>
+								<b>{project.name}</b>
+								<span>{project.summary}</span>
+							</a>
+						</li>
+					);
+				})
+			}
+		</ul>
+	</nav>
+</details>
+
+<script>
+	for (const menu of document.querySelectorAll<HTMLDetailsElement>('details.project-menu')) {
+		const summary = menu.querySelector('summary')!;
+		const links = () => [...menu.querySelectorAll<HTMLAnchorElement>('nav a')];
+
+		const close = (refocus: boolean) => {
+			if (!menu.open) return;
+			menu.open = false;
+			if (refocus) summary.focus();
+		};
+
+		// A click outside the menu closes it.
+		document.addEventListener('click', (event) => {
+			if (!menu.contains(event.target as Node)) close(false);
+		});
+
+		// The menu closes when the focus moves out of it, for example with Tab.
+		menu.addEventListener('focusout', (event) => {
+			const next = event.relatedTarget as Node | null;
+			if (next && !menu.contains(next)) close(false);
+		});
+
+		menu.addEventListener('keydown', (event) => {
+			const items = links();
+			const index = items.indexOf(document.activeElement as HTMLAnchorElement);
+			let target: HTMLAnchorElement | undefined;
+
+			switch (event.key) {
+				case 'Escape':
+					if (!menu.open) return;
+					close(true);
+					break;
+				case 'ArrowDown':
+					// From the button, the Down key opens the menu and moves to the first project.
+					menu.open = true;
+					target = items[(index + 1) % items.length];
+					break;
+				case 'ArrowUp':
+					// From the button, the Up key opens the menu and moves to the last project.
+					menu.open = true;
+					target = items[index <= 0 ? items.length - 1 : index - 1];
+					break;
+				case 'Home':
+					if (!menu.open) return;
+					target = items[0];
+					break;
+				case 'End':
+					if (!menu.open) return;
+					target = items[items.length - 1];
+					break;
+				default:
+					return;
+			}
+			event.preventDefault();
+			target?.focus();
+		});
+	}
+</script>
+
+<style>
+	.project-menu {
+		position: relative;
+		min-width: 0;
+	}
+	summary {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		min-height: 2.25rem;
+		padding: 0.3rem 0.75rem;
+		border: 1px solid var(--sn-rule);
+		border-radius: 999px;
+		background: var(--sn-panel);
+		color: var(--sn-sea-ink);
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		list-style: none;
+		user-select: none;
+	}
+	summary::-webkit-details-marker {
+		display: none;
+	}
+	summary .name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	summary svg {
+		flex: none;
+	}
+	summary:hover {
+		background: var(--sn-raise);
+	}
+	.project-menu[open] summary {
+		border-color: var(--sn-sea);
+	}
+	.project-menu[open] summary svg {
+		transform: rotate(180deg);
+	}
+	nav {
+		position: absolute;
+		z-index: 10;
+		top: calc(100% + 0.5rem);
+		inset-inline-start: 0;
+		width: min(23rem, calc(100vw - 2rem));
+		max-height: calc(100vh - var(--sl-nav-height) - 1rem);
+		max-height: calc(100dvh - var(--sl-nav-height) - 1rem);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		padding: 0.4rem;
+		border: 1px solid var(--sn-rule);
+		border-radius: 14px;
+		background: var(--sn-panel);
+		box-shadow: 0 16px 40px rgb(7 11 17 / 0.55);
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li + li {
+		margin-top: 2px;
+	}
+	a {
+		display: block;
+		padding: 0.5rem 0.65rem;
+		border-radius: 9px;
+		text-decoration: none;
+		/* The focus ring stays inside the scroll box of the menu. */
+		outline-offset: -2px;
+	}
+	a:hover,
+	a:focus-visible {
+		background: var(--sn-raise);
+	}
+	a[aria-current] {
+		background: var(--sn-sea-soft);
+	}
+	a b {
+		display: block;
+		color: var(--sn-ink);
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+	}
+	a[aria-current] b {
+		color: var(--sn-sea-ink);
+	}
+	a span {
+		display: block;
+		color: var(--sn-muted);
+		font-size: var(--sl-text-xs);
+		line-height: 1.4;
+	}
+	/* On a narrow screen the button has the height of the search and menu buttons. */
+	@media (max-width: 49.99rem) {
+		summary {
+			min-height: 2.5rem;
+		}
+	}
+	/* On a narrow screen the list takes the width of the screen, under the top bar. */
+	@media (max-width: 30rem) {
+		nav {
+			position: fixed;
+			top: calc(var(--sl-nav-height) + 0.25rem);
+			inset-inline: 0.5rem;
+			width: auto;
+		}
+	}
+</style>

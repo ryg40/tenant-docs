@@ -1,0 +1,73 @@
+---
+title: "{{action}}"
+description: "What the action {{action}} of {{project}} does, its options and its output."
+sidebar:
+  order: {{order}}
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+{/* docgen: sources of this page, at the ref {{ref}}:
+{{sources}}
+*/}
+
+<DocVersion project="{{project}}" />
+
+{/* docgen:slot what-it-does | 15-70 words | text | Say in two or three sentences what the action `{{action}}` does and when the reader runs it. Then say in one sentence if it writes a file. Take the facts from the help text and the sources. */}
+TODO(docgen:what-it-does)
+{/* docgen:end */}
+
+The section [Output](#output) shows the command and its result.
+
+## Options
+
+The frame shows the help text of the action.
+
+{/* docgen:capture help-{{action}} | {{help_order}} | The help text of the action {{action}} | run {{cli}} {{action}} --help */}
+<Capture id="{{project}}/help-{{action}}" />
+
+{/* docgen:slot options | 5-300 words | table | Give a table with the columns Option and Meaning. One row for each option in the help text of the action `{{action}}`. Start the meaning with "Required." when the action requires the option. If the action has no option, write: The action has no option. */}
+TODO(docgen:options)
+{/* docgen:end */}
+
+## What it reads and writes
+
+{/* docgen:slot reads-writes | 6-180 words | table | Give a table with the columns File or directory, Read or written and When. One row for each file or directory that the action `{{action}}` reads or writes. Take each row from the sources. If the sources do not state it, write: The sources do not state this. */}
+TODO(docgen:reads-writes)
+{/* docgen:end */}
+
+## Output
+
+{/* docgen:slot example-command | 1-60 words | command | Give one complete command line that runs the action `{{action}}` with the options that it requires. The line starts with `{{cli}} {{action}}`. Copy an example of the sources when one exists. The command must run in a new clone with no change: use the example values of the sources, and no placeholder in angle brackets. */}
+{/* docgen:command
+TODO(docgen:example-command)
+*/}
+{/* docgen:end */}
+
+The frame shows one complete command of the action in a clean container.
+
+{/* docgen:capture cmd-{{action}} | {{cmd_order}} | The action {{action}} | slot example-command */}
+<Capture id="{{project}}/cmd-{{action}}" />
+
+{/* docgen:slot output | 6-120 words | text | Say what the action `{{action}}` prints when it ends with no error. Name each line or key that the reader must check. Do not copy output into the page. If the sources do not state it, write: The sources do not state the output. */}
+TODO(docgen:output)
+{/* docgen:end */}
+
+## Exit codes
+
+{/* docgen:slot exit-codes | 6-120 words | table | Give a table with the columns Exit code and Meaning. One row for each exit code that the sources or the help text name for the action `{{action}}`. If the sources name no exit code, write: The sources do not state the exit codes. */}
+TODO(docgen:exit-codes)
+{/* docgen:end */}
+
+## Common errors
+
+{/* docgen:slot errors | 6-200 words | table | Give a table with the columns Error and Cause. One row for each error text that the sources name for the action `{{action}}`. Copy each error text from the sources and put it in backticks. If the sources name no error, write: The sources name no error of this action. */}
+TODO(docgen:errors)
+{/* docgen:end */}
+
+## Reference file
+
+{/* docgen:slot reference-file | 6-60 words | text | Name each file of the project repository that describes the action `{{action}}`, as a path in backticks. Use only a path from the list of sources at the top of this page. If no documentation file describes the action, write: The repository has no reference file for this action. */}
+TODO(docgen:reference-file)
+{/* docgen:end */}
