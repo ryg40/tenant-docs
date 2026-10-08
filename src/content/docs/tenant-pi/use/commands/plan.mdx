@@ -2,7 +2,7 @@
 title: plan
 description: See the files, the readiness gaps and the commands of a profile before you generate it.
 sidebar:
-  order: 5
+  order: 8
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -26,6 +26,8 @@ Read the plan before each `generate`.
 | --- | --- |
 | `--overlay <file>` | Required. The overlay file. |
 | `--launcher <path>` | The absolute path of a launcher file that does not exist. `plan` only prints the path. |
+| `--runtime-report <file>` | The JSON output of an earlier [`check-runtime`](/tenant-pi/use/commands/check-runtime/#the-report-as-a-file) run. The gaps then show the measured versions of Node and Pi. |
+| `--herdr-report <file>` | The JSON output of an earlier [`check-herdr`](/tenant-pi/use/commands/check-herdr/) run. The gaps then show the measured `herdr` command. |
 | `--registry <file>` | A JSON file with the thinking levels of each model that you confirm. |
 | `--require-role <role>` | Marks one role as required. Repeat the option for more roles. |
 | `--local-dir <dir>` | The absolute directory that holds the input files of the overlay. The default is `.local` in the kit clone. |
@@ -37,38 +39,110 @@ With `--launcher`, `plan` applies the location rules of the launcher path. It do
 
 ## What it reads
 
-`plan` reads the same files as `validate`: the overlay, the manifest, the registry and the MCP input file.
+`plan` reads the same files as `validate`: the overlay, the manifest, the registry and the MCP input file. It also reads each report file that you give.
 
 - It makes no change in the file system.
-- It starts no process and opens no network connection.
-- With `--launcher`, it reads the environment value `HOME`. It reads no other environment value.
+- It starts no process and opens no network connection. It does not run `check-runtime` or `check-herdr`.
+- It reads the environment values `HOME` and `WIKI_HOME` for the place rules, as `validate` does.
+- It tests a fixed list of provider key names for presence in the environment. It reads no value of them.
 
 ## Output
 
 <Capture id="tenant-pi/cmd-plan" />
 
-The capture shows the plan of a core-only overlay.
+The capture shows the plan of a core-only overlay. The command has no `--runtime-report`. [Stage 4](/tenant-pi/install/stage-4-plan/) shows a plan with a runtime report.
 
 | Key | Content |
 | --- | --- |
 | `targetAgentDir` | The target of the overlay. |
 | `files` | The paths and modes that `generate` will write. |
 | `readinessGaps` | The facts that no offline step can prove. |
-| `commands.setupDisplayOnly` | The dependency commands that you run by hand. |
+| `commands.setupDisplayOnly` | The dependency commands that are default steps. You run them by hand. |
+| `commands.piInstall` | The global install line of the Pi pin, with its mark. See [The mark of the Pi install line](#the-mark-of-the-pi-install-line). |
 | `commands.launchDisplayOnly` | The launch line of the profile. |
 | `commands.launcherDisplayOnly` | The launcher path, when you give `--launcher`. |
+| `commands.providerKeyWarning` | Only when a known provider key name is set in the shell. See [The warning for a provider key](#the-warning-for-a-provider-key). |
 | `commands.launchStatus` | `not_runnable_until_generation_succeeds` in a plan. |
 | `filesComplete` | `false` in a plan. |
 | `runtimeReady` | Always `false`. The kit cannot prove the runtime. |
 | `routeStatus` | The state of each role: `selected`, `required_missing` or `unset`. |
 | `routeSetup` | The setup facts of the model routes. |
 | `memory` | The record of the memory modules, or `null` when none is enabled. |
-| `workflow` | The readiness record of the MCP module and of Promptr. Promptr stays `blocked` in it. |
+| `workflow` | The readiness record of the `mcp` component and of Promptr. Promptr has the status `unverified` in it, with a list of prerequisites. |
 | `ownerPackages`, `ownerResources`, `unmanaged` | The lists of the same overlay keys. |
 
 Each command under `commands` is display text. The kit runs none of them.
 
-A core-only plan has three gaps: `target_absence_unverified`, `node_runtime_unverified` and `core_runtime_unverified`. A gap is a fact to carry. It is not an error.
+A core-only plan without a report has three gaps: `target_absence_unverified`, `node_runtime_unverified` and `core_runtime_unverified`. A gap is a fact to carry. It is not an error.
+
+## The gaps after a report
+
+A runtime report changes the two runtime gaps. `target_absence_unverified` stays in each plan, because `plan` proves nothing about the target.
+
+| Status in the report | Node gap | Pi gap |
+| --- | --- | --- |
+| No report | `node_runtime_unverified` | `core_runtime_unverified` |
+| `match` | None | None |
+| `untested_in_range` | Not valid for Node | `core_runtime_untested_in_range` |
+| `mismatch` | `node_runtime_mismatch` | `core_runtime_mismatch` |
+| `missing` | `node_runtime_missing` | `core_runtime_missing` |
+| `unparsed` | `node_runtime_unparsed` | `core_runtime_unparsed` |
+
+- A gap from the report has two more keys: `installed` and `required`.
+- The gap `core_runtime_untested_in_range` also has `tested`, `acceptedRange` and `fact`.
+- The `python` entry of the report adds no gap. Python runs the kit, not the profile.
+- The report changes the printed output only. The generated files are the same with and without it.
+
+With the `herdr` component, the plan adds the gaps `herdr_cli_unverified` and `herdr_session_unverified`.
+
+| Status in the Herdr report | Gap |
+| --- | --- |
+| No report | `herdr_cli_unverified` |
+| `present` | None |
+| `missing` | `herdr_cli_missing` |
+| `unparsed` | `herdr_cli_unparsed` |
+
+`herdr_session_unverified` stays with each report. No kit action starts a Herdr session.
+
+Not verified: a report of a real Pi or of a real Herdr with the status `unparsed`. The site has no capture of a plan with a Herdr report.
+
+## The mark of the Pi install line
+
+One `pi` command serves each profile of the user. So the global install line changes Pi for each profile. `commands.piInstall` holds the line with a mark.
+
+| Pi status in the report | `status` | The line is in `setupDisplayOnly` | `change` |
+| --- | --- | --- | --- |
+| No report, or `unparsed` | `installed_version_unknown` | Yes | `null` |
+| `missing` | `needed` | Yes | `null` |
+| `match` or `untested_in_range` | `not_needed` | No | `null` |
+| `mismatch` | `replaces_installed` | No | `downgrade`, `upgrade` or `unordered` |
+
+- `installed` and `required` give the two versions. `installed` is `null` when the kit does not know the version.
+- `warning` always has the value `global_install_replaces_pi_for_all_profiles`.
+- With `replaces_installed`, the line is not a default step. To replace the installed Pi is your decision.
+
+[Stage 6](/tenant-pi/install/stage-6-install-the-dependencies/) has the steps for each status.
+
+## The warning for a provider key
+
+Pi reads a provider key from the environment of the shell that starts it. It does so also in a profile with no login. A model reply can then come from a provider that you did not select.
+
+`plan` adds `commands.providerKeyWarning` when a known provider key name is set in the shell of the plan run.
+
+| Key | Content |
+| --- | --- |
+| `code` | `provider_key_in_launching_environment` |
+| `variables` | The names that are set. The list never holds a value. |
+| `fact`, `remedy` | Fixed text. The remedy is the form `--model '<provider>/<model>'` on the launch line. |
+
+- The list of the known names is not complete. A plan without the warning does not prove that Pi finds no key.
+- A name with an empty value counts as set.
+- Run `plan` in the shell that starts Pi.
+- `validate` and `generate` do not test the names.
+
+The known names are `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `AZURE_OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENROUTER_API_KEY`, `XAI_API_KEY` and `ZAI_API_KEY`.
+
+Not verified: which variable names Pi reads for each provider.
 
 ## Exit codes
 
@@ -79,7 +153,7 @@ A core-only plan has three gaps: `target_absence_unverified`, `node_runtime_unve
 
 ## Common refusals
 
-`plan` has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals). The launcher path adds these:
+`plan` has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals). The launcher path and the report files add these:
 
 | Diagnostic | Cause |
 | --- | --- |
@@ -87,8 +161,14 @@ A core-only plan has three gaps: `target_absence_unverified`, `node_runtime_unve
 | `under_target: launcher.path` | The launcher path is the target or is under it. |
 | `under_pi_agent: launcher.path` | The launcher path is `~/.pi/agent` or is under it. |
 | `under_kit: launcher.path` | The launcher path is the kit clone or is under it. |
+| `under_wiki_vault: launcher.path` | The launcher path is an LLM Wiki vault or is under it. |
 | `home_required: launcher.home` | `HOME` is not set. |
+| A rule of [Input file errors](/tenant-pi/use/commands/validate/#input-file-errors) with the field `runtime_report.file` or `herdr_report.file` | The loader cannot use the report file. An empty file gives `invalid_json`. |
+| `runtime_report_required: runtime_report.<tool>.required` | A requirement in the report differs from the manifest. The report comes from another kit version. |
+| `runtime_report_status: runtime_report.<tool>.status` | The status is not valid for the tool, or it does not agree with the versions. |
+| `runtime_report_installed: runtime_report.<tool>.installed` | The value `installed` is not one version, or it does not agree with the status. |
+| `herdr_report_status`, `herdr_report_installed` | The Herdr report is not the output of `check-herdr`. |
 
 ## Reference files
 
-`docs/generator.md`, `docs/profile-plan.md` and `docs/launcher.md` in the project repository.
+`docs/generator.md`, `docs/profile-plan.md`, `docs/launcher.md`, `docs/check-runtime.md` and `docs/herdr-setup.md` in the project repository.

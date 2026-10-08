@@ -1,0 +1,105 @@
+---
+title: check-baseline
+description: Compare one directory with its baseline file, and see which direct entries changed.
+sidebar:
+  order: 11
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`check-baseline` compares one directory with the file of an earlier [`baseline`](/tenant-pi/use/commands/baseline/) run. It prints one of three results: `unchanged`, `changed` or `no_baseline`. It writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py check-baseline --dir "$HOME/.pi/agent" \
+  --baseline "$HOME/.config/tenant-pi/live-baseline.json"
+```
+
+Use it after the first launch of a new profile. The result `unchanged` shows that no entry changed in name, kind, size or modification time. [Stage 9](/tenant-pi/install/stage-9-test/#check-4-the-comparison-with-the-baseline) has the steps.
+
+## Options
+
+<Capture id="tenant-pi/help-check-baseline" />
+
+| Option | Meaning |
+| --- | --- |
+| `--dir <path>` | Required. The absolute path of the directory. It must be the path that the baseline names. |
+| `--baseline <path>` | Required. The absolute path of the baseline file. |
+
+## What it reads
+
+- The baseline file, through the bounded loader of [`validate`](/tenant-pi/use/commands/validate/#what-it-reads).
+- The directory, in the same way as [`baseline`](/tenant-pi/use/commands/baseline/#what-it-reads): it lists each level and opens no file.
+
+The action checks that the baseline names `--dir` before it lists the directory. Without a baseline file, it lists nothing.
+
+The action reads no environment value. It starts no process and opens no network connection.
+
+## Output
+
+<Capture id="tenant-pi/cmd-check-baseline" />
+
+Before this capture, the session added one file to the directory `prompts` of the recorded directory. So the result is `changed`, and `modified` names `prompts`. The placeholder `<UTC time>` replaces the time of the baseline.
+
+| Key | Content |
+| --- | --- |
+| `result` | `unchanged`, `changed` or `no_baseline`. |
+| `dir` | The given path. |
+| `recordedAt` | The time of the baseline. It is `null` with `no_baseline`. |
+| `was`, `now` | `present` or `absent`: the directory at the baseline and now. Both are `null` with `no_baseline`. |
+| `added` | The names of the direct entries that are new. |
+| `removed` | The names of the direct entries that are gone. |
+| `modified` | The names of the direct entries that differ. A difference at a lower level counts for its direct entry. |
+| `directoryModified` | `true` when the modification time of the directory itself differs. |
+| `scope` | A fixed statement of what the comparison covers. |
+
+The comparison uses the name, the kind, the size and the modification time of each entry. It names the direct entries only.
+
+## Read the result
+
+| `result` | Meaning |
+| --- | --- |
+| `unchanged` | No entry is new, gone or modified after `recordedAt`. A directory that was absent is still absent. |
+| `changed` | The directory differs from the baseline. The three name lists, `directoryModified`, `was` and `now` show where. |
+| `no_baseline` | The baseline file does not exist. The action compared nothing. |
+
+- The result `unchanged` is a proof for a launch only when `recordedAt` is before that launch. Compare the two times yourself.
+- The comparison shows what changed. It does not show which process changed it.
+- A Pi that runs in the live profile can change `~/.pi/agent`, also `pi --version`. A `pi` command without `PI_CODING_AGENT_DIR` is such a Pi.
+- `changed` with three empty lists and `"directoryModified": true` shows an entry that came and went, for example a lock file.
+
+[Stage 9](/tenant-pi/install/stage-9-test/#check-4-the-comparison-with-the-baseline) shows the result `unchanged`, and it has the steps for the result `changed`.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The result is `unchanged`. |
+| 1 | The result is `changed` or `no_baseline`. The report is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+The command of the capture sends the report through `python3 -m json.tool`. So the shell does not show the exit code 1 of the action there.
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: check-baseline.dir` | `--dir` is relative, or it has a segment that the path rule refuses. |
+| `absolute_path: check-baseline.baseline` | `--baseline` is relative, or it has a segment that the path rule refuses. |
+| `baseline_dir: check-baseline.dir` | The baseline names another directory than `--dir`. |
+| `baseline_record: check-baseline.baseline` | The baseline file is JSON of another shape, for example after an edit by hand. |
+| `not_directory: check-baseline.dir` | `--dir` or a directory above it is a symbolic link or is not a directory. |
+| `unreadable: check-baseline.dir` | You cannot open or list the directory, or a directory below it. |
+| A rule of [Input file errors](/tenant-pi/use/commands/validate/#input-file-errors) with the field `check-baseline.baseline` | The loader cannot use the baseline file. A file that is absent is not an error: the result is `no_baseline`. |
+
+## Limits
+
+- The comparison does not find a change that keeps the kind, the size and the modification time. A change of the mode or of the owner is such a change.
+- The comparison names no entry below the first level.
+- A change behind a symbolic link is outside the comparison.
+
+## Reference file
+
+`docs/directory-baseline.md` in the project repository.

@@ -1,0 +1,8 @@
+{
+  "title": "The checklist of the components",
+  "stage": 2,
+  "order": 240,
+  "command": "python3 scripts/tenant_pi.py components --format text",
+  "setup": [],
+  "mode": "scripted"
+}

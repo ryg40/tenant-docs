@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action check-herdr",
+  "order": 174,
+  "command": "python3 scripts/tenant_pi.py check-herdr --help",
+  "setup": [],
+  "mode": "scripted"
+}

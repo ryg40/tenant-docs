@@ -57,23 +57,73 @@ These captures exist. The kit commands come from `docs/guides/setup.md` of the r
 | --- | --- | --- |
 | `stage1-clone` | 100 | `git clone` with the placeholder `<the URL of the tenant-pi repository>`. |
 | `stage1-clone-checks` | 110 | The unit tests, the publish check and `check-runtime`, in one command line. The exit code is 1, because Pi is absent. |
-| `help` | 150 | `--help` of the command line. |
-| `help-<action>` | 152 to 168 | `--help` of `check-runtime`, `init-private`, `validate`, `plan`, `generate`, `compare`, `carry`, `inventory` and `list`. |
-| `stage2-init-private` | 200 | `init-private`. |
-| `stage2-edit-overlay` | 220 | The overlay after the edit of `target.agentDir`. |
+| `help` | 150 | `--help` of the command line. It lists 17 actions. |
+| `help-<action>` | 152 to 184 | `--help` of each of the 17 actions. The orders 152 to 168 are `check-runtime`, `init-private`, `validate`, `plan`, `generate`, `compare`, `carry`, `inventory` and `list`. The orders 170 to 184 are `baseline`, `check-baseline`, `check-herdr`, `check-wiki-vault`, `components`, `remote-plan`, `compose-plan` and `results`. |
+| `stage2-init-private` | 200 | `init-private` with `--dir` and `--target`. |
+| `stage2-overlay` | 220 | The overlay of the new private directory. The setup makes the parent of the target. |
+| `stage2-json-check` | 230 | The syntax check of the overlay with `python3 -m json.tool`. |
+| `stage2-components` | 240 | `components --format text`: the checklist of the 27 components. |
+| `stage2-components-core` | 250 | `components --select core`: the selection of the sample overlay. |
+| `stage2-components-select` | 260 | `components --select core,ops-footer`. The action adds `context-meter`. |
+| `stage2-check-wiki-vault` | 270 | `check-wiki-vault`. The result is `no_vault`. |
 | `stage3-validate` | 300 | `validate`. |
-| `stage4-plan` | 400 | `plan` with `--launcher`. |
-| `stage5-generate` | 500 | `generate` without a launcher. |
+| `stage4-runtime-report` | 400 | `check-runtime` with its output in the file `runtime.json`. The output is empty. The exit code is 1, because Pi is absent. |
+| `stage4-runtime-report-file` | 405 | The file `runtime.json`. |
+| `stage4-plan` | 410 | `plan` with `--launcher` and `--runtime-report`. |
+| `stage5-generate` | 500 | `generate` without a launcher and without a runtime report. |
 | `stage5-generate-launcher` | 510 | `generate` with `--launcher`. The setup removes the profile of `stage5-generate` first. |
 | `stage5-profile-files` | 520 | The paths of the new profile. |
 | `stage5-launcher-file` | 530 | The launcher file. |
 
+No capture of stages 1 to 5 changes the overlay. The `components` and `check-wiki-vault` captures write nothing.
+
 After order 530, the session has this state. A later capture can use it.
 
 - The working directory is the kit clone `/home/alex/tenant-pi`.
-- The private directory is `/home/alex/.config/tenant-pi`. It holds the overlay and `launch-main.sh`.
+- The private directory is `/home/alex/.config/tenant-pi`. It holds the overlay, `runtime.json` and `launch-main.sh`.
+- `runtime.json` is the runtime report of order 400: Node `match`, Pi `missing`, Python `match`.
 - The generated profile is `/home/alex/.pi/profiles/main`. It is core-only.
 - Pi is not installed. `npm` has no network access.
+
+### Captures of the Use pages
+
+These captures exist. They run in the release session, after the captures of stages 1 to 5.
+
+| Name | Order | Content |
+| --- | --- | --- |
+| `cmd-check-runtime` | 600 | `check-runtime`. Pi is `missing`. |
+| `cmd-refusal` | 610 | `generate` with a target that exists. The command prints the exit code 2. |
+| `cmd-init-private` | 620 | `init-private` without `--target`, for the second private directory `tenant-pi-work`. |
+| `cmd-inventory` | 630 | `inventory` of the directory `hand-made`. The setup makes that directory. |
+| `cmd-baseline` | 640 | `baseline` of the directory `hand-made`. It writes `hand-made-baseline.json` into the private directory. |
+| `cmd-check-baseline` | 645 | `check-baseline` of the same directory. The setup adds one file below `prompts`, so the result is `changed`. |
+| `cmd-check-herdr` | 650 | `check-herdr`. The container has no `herdr` command, so the status is `missing`. The command prints the exit code 1. |
+| `cmd-check-wiki-vault` | 655 | `check-wiki-vault`. The setup makes `~/.llm-wiki` with a file `config.json`, so the result is `vault_exists`. |
+| `cmd-components` | 660 | `components --format text` with the overlay of the session. Only `core` has a mark. |
+| `cmd-remote-plan` | 665 | `remote-plan` with the target `build-host` and the account `alex`. |
+| `cmd-compose-plan` | 670 | `compose-plan` without `--write`. The setup writes a public key file with an example key line. The command stops the output at the first command line of the plan. |
+| `cmd-results` | 675 | `results` without `--out-dir`. The setup writes the facts file. The command stops the output at the heading of the second section. |
+| `update-target` | 700 | The new target in the overlay. The setup sets it. |
+| `cmd-validate` | 710 | `validate`. |
+| `cmd-plan` | 720 | `plan` with `--launcher` and without a runtime report. |
+| `cmd-generate` | 730 | `generate` with `--launcher`, into the candidate `main-2026-10-05`. |
+| `cmd-list` | 740 | `list` of the parent of the candidates. |
+| `update-compare`, `update-report`, `update-carry`, `update-launcher` | 750 to 756 | The steps of the candidate update loop: the saved report, its content, the patches and the launcher file. |
+| `cmd-compare` | 760 | `compare` after an edit by hand of `settings.json` in the right side. The setup makes the edit. |
+| `cmd-carry` | 770 | `carry` with one patch. The setup makes the candidate `main-trial` from a copy of the overlay. |
+| `update-pass` | 780 | One pass of the loop as one command: `validate`, `generate`, `compare` and `carry`. |
+
+Rules for a new capture of the Use pages:
+
+- An action that needs a file of an install gets the file from `setup`: a facts file, a baseline file or a public key file.
+- An action that prints command lines for another machine runs as each other action. The capture shows the printed lines. The kit runs none of them.
+- The home path in an option value is `/home/alex`, and the account is `alex`. The scan refuses a home path of another user.
+
+After order 675, the session also has this state:
+
+- The private directory holds `hand-made-baseline.json`, `seat-key.pub` and `results-facts.json`.
+- The directory `~/.llm-wiki` exists with the file `config.json`. No capture after order 655 reads it. The target of each later capture is outside it.
+- The directory `hand-made` holds the file `prompts/plan.md`.
 
 ### Captures of the Develop pages
 
@@ -85,6 +135,7 @@ These captures exist. Each one has `"ref": "main"`, so it runs in a clone of the
 | `dev-examples` | 820 | Gate 2. |
 | `dev-sample-overlay` | 830 | Gate 3. |
 | `dev-publish-check` | 840 | Gate 4. |
+| `dev-public-reader-check` | 845 | The public reader check: `publish_check.py --public`. The container has no local deny list. |
 | `dev-doc-check` | 850 | The documentation check. |
 | `dev-scan-selftest` | 860 | The negative control of the scanner. The setup adds `/usr/local/scanner` to `PATH`. |
 
@@ -98,24 +149,29 @@ These captures exist. Each one has `"ref": "main"`, so it runs in a clone of the
 
 The kit runs no command of stages 6 to 9, and Stage 6 needs the network. So these captures are manual. The capture script does not run them.
 
-| Name | Order | Content |
-| --- | --- | --- |
-| `stage6-check-runtime` | 1000 | `check-runtime` before the install. `node` and `pi` are `missing`, and the exit code is 1. |
-| `stage6-node-nvm` | 1010 | `nvm install 22 && nvm use 22`. |
-| `stage6-npm-prefix` | 1020 | The test of the global npm prefix. |
-| `stage6-install-pi` | 1030 | The global install of Pi `1.0.2`. |
-| `stage6-check-runtime-again` | 1040 | `check-runtime` after the install. |
-| `stage7-login` | 1100 | The Pi screen after `/login`: the `.txt` file, a recording and the image `stage7-login.png`. |
-| `stage7-login-result` | 1110 | The Pi screen after a login with an API key: the `.txt` file and the image `stage7-login-result.png`. It has no recording. |
-| `stage8-launch` | 1200 | The first launch with the launcher file: the Pi screen as the `.txt` file, a recording and the image `stage8-launch.png`. |
-| `stage9-pi-version` | 1300 | `pi --version` with the profile. |
-| `stage9-prompt` | 1305 | A launch after the login, one prompt and the reply of the model: the Pi screen as the `.txt` file, a recording and the image `stage9-prompt.png`. |
-| `stage9-target-files` | 1310 | The target after the login and one prompt. |
-| `stage9-live-profile` | 1320 | The directory `~/.pi`. It has no live profile. |
-| `stage9-session-dir` | 1330 | The directory in `PI_CODING_AGENT_SESSION_DIR` after a launch with the launcher file. |
-| `stage9-install-log` | 1340 | The install log with one entry. |
+| Name | Order | Content | Run |
+| --- | --- | --- | --- |
+| `stage6-check-runtime` | 1000 | `check-runtime` before the install. `node` and `pi` are `missing`, and the exit code is 1. | Third |
+| `stage6-node-nvm` | 1010 | `nvm install 24 && nvm use 24`. | Third |
+| `stage6-npm-prefix` | 1020 | The test of the global npm prefix. | Third |
+| `stage6-install-pi` | 1030 | The global install of the Pi pin `1.1.0`. The command reads the pin from `config/manifest.json`. | Third |
+| `stage6-check-runtime-again` | 1040 | `check-runtime` after the install. | Third |
+| `stage7-login` | 1100 | The Pi screen after `/login`: the `.txt` file, a recording and the image `stage7-login.png`. | Third |
+| `stage7-login-result` | 1110 | The Pi screen after a login with an API key: the `.txt` file and the image `stage7-login-result.png`. It has no recording. | Second |
+| `stage8-baseline` | 1190 | `baseline` of `~/.pi/agent` before the first launch. | Third |
+| `stage8-launch` | 1200 | The first launch with the launcher file: the Pi screen as the `.txt` file, a recording and the image `stage8-launch.png`. | Third |
+| `stage9-pi-version` | 1300 | `pi --version` with the profile. | Third |
+| `stage9-prompt` | 1305 | A launch after the login, one prompt and the reply of the model: the Pi screen as the `.txt` file, a recording and the image `stage9-prompt.png`. | Second |
+| `stage9-target-files` | 1310 | The target after the first launch and three more launches, with no login. | Third |
+| `stage9-live-profile` | 1320 | The directory `~/.pi`. It has no live profile. | Third |
+| `stage9-check-baseline` | 1325 | `check-baseline` of `~/.pi/agent` after the launches. | Third |
+| `stage9-session-dir` | 1330 | The directory in `PI_CODING_AGENT_SESSION_DIR` after a launch with the launcher file and one prompt. | Second |
+| `stage9-install-log` | 1340 | The install log with one entry. | Third |
+| `stage9-results` | 1350 | `results`, which writes `INSTALLER_KIT_RESULTS.md`. | Third |
 
-The record of the first run on 2026-10-05, with no credential:
+The column "Run" names the record below that each capture comes from.
+
+The record of the first run on 2026-10-05, with no credential. No capture of this run stays: the second and the third run replaced each one.
 
 | Item | Value |
 | --- | --- |
@@ -128,15 +184,7 @@ The record of the first run on 2026-10-05, with no credential:
 | Terminal | 80 columns and 24 rows for a command. 100 columns and 30 rows for the Pi screen. |
 | Tools of the recording | asciinema records each command. tmux types the keys into Pi and reads the Pi screen. |
 
-- Redaction: no value was replaced. The container has only the neutral values, so no output holds a value of a host.
-- For `stage6-install-pi`, the shell had `npm_config_progress=false` and `npm_config_update_notifier=false`. The output then has no progress display and no notice about a newer npm.
-- For `stage6-node-nvm`, the install script of nvm ran first. The capture does not show it.
-- A `.txt` file of a Pi screen holds the text of the screen with its colors. The recording has the real timing, and a long wait is cut to 2 seconds.
-- An image shows the same text as its `.txt` file. A headless browser draws the text with the Soft Night ground color. The image holds no other data.
-- The time in `stage6-install-pi` and each file date in the `stage9-*` captures change with each run.
-- A person must look at each image for a secret before a release. The scanner cannot read the text of an image.
-
-The record of the second run on 2026-10-05, with a credential:
+The record of the second run on 2026-10-05, with a credential. Its captures are `stage7-login-result`, `stage9-prompt` and `stage9-session-dir`.
 
 | Item | Value |
 | --- | --- |
@@ -144,13 +192,41 @@ The record of the second run on 2026-10-05, with a credential:
 | Credential | An API key of the provider OpenRouter. The owner typed it into Pi by hand, with the method `Sign in with an API key`. |
 | Model | `moonshotai/kimi-k2.6`. Pi selected it after the login. |
 | Prompt | One prompt of one line. The status line shows a cost of 0.001 USD. |
-| Captures | `stage7-login-result`, `stage9-prompt`, and each `stage9-*` capture of the first run again. |
+| Captures | `stage7-login-result`, `stage9-prompt` and `stage9-session-dir`. |
 
 - No recording and no capture exists of the screens where the owner selected the provider and typed the key.
 - No command of the run read the file `auth.json`. The captures show its size only.
 - The container was removed after the run, so the file with the key does not exist now.
 - The captures show the name of the provider and of the model. They show no account name, no key and no balance.
 - For `stage9-prompt`, the shell had `PI_CODING_AGENT_SESSION_DIR`. `stage9-session-dir` shows that the directory stayed empty after the prompt.
+
+The record of the third run on 2026-10-08, with no credential. Its captures are each capture of the table with the value "Third".
+
+| Item | Value |
+| --- | --- |
+| Release | `portable/20261008-b54a5f8`, as a Git bundle of the release tag. The container cloned it from a bare repository. |
+| Client | A new container from the image `debian:12`, with Python 3.11, Git, `curl` and `vi` from Debian |
+| User, home and host name | `alex`, `/home/alex`, `example` |
+| Profile | Core only. Stages 1 to 5 of `docs/guides/setup.md` of the release ran first in the same container. |
+| Node and Pi | Node 24.21.0 and npm 11.19.0 from nvm `0.40.3`, then Pi `1.1.0` from the npm registry |
+| Credential | None. No prompt went to Pi, so Pi sent no request to a model. |
+| Terminal | 80 columns and 24 rows for a command. 100 columns and 30 rows for the Pi screen. |
+| Tools of the recording | asciinema 2.2.0 records each command. tmux 3.3a types the keys into Pi and reads the Pi screen. |
+
+- The method of the third run is the method of the first run. A script of that run cuts each recording with the functions of `scripts/capture.py`, and it draws each image. The script is not in this repository.
+- The image method of the third run drew the `.txt` files of the first run again. The two images were identical to the old images, byte for byte.
+- The install script of nvm ran first, with no `PROFILE` setting. It added the nvm lines to `~/.bashrc`. The capture does not show it.
+- After the captures, a start of Pi with `PI_CODING_AGENT_SESSION_DIR` and without `env -u` wrote nothing into that directory. A start with no prompt writes no session file. So `stage9-session-dir` stays from the second run.
+
+These notes apply to each run:
+
+- Redaction: no value was replaced. The container has only the neutral values, so no output holds a value of a host.
+- For `stage6-install-pi`, the shell had `npm_config_progress=false` and `npm_config_update_notifier=false`. The output then has no progress display and no notice about a newer npm.
+- For `stage6-node-nvm`, the install script of nvm ran first. The capture does not show it.
+- A `.txt` file of a Pi screen holds the text of the screen with its colors. The recording has the real timing, and a long wait is cut to 2 seconds.
+- An image shows the same text as its `.txt` file. A headless browser draws the text with the Soft Night ground color. The image holds no other data.
+- The time in `stage6-install-pi`, the time `recordedAt` in `stage8-baseline` and `stage9-check-baseline`, and each file date in the `stage9-*` captures change with each run.
+- A person must look at each image for a secret before a release. The scanner cannot read the text of an image.
 
 ## Use in a page
 
@@ -219,7 +295,7 @@ Warning: the old files of a failed capture can come from an older release. Corre
 
 | Item | Value |
 | --- | --- |
-| Base image | `node:22.23.3-bookworm-slim`, with `python3`, `git` and `asciinema` from Debian |
+| Base image | `node:24.21.0-bookworm-slim`, with `python3`, `git` and `asciinema` from Debian |
 | User and home | `alex`, `/home/alex` |
 | Host name | `example` |
 | Network | None. Only the loopback interface exists. |
@@ -298,6 +374,9 @@ These rules exist for tenant-pi:
 | --- | --- | --- |
 | `stage1-clone-checks`, `dev-unit-tests` | The run time of the unit tests. | `<seconds>` |
 | `cmd-list` | `generatedAt` of each candidate. | `<UTC time>` |
+| `cmd-baseline`, `cmd-check-baseline` | `recordedAt`: the time of the baseline. | `<UTC time>` |
+
+`cmd-results` shows no generation time: the command stops the output before the table that holds it. A capture of the full text needs a rule for the text `Generated at`.
 
 ### The record
 

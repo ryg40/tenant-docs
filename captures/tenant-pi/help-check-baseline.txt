@@ -1,0 +1,7 @@
+usage: tenant_pi.py check-baseline [-h] --dir DIR --baseline BASELINE
+
+options:
+  -h, --help           show this help message and exit
+  --dir DIR            absolute path of the directory that the baseline names
+  --baseline BASELINE  absolute path of the baseline file of a previous
+                       baseline run

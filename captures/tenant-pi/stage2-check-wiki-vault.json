@@ -1,0 +1,8 @@
+{
+  "title": "Look for an LLM Wiki vault",
+  "stage": 2,
+  "order": 270,
+  "command": "python3 scripts/tenant_pi.py check-wiki-vault",
+  "setup": [],
+  "mode": "scripted"
+}

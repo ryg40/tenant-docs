@@ -1,7 +1,7 @@
 # The clean container of scripts/capture.py. See captures/README.md.
 # The image holds no project file, no Pi profile, no credential and no value of a host.
 # The capture script copies the history of the release or of a branch into the container at run time.
-ARG BASE_IMAGE=node:22.23.3-bookworm-slim
+ARG BASE_IMAGE=node:24.21.0-bookworm-slim
 # The scanner that `scripts/scan.sh` of tenant-pi pins, with the same digest.
 ARG SCANNER_IMAGE=zricethezav/gitleaks:v8.28.0@sha256:cdbb7c955abce02001a9f6c9f602fb195b7fadc1e812065883f695d1eeaba854
 FROM ${SCANNER_IMAGE} AS scanner

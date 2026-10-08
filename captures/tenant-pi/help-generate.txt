@@ -3,6 +3,8 @@ usage: tenant_pi.py generate [-h] --overlay OVERLAY [--manifest MANIFEST]
                              [--require-role REQUIRE_ROLE]
                              [--local-dir LOCAL_DIR] --target TARGET
                              [--launcher LAUNCHER]
+                             [--runtime-report RUNTIME_REPORT]
+                             [--herdr-report HERDR_REPORT]
 
 options:
   -h, --help            show this help message and exit
@@ -20,3 +22,11 @@ options:
   --target TARGET       explicit absent agent directory; must match overlay
   --launcher LAUNCHER   absolute path of an absent launcher file; written
                         after a complete generation
+  --runtime-report RUNTIME_REPORT
+                        explicit JSON output of a previous check-runtime run;
+                        the readiness gaps then show the measured runtime
+                        versions
+  --herdr-report HERDR_REPORT
+                        explicit JSON output of a previous check-herdr run;
+                        the readiness gaps then show the measured herdr
+                        command

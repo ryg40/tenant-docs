@@ -2,7 +2,7 @@
 title: init-private
 description: Create the private directory that holds the overlay and its records.
 sidebar:
-  order: 3
+  order: 4
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -14,8 +14,11 @@ import DocVersion from '@/components/DocVersion.astro';
 
 ```sh
 mkdir -p "$HOME/.config"
-python3 scripts/tenant_pi.py init-private --dir "$HOME/.config/tenant-pi"
+python3 scripts/tenant_pi.py init-private --dir "$HOME/.config/tenant-pi" \
+  --target "$HOME/.pi/profiles/main"
 ```
+
+With `--target`, the new overlay holds the path of your new profile. A core-only profile then needs no edit of the overlay.
 
 ## Options
 
@@ -25,24 +28,43 @@ python3 scripts/tenant_pi.py init-private --dir "$HOME/.config/tenant-pi"
 | --- | --- |
 | `--dir <path>` | Required. The absolute path of a directory that does not exist. Its parent exists. The path has 1024 characters at most. |
 | `--overlay <file>` | An overlay file that exists on the host. The new directory must stay outside the `target.agentDir` of that file. Repeat the option for more files. |
+| `--target <path>` | The absolute path of the new profile directory. The new overlay gets it as `target.agentDir`. |
 
-Without `--overlay`, the action knows only the sample target of `config/config.example.json`. It does not search for overlays.
+Without `--overlay` and without `--target`, the action knows only the sample target of `config/config.example.json`. It does not search for overlays.
+
+## The option `--target`
+
+With `--target`, exactly one line of the new `overlay.json` differs from `config/config.example.json`: the value of `target.agentDir`.
+
+The action applies these rules to the path before it writes:
+
+- The path is an absolute path with 1024 characters at most. It has no `.` or `..` segment and no `/` at its end.
+- The action does not expand `~` or `$HOME`. The shell expands `"$HOME/..."` in double quotes.
+- The path is not the sample target.
+- The path is not `~/.pi/agent`, the kit clone or an LLM Wiki vault, and it is not under one of them.
+- The path is not `--dir` and is not under it. `--dir` is not the path and is not under it.
+
+The action does not open or create the target. It does not check that the target is absent. [`generate`](/tenant-pi/use/commands/generate/) does that.
+
+Without `--target`, the overlay copy holds the sample target. `validate`, `plan` and `generate` refuse it with `sample_target: overlay.target.agentDir`.
 
 ## What it creates
 
 | Path | Kind | Mode | Content |
 | --- | --- | --- | --- |
 | `<dir>` | directory | `0700` | |
-| `<dir>/overlay.json` | file | `0600` | A copy of `config/config.example.json`, byte for byte |
+| `<dir>/overlay.json` | file | `0600` | A copy of `config/config.example.json`, byte for byte. With `--target`, the copy has that path as `target.agentDir`. |
 | `<dir>/registry.json` | file | `0600` | `{}` |
 | `<dir>/install-log.md` | file | `0600` | The template of the install log |
 | `<dir>/accepted-drift.md` | file | `0600` | The template of the accepted-drift list |
 | `<dir>/.gitignore` | file | `0600` | A list of names that Git must not track |
 | `<dir>/inputs` | directory | `0700` | Empty. It holds input files, for example `inputs/mcp-adapter.json` |
 
-The action does not edit the overlay copy. The target in the copy is the sample target. Change it before you generate a profile.
+An install adds more files to the directory later: the runtime report, each launcher file, each baseline file, the facts file and the results file. `init-private` creates none of them.
 
-The `.gitignore` file ignores these names: `inputs/`, `.env`, `.env.*`, `auth.json`, `models.json`, `mcp-adapter.json`, `sessions/`, `*.key`, `*.pem`, `*.db` and `*.sqlite`.
+The `.gitignore` file ignores these names: `inputs/`, `.env`, `.env.*`, `auth.json`, `models.json`, `mcp-adapter.json`, `sessions/`, `*.key`, `*.pem`, `*.db`, `*.sqlite`, `*baseline*.json`, `INSTALLER_KIT_RESULTS.md` and `results-facts.json`.
+
+It does not ignore `overlay.json`, `registry.json`, `install-log.md` or `accepted-drift.md`. These four files are the record that a second host starts from.
 
 Warning: the `.gitignore` file is not a security control. Git still tracks a secret in a file with another name. Read `git status` before each commit.
 
@@ -51,7 +73,9 @@ Warning: the `.gitignore` file is not a security control. Git still tracks a sec
 - The five templates of the kit.
 - Each `--overlay` file. The action uses only `target.agentDir` of it.
 - The metadata of the directories above `--dir`.
-- The environment value `HOME`, to find `~/.pi/agent`. It reads no other environment value.
+- The environment value `HOME`, to find `~/.pi/agent` and `~/.llm-wiki`.
+- The environment value `WIKI_HOME`, to find the LLM Wiki vault `<WIKI_HOME>/.llm-wiki`. It reads no other environment value.
+- With `--target`, the symbolic links of the target path. It opens no file there.
 
 The action starts no process. It runs no Git command and opens no network connection.
 
@@ -59,11 +83,13 @@ The action starts no process. It runs no Git command and opens no network connec
 
 <Capture id="tenant-pi/cmd-init-private" />
 
-The capture creates a second private directory, `tenant-pi-work`. The first one exists from the install.
+The capture creates a second private directory, `tenant-pi-work`. The first one exists from the install. The command of the capture has no `--target`. [Stage 2](/tenant-pi/install/stage-2-edit-the-local-choices/) shows the output with `--target`.
 
 | Key | Content |
 | --- | --- |
 | `created` | Each created path with its kind and mode. The list has seven entries. |
+| `directory` | The given path of `--dir`. |
+| `targetAgentDir` | Only with `--target`: the path that the new overlay holds as `target.agentDir`. |
 | `commands.editDisplayOnly` | The command that opens the overlay in an editor. |
 | `commands.validateDisplayOnly` | The `validate` command for the new overlay. |
 | `commands.gitInitDisplayOnly` | The `git init` line for the directory. |
@@ -91,14 +117,30 @@ Each refusal of this table changes nothing in the file system.
 | `parent_missing: init-private.dir.parent` | The parent does not exist. The action does not create a parent. |
 | `under_kit: init-private.dir` | The path is the kit clone or is under it. |
 | `under_pi_agent: init-private.dir` | The path is `~/.pi/agent` or is under it. |
-| `under_overlay_target: init-private.dir` | The path is the target of a known overlay or is under it. |
+| `under_wiki_vault: init-private.dir` | The path is `~/.llm-wiki` or is under it. With `WIKI_HOME` set, the rule also covers `<WIKI_HOME>/.llm-wiki`. |
+| `under_overlay_target: init-private.dir` | The path is the target of a known overlay or is under it. The path of `--target` counts as such a target. |
 | `absolute_path: init-private.dir` | The path is not an absolute path. |
 | `home_required: init-private.home` | `HOME` is not set. |
 | `unsafe_parent_owner: init-private.dir.parent` | Root owns the parent, and you are not root. |
+| `unsafe_owner: init-private.dir.parents` | A directory of the path belongs to an account other than you or root. |
+| `unsafe_permissions: init-private.dir.parents` | A directory of the path is writable by the group or by others, and it has no sticky bit. |
+| `unsafe_path: init-private.dir.parents` | A directory of the path is a symbolic link. |
+| `absolute_path: init-private.target` | `--target` is not an absolute path, for example a path that starts with `~`. |
+| `shell_or_template: init-private.target` | `--target` has a shell or template character, for example `$`. |
+| `path_too_long: init-private.target` | `--target` has more than 1024 characters. |
+| `sample_target: init-private.target` | `--target` is the sample target of `config/config.example.json`. |
+| `under_private_dir: init-private.target` | `--target` is `--dir` or is under it. |
+| `under_kit: init-private.target` | `--target` is the kit clone or is under it. |
+| `under_pi_agent: init-private.target` | `--target` is `~/.pi/agent` or is under it. |
+| `under_wiki_vault: init-private.target` | `--target` is an LLM Wiki vault or is under it. |
+| `input_missing: init-private.overlay` | An `--overlay` file does not exist. [`validate`](/tenant-pi/use/commands/validate/#input-file-errors) lists the other rules of an input file. |
 
 ## Limits
 
 - `under_kit` covers only the clone that runs the action. A second clone is not protected.
+- `under_pi_agent` knows only `~/.pi/agent`. The action does not read `PI_CODING_AGENT_DIR`.
+- `sample_target` is one exact path. Another path with the user name `EXAMPLE_USER` passes the rule.
+- The vault rule does not know a vault that only `memory.wiki.wikiHome` of an overlay names.
 - The action does not protect against another process of the same user, or against root.
 
 ## Reference file

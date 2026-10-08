@@ -1,0 +1,4 @@
+usage: tenant_pi.py check-wiki-vault [-h]
+
+options:
+  -h, --help  show this help message and exit

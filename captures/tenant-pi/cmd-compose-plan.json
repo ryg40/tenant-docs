@@ -1,0 +1,9 @@
+{
+  "title": "Print the plan of a Compose seat",
+  "order": 670,
+  "command": "python3 scripts/tenant_pi.py compose-plan --uid 1000 --gid 1000 \\\n  --public-key \"$HOME/.config/tenant-pi/seat-key.pub\" \\\n  --gateway-url https://gateway.example.invalid/v1 \\\n  --private-dir \"$HOME/.config/tenant-pi\" \\\n  --model codex-auto/astra | \\\n  python3 -m json.tool | \\\n  sed '/\"step\": \"build\"/q'",
+  "setup": [
+    "printf '%s\\n' 'ssh-ed25519 EXAMPLEPUBLICKEY alex@example' > \"$HOME/.config/tenant-pi/seat-key.pub\""
+  ],
+  "mode": "scripted"
+}

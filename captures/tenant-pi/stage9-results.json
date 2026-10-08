@@ -1,0 +1,8 @@
+{
+  "title": "Write the results file",
+  "stage": 9,
+  "order": 1350,
+  "command": "python3 scripts/tenant_pi.py results --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --facts \"$HOME/.config/tenant-pi/results-facts.json\" --target \"$HOME/.pi/profiles/main\" --out-dir \"$HOME/.config/tenant-pi\"",
+  "setup": [],
+  "mode": "manual"
+}

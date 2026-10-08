@@ -1,5 +1,5 @@
 {
-  "title": "The target after a login and one prompt",
+  "title": "The target after the launches with no login",
   "stage": 9,
   "order": 1310,
   "command": "ls -la \"$HOME/.pi/profiles/main\"",

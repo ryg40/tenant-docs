@@ -20,9 +20,9 @@ flowchart TD
     subgraph kit["Stages 1 to 5: commands of the kit, tested"]
         direction TB
         s1["1. Obtain the sources<br/>clone the kit, run its checks"]
-        s2["2. Edit the local choices<br/>private directory and overlay"]
+        s2["2. Edit the local choices<br/>private directory, overlay, components"]
         s3["3. Validate<br/>check the overlay"]
-        s4["4. Plan<br/>read what the kit will write"]
+        s4["4. Plan<br/>runtime report, then what the kit will write"]
         s5["5. Generate<br/>write the new profile"]
         s1 --> s2 --> s3 --> s4 --> s5
     end
@@ -40,14 +40,14 @@ flowchart TD
 | Stage | What you get | Commands | State in this release |
 | --- | --- | --- | --- |
 | [1. Obtain the sources](/tenant-pi/install/stage-1-obtain-the-sources/) | A clone of the kit that passes its offline checks. | `git clone`, then the kit | Tested |
-| [2. Edit the local choices](/tenant-pi/install/stage-2-edit-the-local-choices/) | A private directory with an overlay that names a new target. | The kit, then your editor | Tested |
+| [2. Edit the local choices](/tenant-pi/install/stage-2-edit-the-local-choices/) | A private directory with an overlay that names a new target. | The kit | Tested |
 | [3. Validate](/tenant-pi/install/stage-3-validate/) | An overlay that passes the offline check. | The kit | Tested |
 | [4. Plan](/tenant-pi/install/stage-4-plan/) | The list of files, gaps and commands, with nothing written. | The kit | Tested |
 | [5. Generate](/tenant-pi/install/stage-5-generate/) | A new profile directory and a launcher file. | The kit | Tested |
-| [6. Install the dependencies](/tenant-pi/install/stage-6-install-the-dependencies/) | Node, Pi and the packages of the modules that you enabled. | Yours | Tested on a clean client, core only |
-| [7. Authenticate](/tenant-pi/install/stage-7-authenticate/) | A credential that reaches the Pi process. | Yours | Tested on a clean client, with an API key |
-| [8. Launch](/tenant-pi/install/stage-8-launch/) | Pi runs with the generated profile. | Yours | Tested on a clean client, with no credential |
-| [9. Test](/tenant-pi/install/stage-9-test/) | A record of each check. | Yours | Tested on a clean client, core only |
+| [6. Install the dependencies](/tenant-pi/install/stage-6-install-the-dependencies/) | Node, Pi and the packages of the modules that you enabled. | Yours | Tested on a clean client, core only, with Node 24 and Pi 1.1.0 |
+| [7. Authenticate](/tenant-pi/install/stage-7-authenticate/) | A credential that reaches the Pi process. | Yours | Partly tested: the `/login` list with Pi 1.1.0. The login with an API key was tested with Pi 1.0.2. |
+| [8. Launch](/tenant-pi/install/stage-8-launch/) | Pi runs with the generated profile. | Yours | Tested on a clean client, core only, with Pi 1.1.0 and no credential |
+| [9. Test](/tenant-pi/install/stage-9-test/) | A record of each check. | Yours | Partly tested, core only. Check 3 is blocked with Pi 1.1.0: no credential. |
 
 ### Stages 1 to 5: the kit
 
@@ -57,6 +57,13 @@ The kit runs these stages. You type commands of the kit, and the kit does the wo
 
 These stages are yours. The kit runs none of their commands. The plan of Stage 4 prints some of the commands as display text. You read each command, and then you run it by hand.
 
+### Another order of the stages
+
+The file `INSTALL.md` of the kit is the guide for an agent. It installs Node, Pi and the packages before the plan. This guide does the offline stages first, and the installs come in Stage 6.
+
+- Both orders give the same generated files.
+- The difference is in the gaps that Stage 4 and Stage 5 print. See [the runtime report](/tenant-pi/install/stage-4-plan/#the-runtime-report).
+
 ## Requirements
 
 | Item | Required | Notes |
@@ -64,10 +71,21 @@ These stages are yours. The kit runs none of their commands. The plan of Stage 4
 | Linux | The first target | Other platforms are not qualified. See the [overview](/tenant-pi/#platforms-that-are-not-qualified). |
 | Git | Any current version | Only to clone the kit. |
 | Python | `>=3.11` | Standard library only. The kit has no Python dependency. |
-| Node | `>=22.22.0 <23` | The same Node installs Pi and builds native addons later. |
-| Pi | `1.0.2` | The package `@earendil-works/pi-coding-agent`. Stage 6 installs it. |
+| Node | `>=24.0.0 <25` | The same Node installs Pi and builds native addons later. |
+| Pi | `>=1.1.0 <1.2` | The package `@earendil-works/pi-coding-agent`. The tested version is `1.1.0`. Stage 6 installs it when it is necessary. |
 
 Stages 1 to 5 need only Git and Python. Stage 1 reports the state of Node and Pi. Stage 6 installs what is absent.
+
+The kit reads these values from the key `runtime` of its file `config/manifest.json`. The tests of the kit ran on the tested Pi version only. A newer Pi in the accepted range gets the status `untested_in_range`.
+
+The kit clone has more guides. This site has no page for them.
+
+| File of the kit clone | Content |
+| --- | --- |
+| `docs/guides/macos.md` | The differences for macOS on Apple silicon. It does not qualify that platform. |
+| `docs/guides/providers.md` | Three model providers for a generated profile: Codex, llama-swap and vLLM. |
+| `docs/guides/compose-seat.md` | A profile in a container that Compose starts. No runtime of it is qualified. |
+| `POST_INSTALL.md` | The updates and the changes after a base install. |
 
 ## Words in this guide
 
@@ -78,7 +96,9 @@ Stages 1 to 5 need only Git and Python. Stage 1 reports the state of Node and Pi
 | Overlay | The JSON file with your choices. | `"$HOME/.config/tenant-pi/overlay.json"` |
 | Target | The new profile directory. It must not exist before Stage 5. | `"$HOME/.pi/profiles/main"` |
 | Launcher file | A file that starts Pi with the generated profile. Stage 5 writes it. | `"$HOME/.config/tenant-pi/launch-main.sh"` |
-| Live profile | `~/.pi/agent`, or the directory in `PI_CODING_AGENT_DIR`. The kit never writes into it. | |
+| Live profile | `~/.pi/agent`, or the directory in `PI_CODING_AGENT_DIR`. The kit never writes into `~/.pi/agent`. | |
+
+The kit does not read `PI_CODING_AGENT_DIR`. Keep the target outside the directory of that variable yourself.
 
 ## Rules for each command
 
@@ -90,9 +110,9 @@ Stages 1 to 5 need only Git and Python. Stage 1 reports the state of Node and Pi
 
 ## The command line of the kit
 
-The kit has one command line: `python3 scripts/tenant_pi.py <action>`. An action is one function of that command line, for example `validate`. The option `--help` lists the actions. Each action has its own `--help`.
+The kit has one command line: `python3 scripts/tenant_pi.py <action>`. An action is one function of that command line, for example `validate`. The option `--help` lists the 17 actions. Each action has its own `--help`.
 
-- An action prints one JSON object on one line of standard output.
+- An action prints one JSON object on one line of standard output. Stage 2 uses one action with a text output.
 - A refused action exits with code 2. It prints one JSON line on standard error.
 - That line has an `error` of the form `rule: field`. An `error` never holds a path, a value or a secret.
 - A page names a key inside a key with a dot. `commands.launchDisplayOnly` is the key `launchDisplayOnly` inside the key `commands`.
@@ -103,6 +123,8 @@ Stage 1 also runs two check scripts of the kit: the unit tests and the publish c
 The frame shows the list of the actions.
 
 <Capture id="tenant-pi/help" />
+
+Stages 1 to 5 use these actions: `check-runtime`, `init-private`, [`components`](/tenant-pi/use/commands/components/), [`check-wiki-vault`](/tenant-pi/use/commands/check-wiki-vault/), `validate`, `plan` and `generate`.
 
 ## Before Stage 1
 
@@ -124,7 +146,24 @@ The frame shows the list of the actions.
 
    Result: you know if the shell moves the live profile or the sessions.
 
+4. Print the state of each live profile directory.
+
+   ```sh
+   for d in "$HOME/.pi/agent" "${PI_CODING_AGENT_DIR:-}"; do
+     [ -n "$d" ] || continue
+     if [ -e "$d" ] || [ -L "$d" ]; then echo "live agent directory present: $d"; else echo "live agent directory absent: $d"; fi
+   done
+   ```
+
+   Result: the shell prints one line for `~/.pi/agent`. Each line says `present` or `absent`.
+
+5. Write each printed line into your own notes.
+
+   Result: you know if a live profile exists before the install.
+
 </Steps>
+
+The command of step 4 prints one more line when `PI_CODING_AGENT_DIR` is set. A line with `present` is not an error. The kit does not write into that directory.
 
 Keep your notes outside the kit. Stage 2 creates the install log, and Stage 9 writes the record into it.
 
@@ -142,9 +181,9 @@ Warning: a bare `pi` command opens the live profile `~/.pi/agent`. To read the P
 
 <CardGrid>
 	<LinkCard title="Stage 1: Obtain the sources" description="Clone the kit and run its offline checks." href="/tenant-pi/install/stage-1-obtain-the-sources/" />
-	<LinkCard title="Stage 2: Edit the local choices" description="Create the private directory and edit the overlay." href="/tenant-pi/install/stage-2-edit-the-local-choices/" />
+	<LinkCard title="Stage 2: Edit the local choices" description="Create the private directory with its overlay, and select the components." href="/tenant-pi/install/stage-2-edit-the-local-choices/" />
 	<LinkCard title="Stage 3: Validate" description="Check the overlay offline." href="/tenant-pi/install/stage-3-validate/" />
-	<LinkCard title="Stage 4: Plan" description="Read what the kit will write. The command writes nothing." href="/tenant-pi/install/stage-4-plan/" />
+	<LinkCard title="Stage 4: Plan" description="Save the runtime report. Then read what the kit will write." href="/tenant-pi/install/stage-4-plan/" />
 	<LinkCard title="Stage 5: Generate" description="Write the new profile and the launcher file." href="/tenant-pi/install/stage-5-generate/" />
 	<LinkCard title="Stage 6: Install the dependencies" description="Install Node, Pi and the packages by hand." href="/tenant-pi/install/stage-6-install-the-dependencies/" />
 	<LinkCard title="Stage 7: Authenticate" description="Give Pi a credential. The kit stores none." href="/tenant-pi/install/stage-7-authenticate/" />

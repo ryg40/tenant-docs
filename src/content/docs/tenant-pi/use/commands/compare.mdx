@@ -2,7 +2,7 @@
 title: compare
 description: Compare two profile directories field by field, without private values.
 sidebar:
-  order: 8
+  order: 14
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -37,11 +37,12 @@ The action opens only these files of each side:
 | `settings.json` | The action stops with `settings_missing`. |
 | `.tenant-pi/choices.json` | The side has the kind `settings_only` or `incomplete_metadata`. |
 | `.tenant-pi/state.json` | The side has the kind `settings_only` or `incomplete_metadata`. |
-| `hermes-memory-config.json` | Nothing. The file exists only with the Hermes module. |
-| `mcp-adapter.json` | Nothing. The file exists only with the MCP module. |
+| `hermes-memory-config.json` | Nothing. The file exists only with the `hermes` component. |
+| `mcp-adapter.json` | Nothing. The file exists only with the `mcp` component. |
 
 - The action never lists a directory.
 - `auth.json`, `models.json`, `mcp.json`, sessions, memory stores and caches stay unread.
+- The action reads each file through the bounded loader of [`validate`](/tenant-pi/use/commands/validate/#what-it-reads).
 - A profile that the kit did not generate can be a side. It compares as `settings_only`.
 
 ## Output
@@ -67,6 +68,20 @@ A change entry shows a value only for a field with a closed public form. Example
 
 A marker covers the target path, a provider name, a model name, an endpoint, an environment reference and a local path.
 
+The report shows the `memory` block of the overlay field by field, under `/overlay/memory/<module>/<field>`.
+
+| Field | In the report |
+| --- | --- |
+| A switch such as `hermes/backgroundReview`, `wiki/ambientPersonalVault` or `wiki/backgroundTasks` | The value |
+| `wiki/wikiHome` and each entry of `hermes/childExtensionPaths` | A marker |
+| `wiki/embedding/baseUrl`, `wiki/embedding/model` and `wiki/embedding/auth/envVar` | A marker |
+| `wiki/embedding/provider`, `wiki/embedding/auth/mode` and `wiki/embedding/expectedDimensions` | The value |
+| `wiki/embedding` with the value `null` | The fixed word `disabled` |
+
+The manifest field `piAcceptedRange` compares as a marker.
+
+Not verified: a report with a `wiki/embedding` field or with an entry of `hermes/childExtensionPaths`. The capture session is core only, so the site shows no `memory` field.
+
 ### Drift
 
 For a side of the kind `candidate`, the report builds the settings again from the recorded choices. It then compares them with the `settings.json` in the directory.
@@ -75,7 +90,7 @@ For a side of the kind `candidate`, the report builds the settings again from th
 | --- | --- |
 | `none` | The file still agrees with its recorded choices. |
 | `owner_edits` | `fields` lists the settings keys that changed after generation. The report shows no value. |
-| `not_computable` | The recorded choices do not pass the rules of this kit release. This is usual for a candidate of an older kit release. |
+| `not_computable` | The recorded choices do not pass the rules of this kit release. This is usual for a candidate of an older kit release. Generate again from the current kit. The old candidate does not change. |
 
 `drift.metadata` is `changed` when `choices.json` changed after generation.
 
@@ -94,7 +109,9 @@ For a side of the kind `candidate`, the report builds the settings again from th
 | `absolute_path: compare.left` | A side is a relative path. The field names the side. |
 | `settings_missing: left` | A side has no `settings.json`. The field names the side. |
 | `unsupported_schema_version` | A side comes from a kit with another schema version. |
-| `read_or_json` | A path component is a symbolic link, or a file is not JSON. |
+| `input_path_unsafe: compare.right.settings.json` | A path component is a symbolic link or is not a directory. The field names the side and the file. |
+| `invalid_json: compare.right.settings.json` | A file is not JSON. The error object also has `line` and `column`. |
+| Another rule of [Input file errors](/tenant-pi/use/commands/validate/#input-file-errors) | The loader cannot use a declared file. |
 
 ## Reference file
 

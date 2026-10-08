@@ -2,7 +2,7 @@
   "title": "Install Pi",
   "stage": 6,
   "order": 1030,
-  "command": "npm install --global -- @earendil-works/pi-coding-agent@1.0.2",
+  "command": "pin=\"$(python3 -c 'import json; print(json.load(open(\"config/manifest.json\"))[\"runtime\"][\"piVersion\"])')\" && \\\n  npm install --global -- @earendil-works/pi-coding-agent@\"${pin:?}\"",
   "setup": [],
   "mode": "manual"
 }

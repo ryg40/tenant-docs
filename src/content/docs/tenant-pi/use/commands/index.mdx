@@ -11,7 +11,7 @@ import DocVersion from '@/components/DocVersion.astro';
 
 <DocVersion project="tenant-pi" />
 
-The kit has one command line: `scripts/tenant_pi.py`. It has nine actions. Run an action from the kit clone with Python 3.11 or later.
+The kit has one command line: `scripts/tenant_pi.py`. It has 17 actions. Run an action from the kit clone with Python 3.11 or later.
 
 ```sh
 cd ~/tenant-pi
@@ -25,14 +25,24 @@ python3 scripts/tenant_pi.py <action> [options]
 | Action | Use it to | What it writes |
 | --- | --- | --- |
 | [`check-runtime`](/tenant-pi/use/commands/check-runtime/) | Compare the installed Pi, Node and Python with the versions that the kit requires. | One temporary directory. The action removes it. |
+| [`check-herdr`](/tenant-pi/use/commands/check-herdr/) | See if the host has the `herdr` command. | Nothing. |
 | [`init-private`](/tenant-pi/use/commands/init-private/) | Create the private directory for the overlay and its records. | One new directory with five files and an empty `inputs/` directory. |
+| [`components`](/tenant-pi/use/commands/components/) | See the checklist of the 27 components, or get the `selection` object for an overlay. | Nothing. |
+| [`check-wiki-vault`](/tenant-pi/use/commands/check-wiki-vault/) | See if your account has an LLM Wiki vault. | Nothing. |
 | [`validate`](/tenant-pi/use/commands/validate/) | Check the overlay offline. | Nothing. |
 | [`plan`](/tenant-pi/use/commands/plan/) | See the files, the readiness gaps and the commands before a generation. | Nothing. |
 | [`generate`](/tenant-pi/use/commands/generate/) | Write a new profile into a directory that does not exist. | One new profile directory. With `--launcher`, also one launcher file. |
+| [`baseline`](/tenant-pi/use/commands/baseline/) | Record the state of one directory before a launch. | One new baseline file. |
+| [`check-baseline`](/tenant-pi/use/commands/check-baseline/) | Compare the directory with its baseline after a launch. | Nothing. |
+| [`results`](/tenant-pi/use/commands/results/) | Put the facts of one install into one local file. | With `--out-dir`, the file `INSTALLER_KIT_RESULTS.md`. Without it, nothing. |
 | [`list`](/tenant-pi/use/commands/list/) | See each candidate under one parent directory. | Nothing. |
 | [`compare`](/tenant-pi/use/commands/compare/) | Compare two profile directories field by field. | Nothing. |
 | [`carry`](/tenant-pi/use/commands/carry/) | Get overlay patches from a `compare` report. | Nothing. |
 | [`inventory`](/tenant-pi/use/commands/inventory/) | List the resource names of one profile directory. | Nothing. |
+| [`remote-plan`](/tenant-pi/use/commands/remote-plan/) | Print the SSH command lines for an install on a remote Linux host. | Nothing. |
+| [`compose-plan`](/tenant-pi/use/commands/compose-plan/) | Print the files and the command lines of a Compose seat. | With `--write`, five files in the private directory. Without it, nothing. |
+
+`remote-plan` and `compose-plan` are display only. The kit runs none of the command lines that they print.
 
 Each action has its own help text. Run `python3 scripts/tenant_pi.py <action> --help`.
 
@@ -52,6 +62,8 @@ Each action has its own help text. Run `python3 scripts/tenant_pi.py <action> --
 
 Each action prints one JSON object on one line. The keys are in sorted order.
 
+Two actions can print text that is not JSON. `components --format text` prints a numbered list. `results` without `--out-dir` prints the text of the results file.
+
 Many captures on these pages send the output through `python3 -m json.tool`. That command adds line breaks and indents. It changes no value.
 
 The captures come from a clean container. A path in a capture is a path of that container.
@@ -61,7 +73,7 @@ The captures come from a clean container. A path in a capture is a path of that 
 | Exit code | Meaning |
 | --- | --- |
 | 0 | The action is complete. |
-| 1 | `check-runtime`: one tool or more does not match. `generate --launcher`: the profile is complete, but the launcher file is not. The report is on standard output. |
+| 1 | `check-runtime`: one tool or more does not satisfy its requirement. `check-herdr`: the status is not `present`. `check-baseline`: the result is not `unchanged`. `generate --launcher`: the profile is complete, but the launcher file is not. The report is on standard output. |
 | 2 | The action refuses the input, or a write fails. Standard error has one JSON object. |
 
 A refused action prints this object on standard error:
@@ -71,7 +83,8 @@ A refused action prints this object on standard error:
 ```
 
 - The `error` text has the form `rule: field`. It never holds a path, a value or a secret.
-- `candidate_created` is `true` only when a directory exists after the failure. Inspect that directory.
+- `candidate_created` is `true` only when a directory or a file exists after the failure. Inspect it.
+- For a JSON syntax error, the rule is `invalid_json`. The object then also has the integers `line` and `column`.
 - The kit has no rollback. It deletes nothing.
 
 The capture shows one refusal. `generate` gets a target that exists.
@@ -85,12 +98,17 @@ A wrong option also gives exit code 2. Python then prints a usage text, not a JS
 - No action edits a profile that exists.
 - No action installs a package.
 - No action opens a network connection.
-- Only `check-runtime` starts a process.
-- No action reads `auth.json`, `models.json`, a session or a memory store.
+- Only `check-runtime` and `check-herdr` start a process. Each process is one fixed `--version` command.
+- No action opens `auth.json`, `models.json`, a session or a memory store.
 - No action writes, prints or resolves a secret value.
+- No action writes into the live profile `~/.pi/agent` or into an LLM Wiki vault.
+
+`baseline` and `check-baseline` read the name, the kind, the size and the modification time of each entry of the directory that you name. They open no file.
 
 [Modules and privacy](/tenant-pi/use/modules-and-privacy/#what-the-kit-never-does) has the full list.
 
 ## More help
 
 The troubleshooting guide lists each diagnostic and its fix. It is the file `docs/guides/troubleshooting.md` of the project repository. See [Reference](/tenant-pi/reference/).
+
+The file `POST_INSTALL.md` of the kit clone has one section for each task after an install, with the commands of the task.

@@ -1,0 +1,10 @@
+{
+  "title": "The overlay of the new private directory",
+  "stage": 2,
+  "order": 220,
+  "command": "cat \"$HOME/.config/tenant-pi/overlay.json\"",
+  "setup": [
+    "mkdir -p \"$HOME/.pi/profiles\""
+  ],
+  "mode": "scripted"
+}

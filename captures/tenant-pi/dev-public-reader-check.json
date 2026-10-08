@@ -1,0 +1,8 @@
+{
+  "title": "The public reader check",
+  "order": 845,
+  "ref": "main",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/publish_check.py --public",
+  "setup": [],
+  "mode": "scripted"
+}

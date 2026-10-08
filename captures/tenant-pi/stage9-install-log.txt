@@ -4,14 +4,17 @@ One entry for each install, regeneration or switch of a profile on this host. Pu
 
 Warning: do not write a secret value in this file. Write the name of a credential, never its value.
 
-## 2026-10-05: first profile, core only
+## 2026-10-08: first profile, core only
 
-- Kit commit: f47fd90d2015467a92bcec82166323aae7cfe236
+- Kit commit: e303505da0a67de0fa73a4de64b249b5053c47c2
 - Overlay: overlay.json
 - Target: /home/alex/.pi/profiles/main
-- Commands: the commands of stages 1 to 6 of the install guide, then `launch-main.sh`, `/login` inside Pi, a prompt of one line, then `pi --version` with the profile
-- Result: check 1 passed, Pi prints 1.0.2. Check 2 passed, Pi starts with no extension error and no peer warning. Check 3 passed, the model gave a reply to a prompt of one line. Check 4 passed, Pi wrote into the target only. Checks 5 and 6 not run, no memory module and no `mcp`.
-- Not verified: the optional modules
+- Commands: the commands of stages 1 to 6 of the setup guide, the baseline of `~/.pi/agent`, then `launch-main.sh`, then `pi --version` with the profile, then `check-baseline`
+- Result: check 1 passed, Pi prints 1.1.0. Check 2 passed, Pi starts with no extension error and no peer warning. Check 3 blocked, no credential. Check 4 passed. Checks 5, 6 and 7 not run, no memory module, no `mcp` and no `wiki`.
+- Model replied: not run
+- Reply matched: not run
+- Live agent directory: unchanged, baseline recordedAt 2026-10-08T21:00:09Z
+- Not verified: a reply of a model
 
 ## YYYY-MM-DD: short title
 
@@ -20,4 +23,7 @@ Warning: do not write a secret value in this file. Write the name of a credentia
 - Target: the absolute path of the generated profile
 - Commands: the commands that you ran, in order
 - Result: what you checked and what you saw
+- Model replied: `yes`, `no` or `not run` (Stage 9 check 3), and the form: print mode or a pasted screen
+- Reply matched: `yes`, `no` or `not run`. Write `yes` only when the expected reply is in the print mode output, or in the model line of the screen and not in the user line
+- Live agent directory: the `result` of `check-baseline` (`unchanged`, `changed` with the names, or `no_baseline`), and the `recordedAt` time of the baseline
 - Not verified: what you did not check

@@ -1,0 +1,46 @@
+{
+    "answers": {
+        "account": "pi",
+        "clone": "/home/alex/tenant-pi",
+        "components": [],
+        "componentsAdded": [],
+        "gatewayUrl": "https://gateway.example.invalid/v1",
+        "gid": 1000,
+        "keyVar": "TENANTEXT_LITELLM_API_KEY",
+        "model": "codex-auto/astra",
+        "privateDir": "/home/alex/.config/tenant-pi",
+        "projectsDir": null,
+        "provider": "litellm-codex",
+        "publicKey": "/home/alex/.config/tenant-pi/seat-key.pub",
+        "sshPort": 2222,
+        "thinking": "high",
+        "uid": 1000
+    },
+    "authorizedKeys": {
+        "destination": "/home/alex/.config/tenant-pi/authorized_keys",
+        "source": "/home/alex/.config/tenant-pi/seat-key.pub"
+    },
+    "commands": [
+        {
+            "approval": "user_approval_required",
+            "argv": [
+                "docker",
+                "compose",
+                "--env-file",
+                "/home/alex/.config/tenant-pi/seat.env",
+                "-f",
+                "/home/alex/tenant-pi/deploy/compose/compose.yaml",
+                "build"
+            ],
+            "changes": true,
+            "display": "KIT_COMMIT=\"$(git -C /home/alex/tenant-pi rev-parse --short HEAD)\" docker compose --env-file /home/alex/.config/tenant-pi/seat.env -f /home/alex/tenant-pi/deploy/compose/compose.yaml build",
+            "kitCommit": [
+                "git",
+                "-C",
+                "/home/alex/tenant-pi",
+                "rev-parse",
+                "--short",
+                "HEAD"
+            ],
+            "runtime": "docker",
+            "step": "build"

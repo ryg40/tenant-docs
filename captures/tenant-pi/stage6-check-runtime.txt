@@ -1,1 +1,1 @@
-{"node":{"installed":null,"required":">=22.22.0 <23","status":"missing"},"pi":{"installed":null,"required":"1.0.2","status":"missing"},"python":{"installed":"3.11.2","required":">=3.11","status":"match"}}
+{"node":{"installed":null,"required":">=24.0.0 <25","status":"missing"},"pi":{"acceptedRange":">=1.1.0 <1.2","installed":null,"required":"1.1.0","status":"missing","tested":"1.1.0"},"python":{"installed":"3.11.2","required":">=3.11","status":"match"}}

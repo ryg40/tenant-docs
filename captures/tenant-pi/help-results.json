@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action results",
+  "order": 184,
+  "command": "python3 scripts/tenant_pi.py results --help",
+  "setup": [],
+  "mode": "scripted"
+}

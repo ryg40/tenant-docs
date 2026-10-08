@@ -1,0 +1,6 @@
+usage: tenant_pi.py check-herdr [-h] [--herdr HERDR]
+
+options:
+  -h, --help     show this help message and exit
+  --herdr HERDR  absolute path of the herdr executable (default: herdr on
+                 PATH)

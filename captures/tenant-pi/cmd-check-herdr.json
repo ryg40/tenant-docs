@@ -1,0 +1,7 @@
+{
+  "title": "Look for the herdr command",
+  "order": 650,
+  "command": "python3 scripts/tenant_pi.py check-herdr; echo \"exit code: $?\"",
+  "setup": [],
+  "mode": "scripted"
+}

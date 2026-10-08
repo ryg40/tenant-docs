@@ -1,11 +1,11 @@
 usage: tenant_pi.py [-h]
-                    {compare,carry,inventory,list,check-runtime,init-private,validate,plan,generate}
+                    {compare,carry,inventory,list,baseline,check-baseline,check-runtime,check-herdr,check-wiki-vault,remote-plan,compose-plan,components,init-private,results,validate,plan,generate}
                     ...
 
 Offline, new-profile-only tenant-pi CLI (Python 3.11+).
 
 positional arguments:
-  {compare,carry,inventory,list,check-runtime,init-private,validate,plan,generate}
+  {compare,carry,inventory,list,baseline,check-baseline,check-runtime,check-herdr,check-wiki-vault,remote-plan,compose-plan,components,init-private,results,validate,plan,generate}
     compare             redacted field comparison of two explicit profile
                         directories
     carry               print overlay patches that adopt owner-owned changes
@@ -14,10 +14,25 @@ positional arguments:
                         directory
     list                read-only state list of the candidate directories
                         under one explicit parent
+    baseline            record names, sizes and modification times of one
+                        explicit directory
+    check-baseline      compare one explicit directory with its baseline file
     check-runtime       compare the installed Pi, Node and Python with
                         manifest.runtime
+    check-herdr         report the herdr command of the host: present with its
+                        version, or missing
+    check-wiki-vault    report the personal LLM Wiki vault of this account:
+                        present, absent, or a second vault through WIKI_HOME
+    remote-plan         print the SSH command lines of the remote stages; runs
+                        none of them
+    compose-plan        print the files and the command lines of a Compose
+                        seat; runs none of them
+    components          print the checklist of all components: data, a
+                        numbered list, or a selection
     init-private        create a new private directory for the overlay and its
                         records
+    results             write the local file INSTALLER_KIT_RESULTS.md of one
+                        install, or print its text
     validate            validate a private local overlay
     plan                plan a private local overlay
     generate            generate a private local overlay

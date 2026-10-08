@@ -1,0 +1,6 @@
+usage: tenant_pi.py baseline [-h] --dir DIR --out OUT
+
+options:
+  -h, --help  show this help message and exit
+  --dir DIR   absolute path of the directory to record; it can be absent
+  --out OUT   absolute path of the absent baseline file; its parent exists

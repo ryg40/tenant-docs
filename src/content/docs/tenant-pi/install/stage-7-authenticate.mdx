@@ -15,7 +15,7 @@ import loginResult from '../../../../../captures/tenant-pi/stage7-login-result.p
 <DocVersion project="tenant-pi" />
 
 <Aside type="note" title="Partly verified on a clean client">
-	A run on a clean Debian 12 client verified the tab "Core only or native provider" with an API key. Each "Not verified:" line names a part that the run did not do.
+	A run on a clean Debian 12 client with Pi 1.1.0 and no credential verified steps 1 and 2 of the first tab. Step 3 comes from a run of the release `portable/20261005-592105f` with Pi 1.0.2 and an API key. Each "Not verified:" line names a part that the runs did not do.
 </Aside>
 
 ## Goal
@@ -28,9 +28,12 @@ The kit writes no credential, and it needs no credential store. The kit cannot c
 flowchart TD
     route{"Which route does<br/>the profile use?"}
     route -->|"core only, or a native provider"| login["Launch Pi in Stage 8.<br/>Run /login inside Pi."]
+    route -->|"Codex, direct"| codex["Run /login inside Pi,<br/>then /model"]
+    route -->|"llama-swap or vLLM, direct"| models["Register the server in<br/>models.json of the target"]
     route -->|"Tenantext gateway, auth: env"| key["Export TENANTEXT_LITELLM_API_KEY<br/>in the shell that launches Pi"]
     route -->|"MCP server tokens"| names["Export each name that<br/>inputs/mcp-adapter.json references"]
     login --> auth["Pi writes auth.json<br/>into the target"]
+    codex --> auth
     key --> process["The Pi process reads<br/>the variable at launch"]
     names --> process
 ```
@@ -44,7 +47,9 @@ flowchart TD
 | Route | What you do |
 | --- | --- |
 | Core only | Nothing now. Pi asks for a provider when you use it. |
-| Native provider | Launch Pi, and run `/login` inside Pi. |
+| Native provider | Launch Pi, and run `/login` inside Pi. Pi stores the result in `auth.json` of the target. |
+| Codex, direct | Codex is a provider that Pi includes. Run `/login` inside Pi, then `/model`. |
+| llama-swap or vLLM, direct | Register the server in `models.json` of the target after Stage 5. The kit does not write that file. |
 | Tenantext gateway with `auth: "env"` | Export `TENANTEXT_LITELLM_API_KEY` in the shell that launches Pi. |
 | Tenantext gateway with `auth: "login"` | Blocked in this release. Stage 5 refuses it with `pi_login_blocked`. |
 | MCP server tokens | Export each `${NAME}` that `inputs/mcp-adapter.json` references. |
@@ -68,7 +73,7 @@ Warning: do not write a key into the overlay, the registry, the launcher file or
 
    <Shot
    	src={login}
-   	alt="The terminal interface of Pi 1.0.2 after the command /login. Below the start text, a list has the title Select authentication method and three entries."
+   	alt="The terminal interface of Pi 1.1.0 after the command /login. Below the start text, a list has the title Select authentication method and three entries."
    	callouts={[
    		{ n: 1, x: 34.6, y: 64.2, text: 'The title of the list. Pi shows the list after you type /login and press Enter.' },
    		{ n: 2, x: 28.8, y: 70.5, text: 'The arrow marks the selected method. The first method signs in with an account of a provider.' },
@@ -95,6 +100,8 @@ Warning: do not write a key into the overlay, the registry, the launcher file or
 </Steps>
 
 The screenshot of step 3 shows a run with the method `Sign in with an API key`. The provider and the model in it are examples.
+
+The screenshot of step 3 is from the release `portable/20261005-592105f` with Pi 1.0.2. Not verified: the same screen with Pi 1.1.0.
 
 The run made no capture of the screens where you select the provider and type the key.
 
@@ -140,23 +147,27 @@ The launch line of the plan carries `TENANTEXT_LITELLM_BASE_URL`. That URL is co
 How the key reaches the process is your decision. These are examples:
 
 - Export the key by hand in the terminal before you run the launcher file.
-- Read the key from a secret store that you use already. Bitwarden (`bw`), `pass` and an OS keyring are examples. None is necessary.
+- Read the key from a secret store that you use already. A password manager, `pass` and an OS keyring are examples. None is necessary.
 
 ## The result
 
 This stage has the label `skipped` until you run it.
 
 - With `/login`: the file `auth.json` in the target holds the result of the login.
-- The file `auth.json` alone does not prove a login. Pi writes that file at the first launch, with a size of 2 bytes.
-- In the run, the size of `auth.json` went from 2 bytes to 135 bytes after a login with an API key.
-- After the login, a new launch shows no warning `No models available`.
+- The file `auth.json` alone does not prove a login. Pi 1.1.0 writes that file at the first launch, with a size of 2 bytes.
+- In a run of the release `portable/20261005-592105f` with Pi 1.0.2, a login with an API key took `auth.json` from 2 to 135 bytes.
+- In the same run, a new launch after the login showed no warning `No models available`.
 - With an exported key: the `test -n` command prints `set` in the shell that runs the launcher file.
 
 Warning: the file `auth.json` can hold your key. Keep it private, and do not put it into a repository.
 
-Not verified: the method `Sign in with an account`. The run used an API key.
+Not verified: a login with Pi 1.1.0. The run with Pi 1.1.0 had no credential.
+
+Not verified: the method `Sign in with an account`. The run with Pi 1.0.2 used an API key.
 
 Not verified: the tabs "Tenantext gateway" and "MCP server tokens". They need a credential and an optional module.
+
+Not verified: the routes "Codex, direct" and "llama-swap or vLLM, direct". The file `docs/guides/providers.md` of the kit describes them.
 
 ## Shells that do not get your variables
 

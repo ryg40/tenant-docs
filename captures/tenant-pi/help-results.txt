@@ -1,0 +1,18 @@
+usage: tenant_pi.py results [-h] --facts FACTS [--overlay OVERLAY]
+                            [--target TARGET] [--out-dir OUT_DIR] [--replace]
+                            [--manifest MANIFEST]
+
+options:
+  -h, --help           show this help message and exit
+  --facts FACTS        explicit JSON file with the facts of the installing
+                       agent
+  --overlay OVERLAY    absolute path of the local JSON choices file; leave it
+                       out when the install has none
+  --target TARGET      absolute path of a candidate directory; repeat for more
+                       candidates
+  --out-dir OUT_DIR    absolute path of the existing directory that gets the
+                       file, outside the clone; without it the text is printed
+                       and nothing is written
+  --replace            replace an existing file of --out-dir
+  --manifest MANIFEST  reviewed kit manifest (override remains strictly
+                       validated)

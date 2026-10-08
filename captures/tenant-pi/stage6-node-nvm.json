@@ -1,8 +1,8 @@
 {
-  "title": "Install Node 22 with nvm",
+  "title": "Install Node 24 with nvm",
   "stage": 6,
   "order": 1010,
-  "command": "nvm install 22 && nvm use 22",
+  "command": "nvm install 24 && nvm use 24",
   "setup": [],
   "mode": "manual"
 }

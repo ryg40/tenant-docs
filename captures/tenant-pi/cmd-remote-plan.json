@@ -1,0 +1,7 @@
+{
+  "title": "Print the SSH command lines of the remote stages",
+  "order": 665,
+  "command": "python3 scripts/tenant_pi.py remote-plan --ssh-target build-host \\\n  --remote-user alex --remote-home /home/alex | \\\n  python3 -m json.tool",
+  "setup": [],
+  "mode": "scripted"
+}

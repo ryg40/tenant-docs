@@ -69,10 +69,10 @@ A core-only overlay needs no option other than `--overlay`. Add an option only w
 | Option | When |
 | --- | --- |
 | `--registry "$HOME/.config/tenant-pi/registry.json"` | The overlay has `modelRoutes` with a role or a cycle model. |
-| `--local-dir "$HOME/.config/tenant-pi"` | The module `mcp` is enabled. |
+| `--local-dir "$HOME/.config/tenant-pi"` | The module `mcp` is enabled. The action then reads `inputs/mcp-adapter.json` from that directory. |
 | `--require-role <role>` | A later stage needs a role, for example `review`. |
 
-Use the same options in Stage 4 and in Stage 5.
+Use the same options in Stage 4 and in Stage 5. Those stages have one more option, `--runtime-report`. The action `validate` does not take it.
 
 The action `init-private` of Stage 2 prints a `validate` command with `--local-dir`. For a core-only overlay, that command and the command of step 1 print the same result.
 
@@ -88,15 +88,22 @@ Stage 3 is passed when `validate` prints `"valid":true`.
 
 A refused overlay gives exit code 2 and one JSON line on standard error. The `error` has the form `rule: field`. It never holds a value.
 
+For a JSON syntax error, the line also has the keys `line` and `column`. Correct the syntax at that place, or at the end of the line before.
+
 | Error | Cause | What to do |
 | --- | --- | --- |
-| `read_or_json: overlay.file` | The file is absent, is not JSON, or is a link. A path with `~` in quotes also gives this error. | Give the absolute path of a regular file. Check the JSON with `python3 -m json.tool "<file>"`. |
+| `input_missing: overlay.file` | The file is absent. A path with `~` in quotes also gives this error. | Give the absolute path of the overlay. |
+| `invalid_json: overlay.file` | The file is not correct JSON. | Read the keys `line` and `column`. Check the file with [the syntax check](/tenant-pi/install/stage-2-edit-the-local-choices/#without-the-option---target) of Stage 2. |
+| `input_not_regular: overlay.file` | The path is a link, or it is not a regular file. | Give the path of the regular file. |
+| `sample_target: overlay.target.agentDir` | The overlay holds the sample target of the user `EXAMPLE_USER`. | Do the steps of [Without the option `--target`](/tenant-pi/install/stage-2-edit-the-local-choices/#without-the-option---target). |
 | `absolute_path: overlay.target.agentDir` | The target in the overlay is not an absolute path. | Write the expanded path, for example `/home/<name>/.pi/profiles/main`. |
 | `under_kit: overlay.target.agentDir` | The target is inside the kit clone. | Choose a target outside the clone. |
+| `under_pi_agent: overlay.target.agentDir` | The target is inside the live profile `~/.pi/agent`. The action reads `HOME` for this rule. | Choose a target beside the live profile. |
+| `under_wiki_vault: overlay.target.agentDir` | The target is an LLM Wiki vault or is inside one. | Choose a target outside the vault. |
 | `registry_without_routes: registry` | You gave `--registry`, but the overlay has no `modelRoutes`. | Remove `--registry` for a core-only overlay. |
 | `registry_required: registry` | The overlay has `modelRoutes` with a role or a cycle model, and you gave no `--registry`. | Add the option `--registry`. |
-| `blocked_component: overlay.selection.enable` | A blocked module is enabled. | Move the module back to `selection.disable`. |
-| `missing_dependency: overlay.selection.enable` | An enabled module needs a module that is not enabled. | Enable the necessary module. |
+| `blocked_component: overlay.selection.enable` | A component with the status `blocked` is enabled. This release has no such component. | Move the component back to `selection.disable`. |
+| `missing_dependency: overlay.selection.enable` | An enabled component needs a component that is not enabled. | Print the selection again with the action [`components`](/tenant-pi/use/commands/components/) of Stage 2. It adds the necessary component. |
+| `memory_choices_required: overlay.memory` | A memory module is enabled, and the overlay has no key `memory`. | Add the key `memory`. See [The memory consent](/tenant-pi/install/stage-2-edit-the-local-choices/#the-memory-consent). |
+| `memory_consent_required: overlay.consent.memoryCapture` | A memory module is enabled, and `consent.memoryCapture` is not `true`. | Set the consent only when you agree to the capture. If not, disable the module. |
 | `unknown_fields: overlay` | The overlay has a key that the kit does not define. | Remove the key. |
-
-The check does not find an overlay that has the sample target of the user `EXAMPLE_USER`. Stage 5 refuses that overlay.

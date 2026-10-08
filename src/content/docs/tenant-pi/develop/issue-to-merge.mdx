@@ -63,6 +63,15 @@ An issue of tenant-pi has three parts. The part Acceptance states the checks bef
 
 Each acceptance line is a check that a person or an agent can run. The record at the end gives one result for each line.
 
+Two labels control who can start. The reference file is `docs/agents/issue-tracker.md`.
+
+| Label | Meaning |
+| --- | --- |
+| `ready-for-agent` | An agent can take the issue. |
+| `needs-approval` | The owner approves before a worker starts. This label wins over `ready-for-agent`. |
+
+A worker claims an issue before the work starts. A claim is an assignment of the issue and one claim comment. Do not claim an issue that has an assignee.
+
 ## The branch and the commits
 
 ```mermaid
@@ -136,7 +145,7 @@ The body of each commit message says what changes and why. It holds no value of 
 
    <Capture id="tenant-pi/dev-unit-tests" />
 
-   The last line must be `OK`.
+   The last line must start with `OK`.
 
 4. Run the check of the examples.
 
@@ -177,6 +186,10 @@ The body of each commit message says what changes and why. It holds no value of 
    The report names each check as passed, failed, blocked or not run.
 
 The frames of steps 3 to 6 show the four offline checks on `main` as it is now. The numbers at the time of the example were smaller. The placeholder `<seconds>` replaces the run time of the tests.
+
+The last line of the first frame gives the number of skipped tests. A skipped test needs a tool or a user that the container does not have.
+
+The publish check of step 6 also applies the public reader rules to each file of the publish set. A reference to a private tracker in a published file is a finding. See [Release gates](/tenant-pi/develop/gates/#the-public-reader-check).
 
 Warning: run the tests with `unittest`, not with `pytest`. `pytest` writes a cache directory into the clone, and then the publish check fails.
 

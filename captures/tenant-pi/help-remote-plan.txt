@@ -1,0 +1,12 @@
+usage: tenant_pi.py remote-plan [-h] --ssh-target SSH_TARGET --remote-user
+                                REMOTE_USER --remote-home REMOTE_HOME
+
+options:
+  -h, --help            show this help message and exit
+  --ssh-target SSH_TARGET
+                        SSH target of the user: a host alias, or <user>@<host>
+  --remote-user REMOTE_USER
+                        account on the remote host that owns the install
+  --remote-home REMOTE_HOME
+                        absolute home directory of that account on the remote
+                        host

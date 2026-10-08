@@ -1,0 +1,170 @@
+---
+title: compose-plan
+description: Print the files and the command lines of a Compose seat. The kit runs none of the lines.
+sidebar:
+  order: 18
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`compose-plan` prints the plan of a Compose seat as one JSON object. A Compose seat is a container that holds one generated profile for one user. The user gets to it through SSH.
+
+The action is display only: the kit runs none of the command lines. Without `--write`, it also writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py compose-plan --uid "$(id -u)" --gid "$(id -g)" \
+  --public-key "$HOME/.ssh/id_ed25519.pub" \
+  --gateway-url https://gateway.example.invalid/v1 \
+  --private-dir "$HOME/.config/tenant-pi" --model codex-auto/astra
+```
+
+Not verified: a Compose seat that runs. No container of the seat image has a recorded trial.
+
+## Options
+
+<Capture id="tenant-pi/help-compose-plan" />
+
+| Option | Meaning |
+| --- | --- |
+| `--uid <number>`, `--gid <number>` | Required. The UID and the GID of the seat account. Use your own: `id -u` and `id -g`. |
+| `--public-key <file>` | Required. The absolute path of your SSH public key file. The file has exactly one key line. |
+| `--gateway-url <URL>` | Required. The HTTPS URL of the gateway. It holds no credential, and it ends in `/v1`. |
+| `--private-dir <dir>` | Required. The absolute path of the private directory. It exists, and it is outside the clone. For `--write`, use a directory that holds none of the five files. |
+| `--model <model>` | Required. The model of the role `interactive`: `codex-auto/luna`, `codex-auto/sol` or `codex-auto/astra`. |
+| `--provider <provider>` | The provider of that role. The default is `litellm-codex`. |
+| `--thinking <level>` | The thinking level of that role. The default is `high`. |
+| `--account <name>` | The account name of the seat. The default is `pi`. |
+| `--ssh-port <port>` | The port on this machine that gets the SSH connections. The default is 2222. |
+| `--projects-dir <dir>` | The absolute path of an optional projects directory. |
+| `--key-var <name>` | The name of the variable that holds the gateway key. The default is `TENANTEXT_LITELLM_API_KEY`. |
+| `--enable <ID>` | A component ID to enable. Repeat the option for more components. |
+| `--clone <dir>` | The absolute path of the kit clone. The default is the clone that runs the action. |
+| `--write` | Write the five files of the seat into the private directory. Each file must be absent. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+The thinking level is `off`, `minimal`, `low`, `medium`, `high`, `xhigh` or `max`.
+
+## What it reads
+
+- The manifest.
+- The public key file, with 64 KiB at most. The action refuses a file with the text `PRIVATE KEY`.
+- With `--write`, the environment values `HOME` and `WIKI_HOME`, for the place rules of the private directory.
+
+The action never reads the value of the key variable. It starts no process: it runs no `docker`, no `podman`, no `git` and no `ssh`. It opens no network connection.
+
+## What it writes
+
+Without `--write`, the action writes nothing.
+
+With `--write`, it creates five files in the private directory, each with the mode `0600`:
+
+| File | Content |
+| --- | --- |
+| `overlay.json` | The overlay of the seat. |
+| `registry.json` | The registry with the one model of the role `interactive`. |
+| `seat.env` | The `SEAT_*` variables that Compose reads. It holds no secret. |
+| `compose.env` | The environment of the container. The key line is empty. |
+| `authorized_keys` | A copy of the public key file, byte for byte. |
+
+- Each refusal comes before the first write. The action refuses when one of the five files exists.
+- No file holds a key value. You put the key value into `compose.env` yourself, between the single quotes.
+
+Warning: `--write` stops when the private directory holds one of the five files, for example the directory that `init-private` made. The action replaces no file.
+
+The command of the capture has no `--write`. The site has no capture of a run with `--write`.
+
+## Output
+
+<Capture id="tenant-pi/cmd-compose-plan" />
+
+Before this capture, the session wrote a public key file with one example key line. The key in it is not a real key. The command stops the output at the first command line of the plan.
+
+| Key | Content |
+| --- | --- |
+| `runs` | Always `false`. The action runs no command line. |
+| `answers` | The checked answers. `componentsAdded` names each component that a selected component needs. |
+| `authorizedKeys` | The public key file (`source`) and the file `authorized_keys` of the private directory (`destination`). |
+| `commands` | The command lines. See the next table. |
+| `composeEnv`, `seatEnv` | The lines of `compose.env` and of `seat.env`. |
+| `files` | The paths of the five files. |
+| `overlay` | The overlay of the seat. |
+| `registry` | The content of `registry.json`. |
+| `warnings` | Static codes. The list always holds the two entries `inspect_shows_key_value` and `bind_0_0_0_0_opens_seat_to_network`. |
+| `written` | The paths that `--write` created. The list is empty without `--write`. |
+
+`commands` has 11 entries: five for `docker`, five for `podman` and one for `ssh`.
+
+| `step` | `runtime` | Changes the host |
+| --- | --- | --- |
+| `build`, `up`, `down` | `docker` and `podman` | Yes |
+| `ps`, `logs` | `docker` and `podman` | No |
+| `login` | `ssh` | No |
+
+Each entry has these keys:
+
+| Key | Content |
+| --- | --- |
+| `argv` | The command as a list of arguments. |
+| `display` | The command as one line for a POSIX shell. |
+| `kitCommit` | Only for a Compose command: the `git` arguments whose output is the value `KIT_COMMIT`. The `display` line starts with that assignment. |
+| `changes` | `true` when the command changes the host. |
+| `approval` | Only with `"changes": true`. The value is `user_approval_required`. |
+
+The overlay of the seat has these values:
+
+- `target.agentDir` is the profile `main` below the home directory of the seat account.
+- `selection.enable` holds `core`, `model-routing`, `codex-accounts`, each `--enable` ID and each ID that one of them needs.
+- `modelRoutes.gateway` is `{"auth": "env"}`, and the role `interactive` uses the route `gateway`.
+
+Warning: a line with `"changes": true` builds, starts or removes a container. Read the line before you run it.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The plan is on standard output. |
+| 2 | The action refuses the input, or a write fails. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `account: compose-plan.account`, `reserved_account: compose-plan.account` | The account name does not have the form of an account name, or it is `root` or an account of the base image. |
+| `integer` with the field `compose-plan.uid`, `compose-plan.gid` or `compose-plan.ssh_port` | The value is not a decimal number. |
+| `account_id` with the field `compose-plan.uid` or `compose-plan.gid` | The value is outside 500 to 65533. |
+| `port: compose-plan.ssh_port` | The port is outside 1024 to 65535. |
+| `absolute_path` with the field `compose-plan.public_key`, `compose-plan.private_dir`, `compose-plan.clone` or `compose-plan.projects_dir` | The path is not absolute, or it ends in `/`. |
+| `under_kit: compose-plan.private_dir` | The private directory is the clone, is under it or holds it. |
+| `credential_free_https_url: compose-plan.gateway_url`, `gateway_api_prefix: compose-plan.gateway_url` | The URL breaks the gateway rule of the overlay, or it does not end in `/v1`. |
+| `env_name: compose-plan.key_var` | The name is not a variable name, or it is a name that the seat uses itself. |
+| `undeclared_component: compose-plan.components` | An `--enable` ID is not in the manifest. |
+| `unsupported_gateway_model: compose-plan.model` | The provider is `litellm-codex`, and the model is not one of its three aliases. |
+| `public_key_missing`, `public_key_line`, `private_key` with the field `compose-plan.public_key` | The file has no key line, a line is not a public key line, or the file holds a private key. |
+| `public_key_count: compose-plan.public_key has <count> key lines` | The file has more than one key line. |
+| `input_missing: compose-plan.public_key` | The public key file does not exist. |
+| A rule with the field `overlay.<name>` | The overlay of the plan fails a rule of [`validate`](/tenant-pi/use/commands/validate/#common-refusals). For example, a memory module gives `memory_choices_required: overlay.memory`. |
+
+`--write` adds these:
+
+| Diagnostic | Cause |
+| --- | --- |
+| `target_exists: compose-plan.<file>` | One of the five files exists. |
+| `private_dir_missing: compose-plan.private_dir` | The private directory does not exist. |
+| `private_dir_unsafe: compose-plan.private_dir` | The directory or a directory above it is a symbolic link or is not a directory. |
+| `under_pi_agent: compose-plan.private_dir` | The directory is `~/.pi/agent` or is under it. |
+| `under_wiki_vault: compose-plan.private_dir` | The directory is an LLM Wiki vault or is under it. |
+| `write_failed: compose-plan.private_dir` | The system refuses a write. Some of the five files can then exist. |
+
+## Limits
+
+- The action does not check that the projects directory exists.
+- The action does not check that a container can get to the gateway.
+- The action does not check that Docker or Podman is installed.
+- The seat has the gateway route only. Another provider than `litellm-codex` gives `unsupported_gateway_model: overlay.modelRoutes.choice`.
+
+## Reference files
+
+`docs/generator.md`, section "`compose-plan`: the files and the commands of a Compose seat", `docs/guides/compose-seat.md` and `deploy/compose/README.md` in the project repository.

@@ -45,7 +45,7 @@ The two branches share no commit. `portable` is not a filter of the history of `
 | History | Topic branches and merge commits. | One commit for each snapshot, in one line. |
 | Commit identity | The Git identity of the developer. | The neutral identity `tenant-pi portable`, with no signature. |
 | Host values | The scanner prints a warning (level `warn`). | The scanner fails (level `fail`). |
-| Remote | The development repository, remote `origin`. | The mirror on GitHub, remote `github`, branch `main`. |
+| Remote | The development repository, remote `origin`. | The mirror on GitHub, remote `github`, branch `main`. The development repository holds a copy. |
 | Tags | One tag of the form `pre-split-<date>` marks the state before the package imports. | `portable/<yyyymmdd>-<source sha>` for each snapshot. |
 
 A host value is text that identifies one private host, for example a host name, a private address or a home path.
@@ -55,18 +55,23 @@ A host value is text that identifies one private host, for example a host name, 
 | Path | Content | In the publish set |
 | --- | --- | --- |
 | `README.md`, `INSTALL.md` | The overview, and the install text for an agent. | Yes |
+| `POST_INSTALL.md`, `EXPLAINER.md` | The guide for changes after an install, and the explanation of each install step. | Yes |
+| `AGENTS.md`, `docs/agents/`, `GLOSSARY.md` | The instructions for an agent, the contract for the issue tracker, and the glossary. | Yes |
+| `LICENSE` | The license of the kit. | Yes |
 | `config/manifest.json` | The components and the runtime pins of the kit. | Yes |
 | `config/config.example.json`, `.env.example` | The generated examples. They hold synthetic values only. | Yes |
 | `config/private/` | The templates for the private directory of a user. | Yes |
 | `scripts/tenant_pi.py` | The command line of the kit. | Yes |
-| `scripts/` | The modules of each action, the checks, the scanner and the publish command. | Yes |
+| `scripts/` | The modules of each action, the checks, the scanner and the publish command. | Yes, without the exclusion list and the script of the source remotes |
 | `scripts/git-hooks/` | The hooks `pre-commit`, `pre-merge-commit` and `pre-push`, and their dispatcher. | Yes |
-| `tests/` | The unit tests, and `test_scan.sh` for the scanner. | Yes |
-| `docs/guides/` | The guides for a user, and the release checklist. | Yes |
+| `tests/` | The unit tests, and `test_scan.sh` for the scanner. | Yes, without two test files |
+| `docs/guides/` | The guides for a user, the release checklist and the pin move guide. | Yes, without one record file |
 | `docs/` | One reference document for each action and each module. | Yes, without the planning drafts |
 | `extensions/` | One Pi extension of the kit. | Yes |
-| `skills/` | The skills of the kit, for example the install skill. | Yes |
-| `packages/tenantext/`, `packages/promptr/` | Two imported packages. Their extensions and skills are optional components. | Yes, without the excluded directories |
+| `skills/` | The skills of the kit, for example the install skill. | Yes, without one skill |
+| `packages/tenantext/`, `packages/promptr/`, `packages/openviking-pi/` | Three packages in the tree. Their extensions and skills are optional components. | Yes, without the excluded paths |
+| `deploy/compose/` | The image and the Compose files of the Compose seat. | Yes |
+| `.gitea/workflows/`, `.github/workflows/` | The CI workflows. | Yes |
 | `.gitleaks.toml`, `scripts/host-values.*` | The rules of the scanner. | Yes |
 | `docs/wayfinder/` | The planning map and the planning notes. | No |
 | `docs/promptr-history/` | The history documents of an imported package. | No |
@@ -75,13 +80,13 @@ A host value is text that identifies one private host, for example a host name, 
 
 ### The files that stay on `main`
 
-`scripts/publish_check.py` holds three lists. Together they account for each tracked file.
+`scripts/publish_check.py` holds two lists. A third file holds the exclusion list. Together they account for each tracked file.
 
 | List | Meaning |
 | --- | --- |
 | `PUBLISH` | Exact paths of the reviewed files. Each path goes to `portable`. |
-| `PUBLISH_DIRS` | One rule for each imported package: the directory, and the excluded paths below it. |
-| `DRAFT_DIRS` | Directories of reviewed drafts. They stay on `main`. |
+| `PUBLISH_DIRS` | One rule for each package below `packages/`: the directory, and the excluded paths below it. |
+| `scripts/dev-only-files.txt` | The exclusion list: reviewed files and directory prefixes. They stay on `main`. |
 
 These files stay on `main`:
 
@@ -89,9 +94,15 @@ These files stay on `main`:
 - The planning map: each file below `docs/wayfinder/`.
 - Three draft files below `config/`: `settings.template.json`, `hermes-memory-config.template.json` and `keybindings.json`.
 - `HANDOFF.md` and each file below `docs/promptr-history/`.
-- The excluded paths of the package rules, for example `packages/promptr/dist/`.
+- The document and the script of the source remotes: `docs/remotes.md` and `scripts/setup_remotes.sh`.
+- Development documents of a package, for example the directory `packages/tenantext/docs/research/`.
+- Other planning documents: `docs/foundation.md`, `docs/exploration/`, `docs/herdr-relay/` and one operations document.
+- One skill below `skills/`, its test file, and the test file `tests/test_setup_remotes.py`.
+- The exclusion list itself.
 
 A tracked file that is in no list makes the publish check fail. See [Release gates](/tenant-pi/develop/gates/).
+
+The build output of a package, for example `packages/promptr/dist/`, is never a tracked file.
 
 ## The remotes
 
@@ -115,12 +126,12 @@ flowchart TD
 
 | Remote | Purpose | Push |
 | --- | --- | --- |
-| `origin` | Development: `main` and the topic branches. | Permitted |
+| `origin` | Development: `main` and the topic branches. Also a copy of `portable` and of each snapshot tag. | Permitted |
 | `github` | Portable snapshots. The local branch `portable` becomes the branch `main` of this remote. | Permitted, through `scripts/publish_portable.py` |
 | `promptr-src` | Read the source of the imported package Promptr. | Disabled |
 | `tenantext-src` | Read the source of the imported package Tenantext. | Disabled |
 
-`origin` is a private repository. The GitHub repository is the public version of tenant-pi. It is private at this time.
+`origin` is a private repository. The GitHub repository is the public version of tenant-pi.
 
 `scripts/setup_remotes.sh` creates the two source remotes. It never changes `origin` or `github`. The script contacts no server.
 
@@ -155,7 +166,7 @@ The action `init-private` creates the private directory of a user outside the cl
 
 ## Set up a development clone
 
-You need Git and Python 3.11 or later. The scanner also needs Docker with the scanner image, or the `gitleaks` binary.
+You need Git and Python 3.11 or later. The publish command needs Git 2.36 or later. The scanner also needs Docker with the scanner image, or the `gitleaks` binary.
 
 1. Clone the repository.
 

@@ -1,0 +1,1 @@
+public reader check valid: 765 files, 3 rules, without a local deny list

@@ -1,0 +1,9 @@
+{
+  "title": "Save the runtime report",
+  "stage": 4,
+  "order": 400,
+  "command": "python3 scripts/tenant_pi.py check-runtime > \"$HOME/.config/tenant-pi/runtime.json\"",
+  "exit": 1,
+  "setup": [],
+  "mode": "scripted"
+}

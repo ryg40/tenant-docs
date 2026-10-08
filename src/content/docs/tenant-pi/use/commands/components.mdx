@@ -1,0 +1,156 @@
+---
+title: components
+description: Print the checklist of the 27 components, or the selection object for an overlay.
+sidebar:
+  order: 5
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`components` prints one entry for each component of the manifest, in the order of the manifest. This release has 27 components. The action is the one source of the component list: it reads `config/manifest.json` at each run. It writes nothing and enables nothing.
+
+```sh
+python3 scripts/tenant_pi.py components --format text
+```
+
+The action has three forms:
+
+| Form | Command | Output |
+| --- | --- | --- |
+| Data | `components` | One JSON object with each component. |
+| Checklist | `components --format text` | A numbered list for a person. |
+| Selection | `components --select <IDs or numbers>` | The `selection` object for an overlay. |
+
+## Options
+
+<Capture id="tenant-pi/help-components" />
+
+| Option | Meaning |
+| --- | --- |
+| `--format json` | The default. The checklist as data. |
+| `--format text` | The numbered list for a person. |
+| `--overlay <file>` | An overlay file. The marks of the checklist are then the IDs in `selection.enable` of that file. |
+| `--select <items>` | Component IDs or checklist numbers, with a comma between them. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+You cannot give `--select` together with `--overlay` or with `--format text`.
+
+## What it reads
+
+- The manifest.
+- With `--overlay`, that overlay. The action uses only `selection.enable` of it.
+
+The action reads each file through the bounded loader of [`validate`](/tenant-pi/use/commands/validate/#what-it-reads). It does not check the other rules of the overlay. It starts no process, reads no environment value and opens no network connection.
+
+## The checklist
+
+<Capture id="tenant-pi/cmd-components" />
+
+The overlay of the capture session is core only. So only `core` has a mark. Without `--overlay`, the marks are the recommended set. [Stage 2](/tenant-pi/install/stage-2-edit-the-local-choices/#select-the-components) shows that form.
+
+Each line has these parts, with `|` between them:
+
+| Part | Content |
+| --- | --- |
+| The number | The position in the manifest, from 1. Use it in `--select`. |
+| `[x]` or `[ ]` | The mark. |
+| The ID | The component ID. `core` is `(locked)`: you cannot switch it off. |
+| `extension:` or `skill:` | The names of the extensions and of the skills of the component. |
+| The status | The manifest status: `tested` or `unverified`. |
+| `requires:` | The other components that the component needs. Each component needs `core`, so the line does not name it. |
+| `needs:` | A short note of the prerequisites, and the count of the setup lines. |
+
+The last line says how to answer in an install session. The action itself reads no answer.
+
+The same command prints the same bytes on each run.
+
+## The recommended set
+
+Without `--overlay`, the checklist marks 16 components:
+
+- `core` and `model-routing`.
+- The extensions of Tenantext: `tenantext`, `codex-accounts`, `slopscore`, `context-meter`, `ops-footer`, `copilot-usage`, `anthropic-usage`, `doctor` and `resources`.
+- The skill components `coordinator-skills`, `knowledge-skills` and `slopscore-pr`.
+- The two local memory modules `hermes` and `wiki`.
+
+The marks are a proposal. The action enables nothing, and the sample overlay enables only `core`.
+
+A memory module stores text of your sessions on this machine. It needs your consent in the overlay. See [Modules and privacy](/tenant-pi/use/modules-and-privacy/#the-consent-keys).
+
+## The data form
+
+The default output is one JSON object with the keys `count`, `marks`, `components` and `scope`. `marks` is `recommended` without `--overlay`, and `overlay` with it.
+
+Each entry of `components` has these keys:
+
+| Key | Content |
+| --- | --- |
+| `number` | The position in the manifest, from 1. |
+| `id`, `kind`, `status` | The component ID, the kind of its source and its manifest status. |
+| `extensions`, `skills` | The names from the manifest. A component with no resource has two empty lists. |
+| `requires` | The IDs that the component needs. |
+| `prerequisites` | Plain codes, in a fixed order. See the next table. |
+| `recommended` | `true` for an ID of the recommended set. |
+| `marked` | The state of the checklist. |
+| `locked` | `true` for `core`. |
+
+A prerequisite code has one of four forms:
+
+| Form | Meaning |
+| --- | --- |
+| `overlay:<key>` | An overlay key that `validate` needs for the component. |
+| `env:<NAME>` | A name of the manifest key `env`. It is a declared name. It is not a proof that the component fails without it. |
+| `gap:<code>` | A readiness gap that names a step or a tool of the host. |
+| `setup:<line>` | A setup line that `plan` prints, without the directory of the profile. |
+
+The site has no capture of the data form. The checklist shows the same components.
+
+## The selection
+
+<Capture id="tenant-pi/stage2-components-select" />
+
+`--select` prints the `selection` object for the components that you select. The capture selects `core` and `ops-footer`. The action adds `context-meter`, because `ops-footer` needs it.
+
+| Key | Content |
+| --- | --- |
+| `selection.enable` | `core`, then each selected ID and each ID that one of them needs, in name order. |
+| `selection.disable` | Each other ID, in name order. |
+| `added` | Each ID that the action added for a requirement. |
+| `prerequisites` | The codes of each enabled component that has one. |
+| `scope` | A fixed statement. |
+
+The action writes no file. To use the result:
+
+1. Copy the object `selection` into the overlay.
+2. Add each `overlay:` key of the prerequisites to the overlay.
+3. Run [`validate`](/tenant-pi/use/commands/validate/).
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The output is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `undeclared_component: components.select` | An item of `--select` is not an ID of the manifest and not a number of the checklist. An empty item gives the same rule. |
+| `blocked_component: components.select` | A selected or required component has the manifest status `blocked`. No component of this release has that status. |
+| `option_conflict: components.select` | You gave `--select` with `--overlay` or with `--format text`. |
+| `required_fields: overlay.selection` | The `--overlay` file has no `selection.enable`. |
+| `undeclared_component: overlay.selection` | `selection.enable` of the `--overlay` file names an ID that the manifest does not have. |
+
+## Limits
+
+- A mark is not a proof. Each enabled component has the label `unverified` in this release, also a component with the manifest status `tested`. No live trial proves any of them. See [Modules and privacy](/tenant-pi/use/modules-and-privacy/#status-labels).
+- The note `needs:` gives the count of the setup lines, not their text. [`plan`](/tenant-pi/use/commands/plan/) prints the lines.
+- With `--overlay`, the action does not validate the overlay.
+
+## Reference files
+
+`docs/generator.md`, section "`components`: the checklist of the components", and `docs/guides/modules.md` in the project repository.

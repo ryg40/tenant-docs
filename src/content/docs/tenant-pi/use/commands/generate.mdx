@@ -2,7 +2,7 @@
 title: generate
 description: Write a new profile into a target directory that does not exist.
 sidebar:
-  order: 6
+  order: 9
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -26,6 +26,8 @@ python3 scripts/tenant_pi.py generate --overlay "$HOME/.config/tenant-pi/overlay
 | `--overlay <file>` | Required. The overlay file. |
 | `--target <dir>` | Required. The absolute path of the new profile directory. |
 | `--launcher <path>` | The absolute path of a launcher file that does not exist. |
+| `--runtime-report <file>` | The JSON output of an earlier [`check-runtime`](/tenant-pi/use/commands/check-runtime/#the-report-as-a-file) run. The gaps then show the measured versions of Node and Pi. |
+| `--herdr-report <file>` | The JSON output of an earlier [`check-herdr`](/tenant-pi/use/commands/check-herdr/) run. The gaps then show the measured `herdr` command. |
 | `--registry <file>` | A JSON file with the thinking levels of each model that you confirm. |
 | `--require-role <role>` | Marks one role as required. Repeat the option for more roles. |
 | `--local-dir <dir>` | The absolute directory that holds the input files of the overlay. The default is `.local` in the kit clone. |
@@ -36,9 +38,10 @@ Rules for the target:
 - `--target` must be equal to `target.agentDir` of the overlay, byte for byte.
 - The target must not exist.
 - The parent of the target must exist and must belong to you.
-- The target must be outside the kit clone.
+- The target must be outside the kit clone, the live profile `~/.pi/agent` and each LLM Wiki vault.
+- The target must not be the sample target of `config/config.example.json`.
 
-Use the same `--registry`, `--local-dir` and `--require-role` options as for [`validate`](/tenant-pi/use/commands/validate/) and [`plan`](/tenant-pi/use/commands/plan/).
+Use the same `--registry`, `--local-dir`, `--require-role`, `--runtime-report` and `--herdr-report` options as for [`validate`](/tenant-pi/use/commands/validate/) and [`plan`](/tenant-pi/use/commands/plan/).
 
 ## What it writes
 
@@ -48,8 +51,8 @@ Use the same `--registry`, `--local-dir` and `--require-role` options as for [`v
 | `<target>/settings.json` | `0600` | Always. |
 | `<target>/.tenant-pi/choices.json` | `0600` | Always. |
 | `<target>/.tenant-pi/state.json` | `0600` | Always. |
-| `<target>/hermes-memory-config.json` | `0600` | With the Hermes module. |
-| `<target>/mcp-adapter.json` | `0600` | With the MCP module. |
+| `<target>/hermes-memory-config.json` | `0600` | With the `hermes` component. |
+| `<target>/mcp-adapter.json` | `0600` | With the `mcp` component. |
 | The launcher file | `0700` | With `--launcher`, after the profile is complete. |
 
 - `.tenant-pi/choices.json` holds a copy of the overlay. Treat it as private.
@@ -57,13 +60,18 @@ Use the same `--registry`, `--local-dir` and `--require-role` options as for [`v
 - `kitCommit` is `unknown` when the kit directory has no Git metadata.
 - The launcher file has two lines: `#!/bin/sh` and one `exec env` line with the launch line of the plan.
 
-The action installs no package and does not start Pi. With `--launcher`, it reads the environment value `HOME`.
+- With the `wiki` component and no `memory.wiki.wikiHome`, the launch line also has `-u WIKI_HOME`. A vault place of the shell then does not get to Pi.
+- A report file changes the printed output only. The generated files are the same with and without it.
+
+The action installs no package and does not start Pi. It reads the environment values `HOME` and `WIKI_HOME` for the place rules, as [`validate`](/tenant-pi/use/commands/validate/#what-it-reads) does.
+
+Pi and the extensions write more into the profile later: `auth.json`, `models-store.json`, `sessions/`, `bin/`, `npm/` and the state directories of the extensions.
 
 ## Output
 
 <Capture id="tenant-pi/cmd-generate" />
 
-The capture writes the candidate `main-2026-10-05` of the [candidate update loop](/tenant-pi/use/candidate-update/).
+The capture writes the candidate `main-2026-10-05` of the [candidate update loop](/tenant-pi/use/candidate-update/). The command has no `--runtime-report`, so the two runtime gaps stay `unverified`.
 
 The output has each key of the [`plan`](/tenant-pi/use/commands/plan/#output) output, and these keys:
 
@@ -71,12 +79,16 @@ The output has each key of the [`plan`](/tenant-pi/use/commands/plan/#output) ou
 | --- | --- |
 | `candidate_created` | `true` when the target directory exists after the run. |
 | `complete`, `filesComplete` | `true` when the action wrote each file. |
-| `runtimeReady` | Always `false`. The kit cannot prove the runtime. |
+| `runtimeReady` | Always `false`. The kit has no live trial of a generated profile. |
+| `readinessGaps` | The gaps of the plan without `target_absence_unverified`. The new target directory is the proof that the target was absent. |
+| `commands.piInstall` | The global install line of the Pi pin, with its [mark](/tenant-pi/use/commands/plan/#the-mark-of-the-pi-install-line). |
 | `warnings` | Empty, or `cleanup_failed: target.descriptors`. The profile is complete in that case. |
 | `commands.launchStatus` | `manual_review_required` after a complete generation. |
 | `launcher` | With `--launcher`: the path, the mode and the state of the launcher file. |
 
-A complete file set is not a working Pi. Authentication and the packages are your steps.
+`generate` does not print `commands.providerKeyWarning`. Only `plan` tests the provider key names.
+
+A complete file set is not a working Pi. Authentication and the packages are your steps. An empty list `readinessGaps` is not a proof of a launch.
 
 ## Exit codes
 
@@ -102,10 +114,13 @@ Warning: keep an incomplete directory as it is until you inspect it. Choose a ne
 | `unsafe_path: target.parents` | The parent of the target does not exist, or a directory above it is a link. |
 | `unsafe_parent_owner: target.parent` | Root owns the parent of the target, and you are not root. |
 | `under_kit: overlay.target.agentDir` | The target is the kit clone or is under it. |
+| `sample_target: overlay.target.agentDir` | The overlay holds the sample target. |
+| `under_pi_agent: overlay.target.agentDir` | The target is the live profile `~/.pi/agent` or is under it. |
+| `under_wiki_vault: overlay.target.agentDir` | The target is an LLM Wiki vault or is under it. |
 | `pi_login_blocked: overlay.modelRoutes.gateway.auth` | The gateway uses `auth: "login"`. This release blocks that choice. |
 | `target_exists: launcher.path` | The launcher file exists. The check runs before the action creates the target. |
 
-`generate` also has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals) and of the launcher path in [`plan`](/tenant-pi/use/commands/plan/#common-refusals).
+`generate` also has each refusal of [`validate`](/tenant-pi/use/commands/validate/#common-refusals), and of the launcher path and the report files in [`plan`](/tenant-pi/use/commands/plan/#common-refusals).
 
 ## Reference files
 

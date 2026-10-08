@@ -1,0 +1,138 @@
+{
+    "hostKeyChecking": "unchanged",
+    "paths": {
+        "clone": "/home/alex/tenant-pi",
+        "herdrConfig": "/home/alex/.config/herdr",
+        "privateDir": "/home/alex/.config/tenant-pi",
+        "profile": "/home/alex/.pi/profiles/main"
+    },
+    "remoteHome": "/home/alex",
+    "remoteUser": "alex",
+    "runs": false,
+    "sshTarget": "build-host",
+    "stages": [
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "test \"$(id -un)\" = alex && test \"$HOME\" = /home/alex && test \"$(uname -s)\" = Linux"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'test \"$(id -un)\" = alex && test \"$HOME\" = /home/alex && test \"$(uname -s)\" = Linux'",
+            "stage": "identity"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "stat -c %U -- /home/alex"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'stat -c %U -- /home/alex'",
+            "stage": "home-owner"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "node --version && npm --version && python3 --version && git --version"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'node --version && npm --version && python3 --version && git --version'",
+            "stage": "tools"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "command -v herdr && herdr --version"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'command -v herdr && herdr --version'",
+            "stage": "herdr"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py check-runtime"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py check-runtime'",
+            "stage": "check-runtime"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py check-herdr"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py check-herdr'",
+            "stage": "check-herdr"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "test -r /home/alex/tenant-pi/packages/tenantext/skills/herdr/SKILL.md"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'test -r /home/alex/tenant-pi/packages/tenantext/skills/herdr/SKILL.md'",
+            "stage": "herdr-skill-files"
+        },
+        {
+            "approval": "user_approval_required",
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py init-private --dir /home/alex/.config/tenant-pi --target /home/alex/.pi/profiles/main"
+            ],
+            "changes": true,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py init-private --dir /home/alex/.config/tenant-pi --target /home/alex/.pi/profiles/main'",
+            "stage": "init-private"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py plan --overlay /home/alex/.config/tenant-pi/overlay.json"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py plan --overlay /home/alex/.config/tenant-pi/overlay.json'",
+            "stage": "plan"
+        },
+        {
+            "approval": "user_approval_required",
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py generate --overlay /home/alex/.config/tenant-pi/overlay.json --target /home/alex/.pi/profiles/main"
+            ],
+            "changes": true,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py generate --overlay /home/alex/.config/tenant-pi/overlay.json --target /home/alex/.pi/profiles/main'",
+            "stage": "generate"
+        },
+        {
+            "argv": [
+                "ssh",
+                "--",
+                "build-host",
+                "python3 /home/alex/tenant-pi/scripts/tenant_pi.py inventory --dir /home/alex/.pi/profiles/main"
+            ],
+            "changes": false,
+            "display": "ssh -- build-host 'python3 /home/alex/tenant-pi/scripts/tenant_pi.py inventory --dir /home/alex/.pi/profiles/main'",
+            "stage": "inventory"
+        }
+    ]
+}

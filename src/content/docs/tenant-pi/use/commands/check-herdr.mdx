@@ -1,0 +1,97 @@
+---
+title: check-herdr
+description: See if the host has the herdr command, and which version it has.
+sidebar:
+  order: 3
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`check-herdr` reports the `herdr` command of the host: `present` with its version, `missing` or `unparsed`. This action and [`check-runtime`](/tenant-pi/use/commands/check-runtime/) are the only actions that start a process.
+
+```sh
+python3 scripts/tenant_pi.py check-herdr
+```
+
+Herdr is a host tool with its own server. It is not an npm package, and it is not a package of a profile. The component `herdr` of the kit holds only the Herdr skill. Run this action before you enable that component.
+
+## Options
+
+<Capture id="tenant-pi/help-check-herdr" />
+
+| Option | Meaning |
+| --- | --- |
+| `--herdr <path>` | The absolute path of the `herdr` executable. The default is `herdr` on `PATH`. |
+
+## What it runs
+
+The action runs one command at most: `herdr --version`.
+
+- No shell runs. The command has a timeout of 20 seconds, and it gets no input.
+- A `herdr` that the system does not find starts no process.
+- The action does not install, update, start or stop Herdr.
+- The action reads no Herdr session, no Herdr configuration file and no profile.
+- The command gets the environment of the caller. The action reads `PATH` to find it. The action writes nothing and opens no network connection.
+
+## Output
+
+<Capture id="tenant-pi/cmd-check-herdr" />
+
+The capture container has no `herdr` command. So the status is `missing`, and the exit code is 1.
+
+| Status | Meaning | `installed` | Exit code |
+| --- | --- | --- | --- |
+| `present` | The command ran and gave a version. | The version | 0 |
+| `missing` | The system cannot find the executable, or it has no permission to run it. | `null` | 1 |
+| `unparsed` | The command gave no usable version: unknown output, an error exit, or a timeout. Also a start error of another kind, for example an executable file that is not a program. | `null` | 1 |
+
+`installed` holds only a version. No other output of the command shows in the report.
+
+The manifest names no required Herdr version. `present` shows only that the command starts. It does not prove a server that runs, a session that works or a skill that Pi loads.
+
+Not verified: a real Herdr with the status `present` or `unparsed`. The site has no capture of these two.
+
+## The report as a file
+
+[`plan`](/tenant-pi/use/commands/plan/#the-gaps-after-a-report) and [`generate`](/tenant-pi/use/commands/generate/) do not run this action. They read its report from a file.
+
+1. Send the output of `check-herdr` to a file in the private directory.
+2. Give the file to `plan` or `generate` with the option `--herdr-report`.
+
+```sh
+python3 scripts/tenant_pi.py check-herdr > "$HOME/.config/tenant-pi/herdr.json"
+python3 scripts/tenant_pi.py plan --overlay "$HOME/.config/tenant-pi/overlay.json" \
+  --herdr-report "$HOME/.config/tenant-pi/herdr.json"
+```
+
+- The report changes a gap only for an overlay that enables the component `herdr`.
+- `present` removes the gap `herdr_cli_unverified`. `missing` gives `herdr_cli_missing`, and `unparsed` gives `herdr_cli_unparsed`.
+- The gap `herdr_session_unverified` stays with each report.
+- The kit cannot find an old report. Make the report again after each change of Herdr.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The status is `present`. |
+| 1 | The status is `missing` or `unparsed`. The report is on standard output. |
+| 2 | Bad input. Standard error has one JSON object. Bad input starts no process. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: check-herdr.herdr` | `--herdr` is not an absolute path. |
+
+## Limits
+
+- With `missing`, install Herdr from a source that you reviewed. Then run the action again. The kit does not install it.
+- The action does not check the Herdr skill files of a profile. [`inventory`](/tenant-pi/use/commands/inventory/#output) reports them in `coordination.herdrSkill`.
+- Pi inside Herdr is not qualified.
+
+## Reference file
+
+`docs/herdr-setup.md` in the project repository.

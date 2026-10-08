@@ -1,0 +1,48 @@
+---
+title: "Results of the installer kit"
+date: "2030-01-01"
+kitCommit: "e303505da0a67de0fa73a4de64b249b5053c47c2"
+installingAgent: "EXAMPLE_AGENT"
+status: "stopped"
+lastStage: "Stage 5: generate"
+account: "alex"
+accountCreatedByInstall: false
+clone: "/home/alex/tenant-pi"
+privateDirectory: "/home/alex/.config/tenant-pi"
+overlay: "/home/alex/.config/tenant-pi/overlay.json"
+candidates:
+  - directory: "/home/alex/.pi/profiles/main"
+    state: "complete"
+    launcher: "/home/alex/.config/tenant-pi/launch-main.sh"
+node: "24.21.0"
+componentsOn: ["core"]
+componentsOff: ["model-routing", "tenantext", "codex-accounts", "slopscore", "context-meter", "ops-footer", "copilot-usage", "anthropic-usage", "doctor", "resources", "herdr", "herdr-relay", "coordinator-skills", "knowledge-skills", "slopscore-pr", "tracker-site", "promptr", "promptr-generate-task-prompt", "promptr-handoff", "promptr-openknowledge-project-pages", "promptr-watch-herdr-agents", "mcp", "questions", "hermes", "wiki", "openviking"]
+---
+
+# Results of the installer kit
+
+This file is local. It holds paths and the account name of this machine. The kit adds no credential value from the overlay. Do not write a credential value in the facts file.
+The kit made it from the overlay, the candidate directories and a facts file of the installing agent.
+
+## What the install did
+
+The install stopped before the end. The last stage is: Stage 5: generate
+
+The next step is: Install Pi, then do the first launch.
+
+- The date of the install: 2030-01-01
+- The installing agent: EXAMPLE_AGENT
+- The kit commit: `e303505da0a67de0fa73a4de64b249b5053c47c2`
+
+| Stage | State | Note |
+| --- | --- | --- |
+| Stage 5: generate | done |  |
+| Stage 6: install the dependencies | not run | Pi is not installed. |
+
+The states of the stages come from the installing agent. The kit did not measure them.
+
+Notes of the installing agent:
+
+- The capture container has no network access.
+
+## The account

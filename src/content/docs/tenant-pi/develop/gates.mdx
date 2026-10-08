@@ -1,13 +1,13 @@
 ---
 title: Release gates
-description: The seven gates of the release checklist. For each gate, the command, what it proves and how to record it.
+description: The eight gates of the release checklist. For each gate, the command, what it proves and how to record it.
 sidebar:
   order: 4
 ---
 
 import Capture from '@/components/Capture.astro';
 
-A gate is a condition that a release must meet. The release checklist of tenant-pi has seven gates. The reference file is `docs/guides/release-checklist.md`.
+A gate is a condition that a release must meet. The release checklist of tenant-pi has eight gates. The reference file is `docs/guides/release-checklist.md`.
 
 A passed gate is a fact for one release only. It is not a claim about a later release.
 
@@ -17,7 +17,7 @@ Each terminal frame on this page shows a command on the branch `main` of tenant-
 
 ```mermaid
 flowchart TD
-    accTitle: The seven gates in three groups
+    accTitle: The eight gates in three groups
     subgraph Checks["The four offline checks"]
         direction LR
         g1["Gate 1<br/>unit tests"] --> g2["Gate 2<br/>examples"] --> g3["Gate 3<br/>sample overlay"] --> g4["Gate 4<br/>publish set"]
@@ -27,7 +27,7 @@ flowchart TD
     end
     subgraph Evidence["Evidence, no single command"]
         direction LR
-        g6["Gate 6<br/>clean Linux core trial"] --> g7["Gate 7<br/>optional live services<br/>report only"]
+        g6["Gate 6<br/>clean Linux core trial"] --> g7["Gate 7<br/>optional live services<br/>report only"] --> g8["Gate 8<br/>Compose seat<br/>report only"]
     end
     Checks --> Scanner --> Evidence
     Evidence --> rec["The release record"]
@@ -35,9 +35,9 @@ flowchart TD
 
 | Group | Gates | Who runs them |
 | --- | --- | --- |
-| The four offline checks | 1 to 4 | A worker before each merge. The coordinator on `main`. `scripts/publish_portable.py` runs them again itself. |
+| The four offline checks | 1 to 4 | A worker before each merge. The coordinator on `main`. `scripts/publish_portable.py` runs them again itself. The CI workflows run them on each push and each pull request. |
 | The scanner | 5 | The coordinator before a release. The hooks run parts of it at each commit, merge and push. |
-| Evidence | 6 and 7 | A person or an agent on a clean Linux user. The record names each result. |
+| Evidence | 6 to 8 | A person or an agent. Gate 6 needs a clean Linux user. The record names each result. |
 
 ## The commands
 
@@ -45,15 +45,18 @@ Run each command from the root of the clone, on the branch `main`.
 
 | Gate | Command | Passes when | Required |
 | --- | --- | --- | --- |
-| 1. Offline unit tests | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -q` | The last line is `OK`. | Yes |
+| 1. Offline unit tests | `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -q` | The last line starts with `OK`. | Yes |
 | 2. Examples | `PYTHONDONTWRITEBYTECODE=1 python3 scripts/examples.py` | The command prints `examples valid`. | Yes |
 | 3. Sample overlay | `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py --overlay config/config.example.json` | The line starts with `valid:`. | Yes |
 | 4. Publish set | `PYTHONDONTWRITEBYTECODE=1 python3 scripts/publish_check.py` | The line starts with `publish set valid:`. | Yes |
 | 5. Scanner | `scripts/scan.sh all` | The exit code is 0. | Yes |
 | 6. Clean Linux core trial | No single command. See [gate 6](#gate-6-the-clean-linux-core-trial). | The record holds each stage and each check. | Yes |
 | 7. Optional live services | No single command. See [gate 7](#gate-7-optional-live-services). | The record names each service with its result. | Report only |
+| 8. Compose seat | No single command. See [gate 8](#gate-8-the-compose-seat). | The record names each of the three parts with its result. | Report only |
 
 `PYTHONDONTWRITEBYTECODE=1` stops Python from writing `__pycache__` files into the clone.
+
+The CI workflows also run the documentation check as a fifth command. The reference file is `docs/ci.md`.
 
 ## The four results
 
@@ -90,15 +93,21 @@ The release checklist names the four words and does not define them. The table g
 
 The placeholder `<seconds>` replaces the run time of the tests.
 
+The last line of the frame gives the number of skipped tests: four. Three of them need Docker, and one needs the user `root`. The container has neither.
+
 | Question | Answer |
 | --- | --- |
-| What does it prove? | Each script behaves as its tests say, offline. The documents of the publish set pass the documentation check. |
+| What does it prove? | Each script behaves as its tests say, offline. The documents of the publish set pass the documentation check. The skill texts pass the skill check. |
 | What does it not prove? | It does not prove that a generated profile starts Pi. Gate 6 does that. |
-| What do you record? | The result word, the last line `OK` and the number of tests. |
+| What do you record? | The result word, the last line, which starts with `OK`, and the number of tests. |
 
 The tests need a Git clone of the kit. Some tests fail in a copy that has no Git metadata.
 
 Warning: run the tests with `unittest`, not with `pytest`. `pytest` writes a `.pytest_cache/` directory into the clone, and then gate 4 fails.
+
+### The skill check
+
+Gate 1 also checks the text of two skill sets of the package Tenantext: `coordinator-skills` and `knowledge-skills`. The test file `tests/test_skill_invariants.py` reads their Markdown files. It compares them with the label table of `docs/agents/issue-tracker.md`. A finding makes the unit tests fail.
 
 ### The documentation check
 
@@ -108,7 +117,9 @@ Run the script directly when you want the list of the findings:
 
 <Capture id="tenant-pi/dev-doc-check" />
 
-The check reads the Markdown files of the publish set. It runs offline, starts no process and writes nothing. A finding has the form `rule: path:line`.
+The check reads the Markdown files of the list `PUBLISH`. It runs offline, starts no process and writes nothing.
+
+With a finding, the script prints one line for each finding and then `doc check failed: <n> findings`. Its exit code is then 1. A finding has the form `rule: path:line`. It never holds text of the file.
 
 | Rule | Meaning |
 | --- | --- |
@@ -121,9 +132,12 @@ The check reads the Markdown files of the publish set. It runs offline, starts n
 | `cli_flag` | A document names a flag that the action does not have. |
 | `env_name` | A guide names an environment variable that the kit does not know. |
 | `action_unguided` | No guide names an action of the command line. |
-| `doc_missing`, `doc_text` | A file of the publish set is absent, is a link, or is not UTF-8 text. |
+| `skill_list` | The skill table in the `README.md` of a component with more than one skill is not the skill list of the manifest. |
+| `doc_missing`, `doc_text` | A file of `PUBLISH` is absent, is a link, or is not UTF-8 text. |
 
 The check proves that a link resolves and that a command has a valid shape. It does not prove that the command works.
+
+The check does not read the documents below `packages/`. The packages have their own test suites.
 
 ## Gate 2: the examples
 
@@ -153,14 +167,43 @@ The check proves that a link resolves and that a command has a valid shape. It d
 
 | Question | Answer |
 | --- | --- |
-| What does it prove? | Each tracked file is in a reviewed list. No file of the publish set matches a private-key pattern or a token pattern. `.env.example` holds no value. |
+| What does it prove? | Each tracked file is in a reviewed list. No file of the publish set matches a private-key pattern or a token pattern. `.env.example` holds no value. No file of the publish set breaks a public reader rule. |
 | What does it not prove? | It is not a secret audit. It is not a release approval, and the output line says so. |
 | What do you record? | The result word and the line with the two file counts. |
 
-The usual failure is `unreviewed_file: repository inventory`. It has two causes:
+The usual failure is `unreviewed_file: repository inventory`. The lines after it name each path. It has two causes:
 
-- A new tracked file is in no list of `scripts/publish_check.py`. Review the file, then add its exact path to `PUBLISH`.
+- A new tracked file is in no reviewed list. Review the file, then add its exact path to `PUBLISH` in `scripts/publish_check.py`.
 - An untracked file is in the clone, for example a cache directory. Remove the file.
+
+A reviewed file that must stay on `main` goes into the exclusion list `scripts/dev-only-files.txt`, not into `PUBLISH`. See [Portable release](/tenant-pi/develop/release/#the-publish-set).
+
+### The public reader check
+
+A snapshot is for a reader who has no access to the development repository. So gate 4 applies the public reader rules to each file of the publish set. The publish check stops at the first finding with `publish_public_reader: <path>`.
+
+Run the script with `--public` when you want the list of all the findings:
+
+<Capture id="tenant-pi/dev-public-reader-check" />
+
+With a finding, the script prints one line `<rule id>: <path>:<line>` for each finding and then a count. Its exit code is then 1. A line never holds text of the file or a pattern of a deny list.
+
+| Rule id | Finds |
+| --- | --- |
+| `tracker-reference` | A reference to an entry of a private tracker. One form is the word for an issue or a ticket and then a number. The other forms are a planning map with a number, and a decision with a letter code. |
+| `machine-path` | A path of the home directory of the administrator, or of the stack directory of one host. |
+| `host-record` | A record of work on one host, for example a record word such as "observed" with a date in the same line. |
+| `host-value-<n>`, `host-value-local-<n>` | A literal pattern of the tracked deny list of the scanner, or of the untracked local deny list. |
+
+The last line says `with a local deny list` or `without a local deny list`. The container of the frame has no local deny list. The number of rules in that line counts the first three rows of the table.
+
+- `--public --hashes` prints `<path><TAB><sha256>` for each line with a finding. This is the form of an entry of `scripts/host-values.allow-lines`.
+- A line of `scripts/host-values.allow-lines` gives no finding of any rule. A changed line is a finding again.
+- A pattern finds a form, not a meaning. An account name or a host name is a finding only when a deny list holds it.
+- The check reads the files of the working tree. It does not read the Git history or a commit message. Gate 5 reads those.
+- The check does not read the release notes, because they are not in the publish set.
+
+Write the lasting fact in place of such content, for example "Observed with Pi 1.0.2: ...". The reference file is `docs/publishing.md`.
 
 ## Gate 5: the scanner
 
@@ -191,7 +234,7 @@ The level depends on the branch.
 | A tag `portable/*` at `HEAD` | `fail` |
 | Each other branch | `warn` |
 
-`main` holds host values and keeps them. Thus `scripts/scan.sh all` on `main` can print warnings and still exit with 0. `--level fail` sets the level for one run.
+At the level `warn`, a host value gives a warning. Thus `scripts/scan.sh all` on `main` can print warnings and still exit with 0. `--level fail` sets the level for one run.
 
 The host-value part of gate 5 applies to `portable`. The page [Portable release](/tenant-pi/develop/release/#the-scanner-level) gives the command for a snapshot.
 
@@ -233,18 +276,22 @@ Gate 6 has no single command. It is a full run of the setup guide by a user that
 2. Follow the setup guide with a core-only overlay, stages 1 to 9.
 3. Record the Pi version, the Node version and the Python version from the action `check-runtime`.
 4. Record checks 1, 2 and 4 of stage 9.
-5. Record that nothing new appeared in `~/.pi/agent` of that user.
+5. Record the result of the action `check-baseline` for `~/.pi/agent` of that user.
 6. Report check 3 of stage 9, the model reply, as its own line.
 
 Check 3 needs a credential. Without a credential, its result is blocked or not run.
+
+The action `check-baseline` is check 4 of stage 9. For a user with no Pi profile, its result is `unchanged`, and `was` and `now` are both `absent`.
 
 `~/.pi/agent` is the profile directory that a bare `pi` command opens. The kit must never write into it.
 
 The Install pages of this site describe the nine stages. See [Install](/tenant-pi/install/).
 
+A fast track is a release with gate 6 not run. It needs the approval of the owner, and it is not a full qualification. See [Portable release](/tenant-pi/develop/release/#a-pin-move-and-the-fast-track).
+
 ## Gate 7: optional live services
 
-Gate 7 is a report. It does not stop a release. The record names each optional module, each route and each MCP server with one of the four results.
+Gate 7 is a report. It does not stop a release. The record names each optional module, each route and each MCP server with one of the four results. Gate 7 has no result word for the whole gate.
 
 These lines are honest:
 
@@ -253,6 +300,30 @@ These lines are honest:
 - `mcp`, server `example`: not run.
 
 Do not write "all modules work" when only the core trial ran. A documentation review or an offline `generate` is not a live installation.
+
+## Gate 8: the Compose seat
+
+Gate 8 is a report, as gate 7 is. It does not stop a release. A Compose seat is a container that holds one generated Pi profile for one user. The reference file is `docs/guides/compose-seat.md`.
+
+The record names three parts. Gate 8 has no result word for the whole gate.
+
+| Part | What it is | Result words |
+| --- | --- | --- |
+| `config` | `docker compose config` reads the two Compose files. It is the short offline check. | passed, failed or not run |
+| `build` | `docker compose build` builds the image. It needs Docker and the network. | passed, failed or not run |
+| Table check | The qualification table of the guide agrees with the recorded trials. | passed, failed or not run |
+
+- The build runs the four offline checks inside the image.
+- A build that passes is not a trial of a container. The evidence of a container is in the trial records.
+- A row of the qualification table is `not qualified` unless an accepted trial record covers each item of the checklist of the guide.
+
+Warning: `docker compose config` prints each value of the file `compose.env`. Keep the key line of that file empty for this check.
+
+## Platforms that are not qualified
+
+The release checklist has the table "Platforms that are not qualified". Each row names a platform and the evidence that changes its status. The table names, for example, macOS on Apple silicon, Windows and WSL, the Compose seat and an install on a remote Linux host over SSH.
+
+A status changes only after an accepted record of a run. The record holds the exact commands, the versions and each check with one of the four results. The release notes link to this table.
 
 ## Record the gates
 
@@ -265,9 +336,15 @@ Write one record for each release on the release issue. The record has one row f
 | 2. Examples | passed (`examples valid`) |
 | 3. Sample overlay | passed (`valid: structural contract only`) |
 | 4. Publish set | passed (`publish set valid: <n> files, <n> explicit`) |
-| 5. Scanner | passed (level `fail`: 0 secret, 0 host-value, 0 policy findings) |
+| 4. Public reader check | `public reader check valid: <n> files, <n> rules, with a local deny list` |
+| 4. Documentation check | `doc check valid: <n> files, <n> links, <n> json blocks, <n> actions` |
+| 5. Scanner, development history | passed (level `warn`: 0 secret, <n> host-value, 0 policy findings) |
+| 5. Scanner, snapshot range | passed (level `fail`: 0 secret, 0 host-value, 0 policy findings) |
 | 6. Clean Linux core trial | passed, startup only (Pi <version>, stages 1 to 6, stage 9 checks 1, 2 and 4) |
-| 7. Optional live services | not run (gateway route: not run, no key; `mcp`: not run) |
+| 7. Optional live services | gateway route: not run, no key; `mcp`: not run |
+| 8. Compose seat | config passed, build not run, table check passed |
 ```
 
-The record also names the tag of the snapshot and each open gap. See [Portable release](/tenant-pi/develop/release/).
+Gate 5 has one row for each scan. The first scan is `scripts/scan.sh all` on `main`. The second scan reads the new snapshot commits at the level `fail`.
+
+The record also names the tag of the snapshot and each open gap. The release notes hold the same results. See [Portable release](/tenant-pi/develop/release/#the-release-notes).

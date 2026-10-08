@@ -1,0 +1,8 @@
+{
+  "title": "The selection of two components",
+  "stage": 2,
+  "order": 260,
+  "command": "python3 scripts/tenant_pi.py components --select core,ops-footer",
+  "setup": [],
+  "mode": "scripted"
+}

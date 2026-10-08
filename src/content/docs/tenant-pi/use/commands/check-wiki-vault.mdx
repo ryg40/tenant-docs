@@ -1,0 +1,122 @@
+---
+title: check-wiki-vault
+description: See if your account has a personal LLM Wiki vault, before a profile uses the wiki component.
+sidebar:
+  order: 6
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`check-wiki-vault` reports the personal LLM Wiki vault of your account. The result is `vault_exists`, `no_vault` or `second_vault`. The action opens no file and writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py check-wiki-vault
+```
+
+A vault is the directory `.llm-wiki` that the wiki extension uses. Each profile of one account uses the same personal vault. Run this action before you enable the component `wiki`. A new profile then uses a vault that exists as it is.
+
+## Options
+
+<Capture id="tenant-pi/help-check-wiki-vault" />
+
+The action has no option.
+
+## What it reads
+
+- The environment value `HOME`. The first place of a vault is `<HOME>/.llm-wiki`.
+- The environment value `WIKI_HOME`, when it is set and not empty. The second place is `<WIKI_HOME>/.llm-wiki`.
+- The status of each of the two directories, and of three names in each one.
+
+The three names are `config.json`, `meta/embeddings.json` and the inner `.llm-wiki/config.json`.
+
+The action uses status calls only. It opens no file and no directory, and it lists nothing. It starts no process and opens no network connection.
+
+## Output
+
+<Capture id="tenant-pi/cmd-check-wiki-vault" />
+
+Before this capture, the session made the directory `~/.llm-wiki` with a file `config.json`. The wiki extension did not make that directory. [Stage 2](/tenant-pi/install/stage-2-edit-the-local-choices/#an-llm-wiki-vault) shows the output for an account with no vault.
+
+| Key | Content |
+| --- | --- |
+| `result` | `vault_exists`, `no_vault` or `second_vault`. |
+| `personalVault` | `wikiHome` when `WIKI_HOME` is set, else `home`. This is the vault that the extension uses as the personal vault. |
+| `home` | The facts of `<HOME>/.llm-wiki`. |
+| `wikiHome` | The facts of `<WIKI_HOME>/.llm-wiki`, or `null` when the variable is not set or is empty. |
+
+Each of the two blocks has these keys:
+
+| Key | Content |
+| --- | --- |
+| `root`, `vault` | The root and the vault directory, as text. |
+| `kind` | `directory`, `symlink`, `other`, `absent` or `unreadable`. |
+| `exists` | `true` for `directory` and `symlink`. |
+| `config` | `true` when `<vault>/config.json` is there. |
+| `doubled` | `true` when `<vault>/.llm-wiki/config.json` is there. The extension moves such an inner vault at a session start (source reading). |
+| `embeddings` | `exists` is `true` when `<vault>/meta/embeddings.json` is there. `size` is its size in bytes for a regular file. |
+| `ownedByUser` | `true` when you own the vault directory. |
+
+The report shows the paths of the two roots. It shows no content of a vault.
+
+## Read the result
+
+| `result` | Meaning |
+| --- | --- |
+| `vault_exists` | The personal vault is there. A profile with `wiki` uses it. |
+| `no_vault` | No vault is at the two places. |
+| `second_vault` | `WIKI_HOME` names a root with no vault, and the home directory has a vault. A session start then makes a second vault. |
+
+Warning: with `second_vault`, a Pi with the wiki extension that starts in this shell makes a new vault at `<WIKI_HOME>/.llm-wiki`. The vault of the home directory then stays unused.
+
+- The launch line of a profile with `wiki` and no `memory.wiki.wikiHome` removes `WIKI_HOME` for the Pi process. The vault is then `~/.llm-wiki`.
+- A `pi` command without the launch line does not remove the variable.
+- With `memory.wiki.wikiHome` in the overlay, the vault is `<wikiHome>/.llm-wiki`.
+- `vault_exists` with `"config": false` is no usable vault. The extension makes no new vault there (source reading).
+
+The site has no capture with `second_vault`, with `"doubled": true` or with an embedding store.
+
+Not verified: the move of an inner vault. The release read the code only.
+
+Not verified: a start of the wiki extension in a profile of this kit. The site has no capture of a profile with `wiki`.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The report is on standard output. The exit code is 0 for each result. |
+| 2 | `HOME` or `WIKI_HOME` is not usable. Standard error has one JSON object. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `home_required: check-wiki-vault.home` | `HOME` is not set. |
+| `absolute_path: check-wiki-vault.home` | `HOME` is not an absolute path. |
+| `absolute_path: check-wiki-vault.wiki_home` | `WIKI_HOME` is not an absolute path. |
+
+## Places that the kit refuses
+
+The kit writes nothing into a vault and nothing below one. Each of these paths gives `under_wiki_vault` when it is a vault or is under one:
+
+- The target of a profile, in `validate`, `plan` and `generate`.
+- The launcher file.
+- The private directory of `init-private`, and its `--target`.
+- The `--out` file of `baseline`.
+- The `--out-dir` directory and each `--target` of `results`.
+- The private directory of `compose-plan --write`.
+
+[Modules and privacy](/tenant-pi/use/modules-and-privacy/#the-vault-of-the-llm-wiki) says which vaults each action knows.
+
+## Limits
+
+- The action does not read `config.json`. So it does not know the format of the vault.
+- The action does not find a project vault of a working directory.
+- The action does not read the `llm-wiki` settings of a profile, and it does not read an overlay.
+- A vault of another account is outside the action.
+
+## Reference file
+
+`docs/memory-modules.md` in the project repository, sections "An existing vault" and "The vault check".

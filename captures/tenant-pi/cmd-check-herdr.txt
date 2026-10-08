@@ -1,0 +1,2 @@
+{"herdr":{"installed":null,"status":"missing"}}
+exit code: 1

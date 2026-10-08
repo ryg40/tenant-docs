@@ -1,8 +1,8 @@
 {
   "title": "Plan the profile",
   "stage": 4,
-  "order": 400,
-  "command": "python3 scripts/tenant_pi.py plan --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --launcher \"$HOME/.config/tenant-pi/launch-main.sh\"",
+  "order": 410,
+  "command": "python3 scripts/tenant_pi.py plan --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --launcher \"$HOME/.config/tenant-pi/launch-main.sh\" \\\n  --runtime-report \"$HOME/.config/tenant-pi/runtime.json\"",
   "setup": [],
   "mode": "scripted"
 }

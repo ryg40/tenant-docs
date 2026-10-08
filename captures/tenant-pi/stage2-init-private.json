@@ -2,7 +2,7 @@
   "title": "Create the private directory",
   "stage": 2,
   "order": 200,
-  "command": "python3 scripts/tenant_pi.py init-private --dir \"$HOME/.config/tenant-pi\"",
+  "command": "python3 scripts/tenant_pi.py init-private --dir \"$HOME/.config/tenant-pi\" \\\n  --target \"$HOME/.pi/profiles/main\"",
   "setup": [
     "mkdir -p \"$HOME/.config\""
   ],

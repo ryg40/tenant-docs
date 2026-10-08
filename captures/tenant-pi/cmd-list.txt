@@ -7,20 +7,20 @@
         {
             "filesComplete": true,
             "generatedAt": "<UTC time>",
-            "kitCommit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+            "kitCommit": "e303505da0a67de0fa73a4de64b249b5053c47c2",
             "kitSchemaVersion": 1,
             "name": "main",
-            "piVersion": "1.0.2",
+            "piVersion": "1.1.0",
             "status": "candidate",
             "unsupported": []
         },
         {
             "filesComplete": true,
             "generatedAt": "<UTC time>",
-            "kitCommit": "f47fd90d2015467a92bcec82166323aae7cfe236",
+            "kitCommit": "e303505da0a67de0fa73a4de64b249b5053c47c2",
             "kitSchemaVersion": 1,
             "name": "main-2026-10-05",
-            "piVersion": "1.0.2",
+            "piVersion": "1.1.0",
             "status": "candidate",
             "unsupported": []
         }

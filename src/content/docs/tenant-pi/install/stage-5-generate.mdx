@@ -83,6 +83,8 @@ flowchart TD
 
 </Steps>
 
+The command of step 1 has no option `--runtime-report`. To get the measured gaps of Stage 4 in this output too, add that option with the same file. The generated files are the same with and without the report. Only the time in `state.json` differs between two runs.
+
 - Do not run the launcher file now. Stage 8 runs it, after Stage 6 installs Pi.
 - The second line of the launcher file holds the word `env` two times. That is correct.
 - The first `env` belongs to `exec env`. The second `env` starts the launch line of the plan.
@@ -100,12 +102,18 @@ flowchart TD
 
 The action writes the launcher file only after the profile is complete. The launcher file holds no key and no other secret value.
 
+- The action writes `hermes-memory-config.json` only with the module `hermes`, and `mcp-adapter.json` only with the module `mcp`.
+- Later, Pi and the extensions write their own files and state directories into the profile.
+
 ## Rules of the action
 
 - The option `--target` must be equal to `target.agentDir` of the overlay, byte for byte.
 - The target must not exist. The action never writes into a directory that exists.
 - The parent of the target must exist, and you must own it.
-- The target must be outside the kit clone.
+- The target must be outside the kit clone. If not, the action stops with `under_kit: overlay.target.agentDir`.
+- The target must be outside the live profile `~/.pi/agent`. If not, the action stops with `under_pi_agent: overlay.target.agentDir`.
+- The target must be outside an LLM Wiki vault. If not, the action stops with `under_wiki_vault: overlay.target.agentDir`.
+- The actions `validate` and `plan` have the same three rules. Each one stops before a write.
 - The launcher file must not exist. Its parent must exist, and you must own the parent.
 
 ## What the output means
@@ -115,10 +123,15 @@ The action writes the launcher file only after the profile is complete. The laun
 | `candidate_created` | `true` | The action created the target directory. This key is also in a correct output. |
 | `complete` | `true` | The generation is complete. The output has no key `error`. |
 | `filesComplete` | `true` | Each file of the plan is written. |
-| `runtimeReady` | `false` | Always `false`. The kit cannot prove that Pi runs with the profile. |
+| `runtimeReady` | `false` | Always `false`. The kit has no live trial of a generated profile. |
 | `launcher.complete` | `true` | The launcher file is written and checked. |
 | `commands.launchStatus` | `manual_review_required` | The kit does not run the launch line. You read it, and you run it in Stage 8. |
-| `readinessGaps` | A list | The same gaps as in Stage 4. They are facts to carry, not errors. |
+| `commands.piInstall` | An object | The install line of Pi with its mark, as in [Stage 4](/tenant-pi/install/stage-4-plan/#the-install-line-of-pi). |
+| `readinessGaps` | A list | The gaps of Stage 4 without `target_absence_unverified`. The action has just created the target. |
+
+Without a runtime report, the list has `node_runtime_unverified` and `core_runtime_unverified`. The frame of step 1 shows this.
+
+With a runtime report, the two gaps follow the report, as in [Stage 4](/tenant-pi/install/stage-4-plan/#the-gaps-of-a-core-only-plan). The list is then empty only with `match` for Node and for Pi. An empty list is not a proof that Pi runs: the report compares version numbers only.
 
 | Exit code | Meaning |
 | --- | --- |
@@ -148,12 +161,15 @@ Stages 1 to 5 are done. The kit runs no command of the next stages.
 
 | Error | Cause | What to do |
 | --- | --- | --- |
-| `invalid_plan: target_mismatch: plan.targetAgentDir` | `--target` is not equal to `target.agentDir` of the overlay. The overlay can hold the sample target. | Use the same absolute path in both places. |
+| `invalid_plan: target_mismatch: plan.targetAgentDir` | `--target` is not equal to `target.agentDir` of the overlay. | Use the same absolute path in both places. |
 | `target_exists: target` | The target exists. A second run without `--launcher` gives this error. | Choose a new target name. Edit `target.agentDir` to match. |
 | `target_exists: launcher.path` | The launcher file exists. The action checks the launcher file first, so a second run of step 1 gives this error. | Use a new file name, or remove the old file after you read it. |
 | `unsafe_path: target.parents` | The parent of the target does not exist, or a directory above it is a link. | Create the parent with `mkdir -p`. Do not use a linked parent. |
 | `unsafe_parent_owner: target.parent` | The user `root` owns the parent of the target, and you are not `root`. | Use a parent that you own, for example `"$HOME/.pi-profiles"`. |
 | `under_kit: overlay.target.agentDir` | The target is inside the kit clone. | Choose a target outside the clone. |
+| `under_pi_agent: overlay.target.agentDir` | The target is inside the live profile `~/.pi/agent`. | Choose a target beside the live profile. |
+| `under_wiki_vault: overlay.target.agentDir` | The target is an LLM Wiki vault or is inside one. | Choose a target outside the vault. |
+| `sample_target: overlay.target.agentDir` | The overlay holds the sample target of the user `EXAMPLE_USER`. | Do [Stage 2](/tenant-pi/install/stage-2-edit-the-local-choices/#without-the-option---target) and Stage 3 again. |
 
 | What you see | Cause | What to do |
 | --- | --- | --- |

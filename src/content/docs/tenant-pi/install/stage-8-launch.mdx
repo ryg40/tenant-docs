@@ -7,6 +7,7 @@ sidebar:
 ---
 
 import { Aside, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+import Capture from '@/components/Capture.astro';
 import Cast from '@/components/Cast.astro';
 import DocVersion from '@/components/DocVersion.astro';
 import Shot from '@/components/Shot.astro';
@@ -15,15 +16,16 @@ import launch from '../../../../../captures/tenant-pi/stage8-launch.png';
 <DocVersion project="tenant-pi" />
 
 <Aside type="note" title="Verified on a clean client">
-	A run on a clean Debian 12 client verified this stage for a core-only profile with no credential. Each "Not verified:" line names a part that the run did not do.
+	A run on a clean Debian 12 client with Pi 1.1.0 verified this stage for a core-only profile with no credential. Each "Not verified:" line names a part that the run did not do.
 </Aside>
 
 ## Goal
 
-Pi runs with the generated profile, and it keeps its state in the target.
+Pi runs with the generated profile, and it keeps its state in the target. A baseline of the live profile shows later that the launch did not change it.
 
 ```mermaid
 flowchart LR
+    base["Baseline of the live profile<br/>live-baseline.json"] -->|"before the first launch"| shell
     shell["Your shell<br/>PATH, and a key if the route needs one"] -->|"runs"| file["Launcher file<br/>launch-main.sh"]
     file -->|"exec env"| line["Launch line<br/>env -u PI_CODING_AGENT_SESSION_DIR<br/>PI_CODING_AGENT_DIR=target"]
     line --> pi["pi --no-approve"]
@@ -35,9 +37,55 @@ flowchart LR
 
 - [Stage 6](/tenant-pi/install/stage-6-install-the-dependencies/) is passed.
 - The key of your route is exported, if the route needs one. See [Stage 7](/tenant-pi/install/stage-7-authenticate/).
-- You work in the shell where the runtime check prints `match` for `pi`.
+- You work in the shell where the runtime check prints `match` or `untested_in_range` for `pi`.
 
 ## Steps
+
+### Record the baselines
+
+Do these steps before the first launch. [Stage 9](/tenant-pi/install/stage-9-test/) compares each directory with its baseline. With a declared npm package, do them before the first `pi install` line of Stage 6.
+
+<Steps>
+
+1. In the kit directory, record the baseline of the live profile `~/.pi/agent`.
+
+   <Capture id="tenant-pi/stage8-baseline" />
+
+   Result: the output has `"fileCreated":true` and the time `recordedAt`. On a clean client, `present` is `false`.
+
+2. Only when the shell has `PI_CODING_AGENT_DIR`: record a second baseline, of that directory. Give `--dir "$PI_CODING_AGENT_DIR"` and `--out "$HOME/.config/tenant-pi/live-baseline-env.json"`.
+
+   Result: the file `live-baseline-env.json` exists in the private directory.
+
+3. Only when the shell has `PI_CODING_AGENT_SESSION_DIR`: record a baseline of that directory. Give `--dir "$PI_CODING_AGENT_SESSION_DIR"` and `--out "$HOME/.config/tenant-pi/session-dir-baseline.json"`.
+
+   Result: the file `session-dir-baseline.json` exists in the private directory.
+
+4. Only with `wiki`: record a baseline of the vault that the profile uses. Give `--dir '<vault>'` and `--out "$HOME/.config/tenant-pi/wiki-vault-baseline.json"`.
+
+   Result: the file `wiki-vault-baseline.json` exists, also when no vault exists.
+
+5. Only with `wiki` and a vault that exists: record a baseline of the directory `meta` of the vault. Give `--dir '<vault>/meta'` and `--out "$HOME/.config/tenant-pi/wiki-vault-meta-baseline.json"`.
+
+   Result: the file `wiki-vault-meta-baseline.json` exists.
+
+6. Close each Pi that runs in the live profile.
+
+   Result: no Pi runs in `~/.pi/agent`. If one must run, write that into your notes.
+
+</Steps>
+
+- The action [`baseline`](/tenant-pi/use/commands/baseline/) lists the directory. It reads the name, the kind, the size and the modification time of each entry. It opens no file, and it does not change the directory.
+- The one write is the new baseline file, with mode `0600`. An existing file stops the action with `target_exists: baseline.out`. The action never replaces a baseline.
+- Do step 1 also when `~/.pi/agent` is absent. The baseline then records that the directory is absent.
+- `<vault>` is `<wikiHome>/.llm-wiki` when the overlay has `memory.wiki.wikiHome`. Else it is the directory `.llm-wiki` in your home directory. Write it as an absolute path.
+- Keep each baseline file in the private directory.
+- A Pi in the live profile also changes the directory.
+- The time `recordedAt` in the frame changes with each run.
+
+Not verified: steps 2, 4 and 5. The run on the clean client did step 3 without a capture.
+
+### Launch Pi
 
 <Tabs>
 <TabItem label="With the launcher file">
@@ -60,7 +108,7 @@ The screenshot shows Pi after the first launch of a core-only profile with no cr
 
 <Shot
 	src={launch}
-	alt="The terminal interface of Pi after the first launch. It shows the version 1.0.2, two downloaded tools, a warning that no models are available, an empty input line and a status line."
+	alt="The terminal interface of Pi after the first launch. It shows the version 1.1.0, two downloaded tools, a warning that no models are available, an empty input line and a status line."
 	callouts={[
 		{ n: 1, x: 17.2, y: 7.5, text: 'The Pi version. It is the version that the kit requires.' },
 		{ n: 2, x: 61.6, y: 34.3, text: 'At the first launch, Pi downloads the tools fd and ripgrep into the directory bin of the target. This needs the network.' },
@@ -118,7 +166,10 @@ exec env env -u PI_CODING_AGENT_SESSION_DIR PI_CODING_AGENT_DIR=/home/<name>/.pi
 - With the gateway, the line also holds `TENANTEXT_LITELLM_BASE_URL`.
 - With `mcp`, the line also holds `PI_MCP_CONFIG_MODE=exclusive`.
 - With a relocated wiki vault, the line also holds `WIKI_HOME`.
+- With `wiki` and no relocated vault, the line holds `-u WIKI_HOME`. That part removes an inherited value. The vault is then `~/.llm-wiki/`.
 - The file holds no key. The key comes from the environment of the shell that runs the file.
+- A provider key variable of this shell reaches Pi too. Pi uses it when the profile has no login.
+- The launch line and the launcher file do not clear such a variable. The plan of Stage 4 names the known ones that are set, under `commands.providerKeyWarning`.
 - The file gives no argument to Pi. To give Pi an argument, type the launch line by hand.
 
 Pi starts with its own terminal interface. The kit does not wrap it or replace it.
@@ -142,10 +193,11 @@ Not verified: `env -u` on BusyBox, on the BSDs and on macOS. The option is in GN
 Stage 8 is passed when Pi starts with the generated profile. [Stage 9](/tenant-pi/install/stage-9-test/) has the checks.
 
 - The first launch writes into the target: `auth.json`, `models-store.json`, `bin/` and `sessions/`.
-- The first launch also changes `settings.json` of the target. In the run, Pi added the key `lastChangelogVersion` with the Pi version. The size of the file went from 99 to 150 bytes.
+- The first launch also changes `settings.json` of the target. In the run, Pi added the key `lastChangelogVersion`.
 - The line above the status line shows the working directory. In a Git directory, it also shows the branch name.
+- In a run of the release `portable/20261005-592105f` with Pi 1.0.2, a launch after the login of Stage 7 showed no warning `No models available`. The status line named the model.
 
-- After the login of Stage 7, a launch shows no warning `No models available`, and the status line names the model.
+Not verified: a launch after a login with Pi 1.1.0.
 
 Not verified: a launch of a profile with an optional module.
 
@@ -157,8 +209,10 @@ Not verified: a launch of a profile with an optional module.
 | Pi stops at start with `Cannot find module 'yaml'`. | The Node dependencies of `packages/tenantext` are absent. | Do the packages section of Stage 6. |
 | Pi warns about host-provided extension packages. | A memory package lists a host module under `dependencies`. | Run the peer correction of Stage 6. |
 | Pi reports an auth error with the gateway. | The key did not reach the Pi process. | Do Stage 7 in the shell that runs the launcher file. |
+| `baseline` stops with `not_directory: baseline.dir`. | The directory, or a directory above it, is a symbolic link. | Run `realpath "$HOME/.pi/agent"`. Give that path as `--dir` to `baseline` and to [`check-baseline`](/tenant-pi/use/commands/check-baseline/), and record both paths. |
+| `baseline` stops with `target_exists: baseline.out`. | The baseline file exists. The action never replaces it. | Give another file name to `--out`. |
 | Pi opens another profile. | You started Pi with a bare `pi` command. That command uses the live profile, or the directory in `PI_CODING_AGENT_DIR`. | Start the profile only with its launcher file or with the exact launch line. |
 
-Not verified: the warning about host-provided extension packages on Pi `1.0.2`. Pi `0.99.x` printed it.
+Not verified: the warning about host-provided extension packages on Pi `1.1.0`. Pi `0.99.x` printed it.
 
 The file `docs/guides/troubleshooting.md` of the kit lists each known error and its correction.

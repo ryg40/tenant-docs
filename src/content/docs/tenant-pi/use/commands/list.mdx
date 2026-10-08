@@ -2,7 +2,7 @@
 title: list
 description: List the candidates under one parent directory, with the kit commit and the generation time of each.
 sidebar:
-  order: 7
+  order: 13
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -54,19 +54,23 @@ Each row has a `name` and a `status`:
 | `candidate` | The child has a `state.json` of schema version 1. |
 | `unmanaged` | The child has no `.tenant-pi/state.json`. A profile that the kit did not generate has this status. |
 | `symlink` | The child is a symbolic link. The action does not enter it. |
-| `invalid` | `state.json` fails the loader or the schema check. The key `reason` holds a static rule code. |
+| `invalid` | `state.json` fails the loader or the schema check. The key `reason` holds a static rule code, for example `invalid_json`, `input_not_regular` or `unsupported_schema_version`. |
 | `unsupported_name` | The child name is outside the safe form. `name` is `null`, and the action does not enter the child. |
 
 A `candidate` row has these fields:
 
 | Field | Content |
 | --- | --- |
-| `kitCommit` | The commit of the kit clone at generation time: 40 hex characters, or `unknown`. |
+| `kitCommit` | The commit of the kit clone at generation time: 40 hex characters, or `unknown`. It is the value that `git rev-parse HEAD` prints in the clone. |
 | `generatedAt` | The UTC time of the generation. |
 | `piVersion` | The Pi pin of the kit at generation time. |
 | `filesComplete` | `true` for a complete candidate, `false` for an incomplete one. |
 | `kitSchemaVersion` | The schema version of the kit. |
 | `unsupported` | The names of the fields that do not have their public form. Such a field shows `null`. |
+
+A field that `state.json` does not have shows `null`. Its name is then not in `unsupported`.
+
+A row with the status `invalid` shows the rule only. It has no `line` and no `column` of a syntax error.
 
 ## Exit codes
 

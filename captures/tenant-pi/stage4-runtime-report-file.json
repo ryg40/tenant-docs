@@ -1,0 +1,8 @@
+{
+  "title": "The runtime report",
+  "stage": 4,
+  "order": 405,
+  "command": "cat \"$HOME/.config/tenant-pi/runtime.json\"",
+  "setup": [],
+  "mode": "scripted"
+}

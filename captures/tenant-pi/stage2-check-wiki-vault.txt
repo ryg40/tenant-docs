@@ -1,0 +1,1 @@
+{"home":{"config":false,"doubled":false,"embeddings":{"exists":false,"size":null},"exists":false,"kind":"absent","ownedByUser":null,"root":"/home/alex","vault":"/home/alex/.llm-wiki"},"personalVault":"home","result":"no_vault","wikiHome":null}

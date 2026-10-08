@@ -1,0 +1,167 @@
+---
+title: results
+description: Put the facts of one install into the local file INSTALLER_KIT_RESULTS.md, or print its text.
+sidebar:
+  order: 12
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`results` makes one Markdown text with the facts of one install. With `--out-dir`, it writes the text into the file `INSTALLER_KIT_RESULTS.md`. Without `--out-dir`, it prints the text and writes nothing.
+
+```sh
+python3 scripts/tenant_pi.py results --overlay "$HOME/.config/tenant-pi/overlay.json" \
+  --facts "$HOME/.config/tenant-pi/results-facts.json" \
+  --target "$HOME/.pi/profiles/main" --out-dir "$HOME/.config/tenant-pi"
+```
+
+The sentences of the file are fixed text of the kit. The action adds the facts. The same input gives the same bytes.
+
+Run the action at the end of an install, also when the install stopped. [Stage 9](/tenant-pi/install/stage-9-test/#the-results-file) has the steps.
+
+## Options
+
+<Capture id="tenant-pi/help-results" />
+
+| Option | Meaning |
+| --- | --- |
+| `--facts <file>` | Required. The JSON file with the facts that the kit cannot read. See [The facts file](#the-facts-file). |
+| `--overlay <file>` | The absolute path of the overlay. It must be valid, as for `validate`. Give no `--overlay` only when the install has no overlay. |
+| `--target <dir>` | The absolute path of one candidate directory. Repeat the option for more candidates, 16 at most. |
+| `--out-dir <dir>` | The absolute path of a directory that exists and belongs to you. The action writes `INSTALLER_KIT_RESULTS.md` into it. |
+| `--replace` | Replace a file `INSTALLER_KIT_RESULTS.md` that exists in `--out-dir`. |
+| `--manifest <file>` | Another manifest file. The default is `config/manifest.json` of the kit. |
+
+The file name is fixed. A later candidate does not add to the file. Run the action again with each `--target` and with `--replace`.
+
+## What it reads
+
+| Source | What the action uses |
+| --- | --- |
+| The Git metadata of the clone | The kit commit. |
+| The manifest | The component IDs, and the names of the extensions and of the skills. |
+| The overlay | The IDs of `selection.enable`, the keys of `consent`, the switches of the `memory` block, `memory.wiki.wikiHome` and the names of the roles that are set. |
+| `<target>/.tenant-pi/state.json` | The state of the candidate, the Pi pin and the generation time. |
+| `<target>/settings.json` | The names of the declared npm packages. |
+| `<target>/npm/node_modules/<name>/package.json` | One status call for each declared npm package. The action does not open the file. |
+| Each launcher path of the facts file | One status call. The action does not open the file. |
+| The facts file | Each fact that only the person or the agent of the install knows. |
+
+- The action uses no provider, no model, no endpoint and no credential name of the overlay.
+- The action opens no `auth.json`, no `models.json`, no session and no memory store.
+- The action reads the environment values `HOME` and `WIKI_HOME` for the vault rule. It reads no other environment value.
+- The action starts no process and opens no network connection. It does not run `pi`, `node` or `npm`.
+
+## The facts file
+
+You write the facts file, or the agent that does the install writes it. The schema is closed: an unknown key and a missing key stop the action. Only the keys of `places` are optional.
+
+| Key | Content |
+| --- | --- |
+| `schemaVersion` | `1` |
+| `date` | The date of the install in the form `YYYY-MM-DD`. The action reads no clock. |
+| `installingAgent` | The name of the agent or of the person that did the install. |
+| `status` | `complete` or `stopped`. |
+| `lastStage` | The last stage that the install got to. |
+| `nextStep` | A text or `null`. It is required as a text when `status` is `stopped`. |
+| `account` | `name`, `createdByInstall` and `openShell`: the account, whether the install created it, and the command that opens a shell of it. |
+| `places` | Optional keys: `clone`, `privateDirectory`, `node`, `pi` and `launchers`. Each entry of `launchers` has a `target` and a `path`. |
+| `stages` | A list of `stage`, `state` and `note`. The states are `done`, `not_run`, `not_applicable`, `failed` and `blocked`. |
+| `checks` | A list of `name`, `state` and `note`. The states are `passed`, `failed`, `not_run` and `not_verified`. |
+| `wikiVault` | `path`, `existedBefore` and `kept`. `path` is `null` when the account has no LLM Wiki vault. |
+| `notes` | A list of texts. |
+
+A text is one line of 200 characters at most, and it has no backtick. A text with a backtick gives `text` with its field, for example `text: facts.notes`. A list has 64 items at most.
+
+The action refuses a text with the form of a secret, for example a private key header or a token with a known prefix. It does not redact such a text. Correct the facts file.
+
+Warning: do not write a credential value into the facts file. The check finds a form, not a meaning, so a secret of another form passes.
+
+## The results file
+
+The file starts with a frontmatter block. Then it has one title and nine sections, always in this order:
+
+| Section | Content |
+| --- | --- |
+| What the install did | Complete or stopped, the last stage, the next step, the table of the stages and the notes. |
+| The account | The name, whether the install created the account, and the command that opens a shell of it. |
+| How to start Pi | The launcher of each candidate, and a warning about a `pi` command without the launcher. |
+| Where each part is | A table of the clone, the private directory, the overlay, each candidate, Node, Pi, the memory stores, the vault and the live profile. |
+| How the parts work together | The overlay, the packages of the clone, `PI_CODING_AGENT_DIR` of the launcher, and what is separate for each candidate. |
+| The components | The components that are on and off, the consent keys, the memory choices and the role names. |
+| How to add a component that is off | The loop with the real paths: `components`, the edit of the overlay, `validate`, `plan`, `generate`, the setup lines and a new login. |
+| The checks | The table of the checks with their states. |
+| The next document | `POST_INSTALL.md` of the clone and `install-log.md` of the private directory. |
+
+The state of a candidate in the file is `complete`, `incomplete`, `unmanaged`, `invalid` or `absent`. A candidate file that does not load is a state. It does not stop the action.
+
+- The states of the stages and of the checks come from the facts file. The action does not measure them, and it runs no check.
+- The file does not say which candidate is in use.
+- The steps of the section "How to add a component that is off" are text. The action runs none of them.
+
+Warning: the file holds the real paths and the account name of your machine. Do not commit it, and do not publish it.
+
+The `.gitignore` file of the private directory ignores `INSTALLER_KIT_RESULTS.md` and `results-facts.json`.
+
+## Output
+
+<Capture id="tenant-pi/cmd-results" />
+
+The command of the capture has no `--out-dir`, so it prints the text and writes nothing. It stops the output at the heading of the second section.
+
+Before this capture, the session wrote a facts file for an install that stopped after Stage 5. The values `EXAMPLE_AGENT` and `2030-01-01` come from that file.
+
+With `--out-dir`, the output is one JSON object. [Stage 9](/tenant-pi/install/stage-9-test/#the-results-file) shows it.
+
+| Key | Content |
+| --- | --- |
+| `path`, `mode` | The path of the file and its mode `0600`. |
+| `complete`, `fileCreated` | `true` when the file is complete. |
+| `replaced` | `true` when the action replaced a file that existed. |
+| `warnings` | A list of static codes. It is empty when nothing went wrong. |
+
+## What it writes
+
+- With `--out-dir`, the action writes `<out-dir>/INSTALLER_KIT_RESULTS.md` with the mode `0600`. It writes nothing else.
+- The action applies each refusal before the write.
+- With `--replace`, the action writes the new text to `INSTALLER_KIT_RESULTS.md.new`. Then it renames that file over the old one in one step.
+- The action replaces only a regular file.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The text or the report is on standard output. |
+| 2 | A refusal or a failed write. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `target_exists: results.out_dir` | The file exists in `--out-dir`, and you gave no `--replace`. |
+| `out_dir_required: results.replace` | You gave `--replace` without `--out-dir`. |
+| `under_kit: results.out_dir` | `--out-dir` is the kit clone or is under it. |
+| `under_target: results.out_dir` | `--out-dir` is a `--target` directory or is under it. |
+| `under_wiki_vault: results.out_dir` | `--out-dir` is an LLM Wiki vault or is under it. |
+| `under_wiki_vault: results.target` | A `--target` is an LLM Wiki vault or is under it. The action opens no file of a vault. |
+| `home_required: results.home` | You gave `--out-dir`, and `HOME` is not set. |
+| `unknown_fields: facts`, `required_fields: facts` | The facts file has a key that the schema does not have, or a required key is absent. |
+| `text`, `line_break`, `text_too_long` or `secret_like`, with a field below `facts` | A text of the facts file breaks a text rule. |
+| `target_not_regular` | With `--replace`: the name in `--out-dir` is a link or a directory. |
+| `temporary_exists` | With `--replace`: a file `INSTALLER_KIT_RESULTS.md.new` exists in `--out-dir`. |
+| A rule of [`validate`](/tenant-pi/use/commands/validate/#common-refusals) | The `--overlay` file fails the overlay rules. |
+
+## Limits
+
+- The file is as correct as the facts file. The kit cannot prove a stage state, a check state, the account or a version.
+- The secret check is a list of patterns. It is not complete, and the path values get no such check.
+- Without `--out-dir`, a `HOME` that is not set names no vault. The vault rule then covers only the vault of `WIKI_HOME` and the vault of the overlay.
+
+The site has no capture with `--replace` or with two `--target` directories.
+
+## Reference file
+
+`docs/install-results.md` in the project repository.

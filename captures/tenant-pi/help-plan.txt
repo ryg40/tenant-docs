@@ -1,6 +1,8 @@
 usage: tenant_pi.py plan [-h] --overlay OVERLAY [--manifest MANIFEST]
                          [--registry REGISTRY] [--require-role REQUIRE_ROLE]
                          [--local-dir LOCAL_DIR] [--launcher LAUNCHER]
+                         [--runtime-report RUNTIME_REPORT]
+                         [--herdr-report HERDR_REPORT]
 
 options:
   -h, --help            show this help message and exit
@@ -16,3 +18,11 @@ options:
                         absolute directory that holds the fixed overlay.inputs
                         slots (default: the kit's .local)
   --launcher LAUNCHER   absolute path of an absent launcher file; display only
+  --runtime-report RUNTIME_REPORT
+                        explicit JSON output of a previous check-runtime run;
+                        the readiness gaps then show the measured runtime
+                        versions
+  --herdr-report HERDR_REPORT
+                        explicit JSON output of a previous check-herdr run;
+                        the readiness gaps then show the measured herdr
+                        command

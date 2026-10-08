@@ -1,0 +1,135 @@
+---
+title: baseline
+description: Record the names, sizes and modification times of one directory before a launch.
+sidebar:
+  order: 10
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`baseline` records the state of one directory in one new file. [`check-baseline`](/tenant-pi/use/commands/check-baseline/) compares the directory with that file later. The two actions show whether a launch changed the name, kind, size or modification time of an entry.
+
+```sh
+python3 scripts/tenant_pi.py baseline --dir "$HOME/.pi/agent" \
+  --out "$HOME/.config/tenant-pi/live-baseline.json"
+```
+
+The usual directory is the live profile `~/.pi/agent`. Record it before the first Pi command that names the new profile. [Stage 8](/tenant-pi/install/stage-8-launch/#record-the-baselines) has the steps.
+
+The action is not specific to the live profile. Use it also for the directory in `PI_CODING_AGENT_SESSION_DIR`, or for an LLM Wiki vault, with another baseline file.
+
+## Options
+
+<Capture id="tenant-pi/help-baseline" />
+
+| Option | Meaning |
+| --- | --- |
+| `--dir <path>` | Required. The absolute path of the directory to record. The directory can be absent. |
+| `--out <path>` | Required. The absolute path of a file that does not exist. Its parent exists and belongs to you. The path has 1024 characters at most. |
+
+Keep the `--out` file in the private directory. The action refuses a path under `--dir`, under `~/.pi/agent`, under an LLM Wiki vault and under the kit clone.
+
+## What it reads
+
+| Path | Operation |
+| --- | --- |
+| `--dir` and each directory above it | The action opens it as a directory. It follows no symbolic link. |
+| Each directory below `--dir` | The action opens it as a directory and lists it. |
+| Each entry at each level | One status call: the kind, the size and the modification time. |
+
+- The action opens no file of the directory. `auth.json`, `models.json`, each session and each memory store stay unopened.
+- A symbolic link is one entry. The action does not read or follow its target.
+- The action changes no entry of the directory.
+- The action reads the environment values `HOME` and `WIKI_HOME` for the place rules of `--out`. It does not read `PI_CODING_AGENT_DIR`.
+- The action starts no process and opens no network connection.
+
+## What it writes
+
+The action creates the `--out` file with the mode `0600`. This file is the only write. The action never replaces a file. For a second baseline, give another file name.
+
+The file is one JSON object on one line.
+
+| Key | Content |
+| --- | --- |
+| `schemaVersion` | `1` |
+| `dir` | The given path. |
+| `recordedAt` | The UTC time of the record. |
+| `present` | `false` when the directory does not exist. Then `mtimeNs` is `null`, and `entries` is empty. |
+| `mtimeNs` | The modification time of the directory, in nanoseconds. |
+| `entries` | One row for each direct entry of the directory, in name order. |
+
+A row has the `name`, the `kind`, the `size` and the `mtimeNs` of the entry. The `kind` is `file`, `dir`, `symlink` or `other`.
+
+A row of a directory has two more keys. `entries` is the count of the entries below it, at all levels. `digest` is a SHA-256 value that covers each of these entries.
+
+- The file holds the names of the direct entries only. Below the first level, it holds a count, a size and a digest.
+- The file holds no file content and no credential value.
+- A change at each level changes the row of its direct entry.
+
+Warning: treat the baseline file as private, like the overlay. It holds the names of the direct entries of the directory.
+
+## Output
+
+<Capture id="tenant-pi/cmd-baseline" />
+
+The capture records the directory `hand-made` of the capture session. The placeholder `<UTC time>` replaces the time of the record.
+
+| Key | Content |
+| --- | --- |
+| `dir` | The given path. |
+| `present` | `true` when the directory exists. |
+| `recordedAt` | The UTC time of the record. |
+| `summary.entries` | The count of the direct entries. |
+| `summary.below` | The count of the entries below them. |
+| `baseline` | The path and the mode of the new file, and the state of the write. |
+
+The output holds no entry name. [Stage 8](/tenant-pi/install/stage-8-launch/#record-the-baselines) shows the output for a directory that is absent.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The baseline file is complete. |
+| 2 | A refusal or a failed write. Standard error has one JSON object. |
+
+`candidate_created` is `true` when the action made the file and the failure came after. It is `false` for `target_exists`. The kit has no rollback. Inspect the file and remove it yourself.
+
+## Common refusals
+
+Each refusal of this table changes nothing in the file system. The refusals of `--out` come before the action lists the directory.
+
+| Diagnostic | Cause |
+| --- | --- |
+| `absolute_path: baseline.dir` | `--dir` is relative, or it has a segment that the path rule refuses. |
+| `not_directory: baseline.dir` | `--dir` or a directory above it is a symbolic link or is not a directory. Give the real path. |
+| `unreadable: baseline.dir` | You cannot open or list the directory, or a directory below it. |
+| `input_too_large: baseline.dir` | The directory is outside a bound. See [Limits](#limits). |
+| `absolute_path: baseline.out` | `--out` is not an absolute path. |
+| `path_too_long: baseline.out` | `--out` has more than 1024 characters. |
+| `target_exists: baseline.out` | The `--out` path exists. The action does not change it. |
+| `parent_missing: baseline.out.parent` | The parent of `--out` does not exist. |
+| `unsafe_permissions: baseline.out.parents` | A directory of the path is writable by the group or by others, and it has no sticky bit. |
+| `unsafe_path: baseline.out.parents` | A directory of the path is a symbolic link. |
+| `under_dir: baseline.out` | `--out` is `--dir` or is under it. |
+| `under_pi_agent: baseline.out` | `--out` is `~/.pi/agent` or is under it. |
+| `under_wiki_vault: baseline.out` | `--out` is `~/.llm-wiki` or is under it. With `WIKI_HOME` set, the rule also covers `<WIKI_HOME>/.llm-wiki`. |
+| `under_kit: baseline.out` | `--out` is the kit clone or is under it. |
+| `home_required: baseline.home` | `HOME` is not set. |
+
+## Limits
+
+- The bounds are 4096 direct entries, 1 000 000 entries at all levels, 64 directory levels and a baseline file of 1 MiB.
+- The baseline covers only the time after `recordedAt`.
+- An entry that goes away during the listing is not in the baseline. Close each Pi of the directory before you record it.
+- A change behind a symbolic link is outside the baseline.
+- `under_pi_agent` knows only `~/.pi/agent`. Keep `--out` in the private directory.
+- `--dir` can be an LLM Wiki vault. Only the `--out` file must be outside a vault.
+
+Not verified: that a launch with an interactive session, a memory module, `mcp` or an extension of the tree leaves the live profile unchanged. The release observed only core-only print mode, on Linux.
+
+## Reference file
+
+`docs/directory-baseline.md` in the project repository.

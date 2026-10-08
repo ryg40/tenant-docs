@@ -4,3 +4,9 @@ added 121 packages in 4s
 
 9 packages are looking for funding
   run `npm fund` for details
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m 3 packages have install scripts not yet covered by allowScripts:
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m   esbuild@0.28.2 (postinstall: node install.js)
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m   @google/genai@2.21.0 (preinstall: echo 'preinstall: no-op')
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m   protobufjs@7.6.6 (postinstall: node scripts/postinstall)
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m
+[1mnpm[22m [33mwarn[39m [94minstall-scripts[39m Run `npm install -g --allow-scripts=esbuild,@google/genai,protobufjs` to allow these scripts once, or `npm config set allow-scripts=esbuild,@google/genai,protobufjs --location=user` to allow them for all global installs.

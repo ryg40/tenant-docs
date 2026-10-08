@@ -1,0 +1,1 @@
+{"added":[],"dir":"/home/alex/.pi/agent","directoryModified":false,"modified":[],"now":"absent","recordedAt":"2026-10-08T21:00:09Z","removed":[],"result":"unchanged","scope":"Compares the name, kind, size and modification time of each entry at all levels, and names the direct entries only. Opens no file. Covers the time after recordedAt only.","was":"absent"}

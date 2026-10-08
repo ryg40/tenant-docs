@@ -16,7 +16,7 @@ Read the diagram from the top to the bottom. Each group with a title is one phas
 ```mermaid
 flowchart TD
     accTitle: The loop from an issue to a portable release
-    accDescr: Six phases from the top to the bottom. Plan, build, review and merge repeat for each issue. The two release phases run when the owner wants a release.
+    accDescr: Six phases from the top to the bottom. Plan, build, review and merge repeat for each issue. The two release phases run when the owner wants a release. The last phase ends with the release entry.
     subgraph Plan["1. Plan"]
         direction LR
         a1["Owner<br/>decides the change"]
@@ -47,7 +47,7 @@ flowchart TD
     subgraph Snapshot["5. Snapshot"]
         direction LR
         e1["Coordinator<br/>runs gates 1 to 5<br/>on main"]
-        e2["Coordinator<br/>builds the snapshot,<br/>with no push"]
+        e2["Coordinator<br/>builds the snapshot with<br/>no push, and scans it"]
         e3["Worker<br/>runs the trial<br/>of gate 6"]
         e1 --> e2 --> e3
     end
@@ -55,9 +55,10 @@ flowchart TD
         direction LR
         f1{"Owner<br/>approves?"}
         f2["Coordinator<br/>pushes portable and<br/>the tag to GitHub"]
-        f3["Coordinator<br/>writes the<br/>release record"]
+        f3["Coordinator<br/>writes the record, drafts<br/>the release notes"]
+        f5["Owner<br/>approves the notes,<br/>creates the release entry"]
         f4["The snapshot<br/>stays local"]
-        f1 -- yes --> f2 --> f3
+        f1 -- yes --> f2 --> f3 --> f5
         f1 -- no --> f4
     end
     N(["Next issue:<br/>start again at 1"])
@@ -91,7 +92,7 @@ flowchart TD
 
 | Role | Task | Limit |
 | --- | --- | --- |
-| Owner | Decides each change. Answers the open questions. Approves each release. | Does not need to write code. |
+| Owner | Decides each change. Answers the open questions. Approves each release. The owner is the maintainer of the release. | Does not need to write code. |
 | Coordinator | Splits the work into issues. Gives each issue to one worker. Merges the branches. Runs a release. | Does not push a release without the approval of the owner. |
 | Worker | Takes one issue. Works on one topic branch. Reports the commands and the results. | Changes only the files of its issue. |
 | Reviewer | Reads one branch. Tests the behavior. Reports the findings. | Makes no unrelated change. |
@@ -115,20 +116,27 @@ Workers can work at the same time, because each worker has its own issue and its
 | 9 | Coordinator | Runs the checks on `main` and records them on the issue. | A closed issue with its evidence. | [From an issue to a merge](/tenant-pi/develop/issue-to-merge/) |
 | 10 | Coordinator | Runs gates 1 to 5 on `main`. | The last line of each gate. | [Release gates](/tenant-pi/develop/gates/) |
 | 11 | Coordinator | Builds the snapshot with `python3 scripts/publish_portable.py --no-push`. | A new commit and a new tag on the local branch `portable`. | [Portable release](/tenant-pi/develop/release/) |
-| 12 | Worker | Runs the trial of gate 6 on a clean Linux user, from the snapshot. | Gates 6 and 7 recorded as passed, failed, blocked or not run. | [Release gates](/tenant-pi/develop/gates/) |
-| 13 | Owner | Approves the release. | An approval that the release issue records. | [Portable release](/tenant-pi/develop/release/) |
-| 14 | Coordinator | Pushes with `python3 scripts/publish_portable.py`. | The branch and the tag on the mirror on GitHub. | [Portable release](/tenant-pi/develop/release/) |
-| 15 | Coordinator | Writes the release record on the release issue. | The tag, each gate result and each open gap. | [Portable release](/tenant-pi/develop/release/) |
+| 12 | Coordinator | Scans the new snapshot commits at the level `fail`. | The result line of the scan, and the exit code 0. | [Portable release](/tenant-pi/develop/release/#the-scanner-level) |
+| 13 | Worker | Runs the trial of gate 6 on a clean Linux user, from the snapshot. | Gate 6 recorded as passed, failed, blocked or not run. Gates 7 and 8 recorded as reports. | [Release gates](/tenant-pi/develop/gates/) |
+| 14 | Owner | Approves the release. | An approval that the release issue records. | [Portable release](/tenant-pi/develop/release/) |
+| 15 | Coordinator | Pushes with `python3 scripts/publish_portable.py`. | The branch and the tag on the mirror on GitHub. | [Portable release](/tenant-pi/develop/release/) |
+| 16 | Coordinator | Writes the release record on the release issue. | The tag, each gate result and each open gap. | [Portable release](/tenant-pi/develop/release/) |
+| 17 | Coordinator | Drafts the release notes after the last gate. | The notes: the kind of release, each gate result, the changes, each known defect and each open gap. | [Portable release](/tenant-pi/develop/release/#the-release-notes) |
+| 18 | Owner | Approves the notes and creates the release entry, as the maintainer of the release. | A release entry on the tag of the snapshot. | [Portable release](/tenant-pi/develop/release/#the-release-notes) |
 
 ## The rules of the loop
 
 - One issue has one topic branch and one writer.
 - An issue states its acceptance checks before the work starts.
+- A worker claims an issue before the work starts.
+- An issue with the label `needs-approval` waits for the approval of the owner.
 - A check has one of four results: passed, failed, blocked or not run.
 - Do not record a check as passed when it did not run.
 - A merge uses `--no-ff`, so the history shows each topic branch.
 - `main` stays in the development repository. Only the reviewed publish set goes to `portable`.
 - The coordinator pushes a release only after the owner approves it.
+- A release is a full qualification, or a fast track with gate 6 not run. The owner approves a fast track.
+- The release notes are a release entry on the tag. The snapshot holds no notes file.
 
 ## Where to read next
 

@@ -1,4 +1,11 @@
 {
+    "coordination": {
+        "herdrCli": "not_checked",
+        "herdrSession": "not_run",
+        "herdrSkill": "not_declared",
+        "questionExtension": "not_declared",
+        "questionUi": "unverified"
+    },
     "dir": "/home/alex/.pi/profiles/hand-made",
     "extensions": [
         {

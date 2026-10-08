@@ -1,0 +1,18 @@
+{
+    "home": {
+        "config": true,
+        "doubled": false,
+        "embeddings": {
+            "exists": false,
+            "size": null
+        },
+        "exists": true,
+        "kind": "directory",
+        "ownedByUser": true,
+        "root": "/home/alex",
+        "vault": "/home/alex/.llm-wiki"
+    },
+    "personalVault": "home",
+    "result": "vault_exists",
+    "wikiHome": null
+}

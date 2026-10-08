@@ -2,7 +2,7 @@
 title: carry
 description: Print the overlay patches that keep the choices of a candidate. The action applies nothing.
 sidebar:
-  order: 9
+  order: 15
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -58,7 +58,20 @@ Only a change under one of these overlay keys gives a patch: `roles`, `modelRout
 
 A patch value comes only from the overlay copy in `.tenant-pi/choices.json` of the right side. It never comes from `settings.json` or from the report.
 
-Warning: a patch prints an overlay value, for example an endpoint URL, a model name or a package path. Treat the output like the overlay itself.
+Before the action uses that copy, it checks the whole copy with the overlay rules. A copy that fails gives no patch.
+
+Warning: a patch prints an overlay value, for example an endpoint URL, a model name, a package path or a vault path. Treat the output like the overlay itself.
+
+### The key `memory`
+
+`memory` carries field by field. Each field `/overlay/memory/<module>/<field>` of the report gives one patch at `/memory/<module>/<field>`.
+
+- A memory field that only the overlay sets stays as it is. The report does not name it, so no patch changes it.
+- The patches can leave a combination that the memory rules refuse. `patchedOverlay` then names the rule, and you correct the other field by hand.
+- A report of an older kit release has no `/overlay/memory/...` entries. Run `compare` again before `carry`.
+- A patch for `wiki/embedding` never changes `consent`. `patchedOverlay` names `embedding_consent_missing` or `embedding_consent_unused` when the consent does not agree.
+
+Not verified: a `carry` run with a patch for `wiki/embedding`. The capture session is core only, so the site shows no `memory` patch.
 
 ### Reasons in `notCarried`
 
@@ -80,7 +93,7 @@ Warning: a patch prints an overlay value, for example an endpoint URL, a model n
 4. Run [`generate`](/tenant-pi/use/commands/generate/) into a new target.
 5. Run [`compare`](/tenant-pi/use/commands/compare/) between the right side and the new candidate.
 
-Only the target path and the `notCarried` fields differ in that last report.
+In that last report, only the target path differs under `changes`. The list `markers` shows `/provenance/generatedAt` when the two times of generation differ.
 
 ## Exit codes
 
@@ -96,7 +109,8 @@ Only the target path and the `notCarried` fields differ in that last report.
 | `report_right_mismatch: report.right.path` | `--right` differs from `right.path` of the report. |
 | `absolute_path: carry.right` | `--right` is not an absolute path. |
 | `report_shape: report` | The report is not an object with a `changes` list. |
-| `read_or_json: carry.report` | The report file is absent, is not JSON, or is a link. |
+| `input_missing: carry.report` | The report file does not exist. |
+| Another rule of [Input file errors](/tenant-pi/use/commands/validate/#input-file-errors) with the field `carry.report`, `carry.overlay`, `carry.right.<file>` or `manifest.file` | The loader cannot use that file. |
 | A rule of `validate` | The `--overlay` file fails the overlay rules. |
 
 ## Limits
@@ -104,6 +118,7 @@ Only the target path and the `notCarried` fields differ in that last report.
 - `carry` does not make an overlay value from a rendered value. An edit by hand of `settings.json` is `rendered_field`.
 - A patch can need a key outside the list. `patchedOverlay` then names the rule, and you add the key by hand.
 - A new memory module needs a consent change. Set `consent` in the overlay yourself.
+- An empty `ownerResources` list that the right side adds or removes gives no patch.
 
 ## Reference file
 

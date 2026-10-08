@@ -1,0 +1,14 @@
+{
+  "title": "Record the baseline of one directory",
+  "order": 640,
+  "command": "python3 scripts/tenant_pi.py baseline \\\n  --dir \"$HOME/.pi/profiles/hand-made\" \\\n  --out \"$HOME/.config/tenant-pi/hand-made-baseline.json\" | \\\n  python3 -m json.tool",
+  "setup": [],
+  "replace": [
+    {
+      "what": "the time of the baseline",
+      "match": "\"recordedAt\": ?\"([0-9TZ:.+-]+)\"",
+      "with": "<UTC time>"
+    }
+  ],
+  "mode": "scripted"
+}

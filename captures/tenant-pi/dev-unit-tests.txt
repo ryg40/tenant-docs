@@ -1,4 +1,4 @@
 ----------------------------------------------------------------------
-Ran 366 tests in <seconds>s
+Ran 756 tests in <seconds>s
 
-OK (skipped=1)
+OK (skipped=4)

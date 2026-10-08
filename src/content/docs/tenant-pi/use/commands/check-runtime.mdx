@@ -10,7 +10,7 @@ import DocVersion from '@/components/DocVersion.astro';
 
 <DocVersion project="tenant-pi" />
 
-`check-runtime` reads the versions of Pi, Node and Python. It compares each version with the requirement in the manifest of the kit. It is the only action that starts a process.
+`check-runtime` reads the versions of Pi, Node and Python. It compares each version with the requirement in the manifest of the kit. This action and [`check-herdr`](/tenant-pi/use/commands/check-herdr/) are the only actions that start a process.
 
 ```sh
 python3 scripts/tenant_pi.py check-runtime
@@ -43,19 +43,26 @@ The action runs one command for each tool that it finds. It runs three commands 
 - No other command runs: no `npm`, no `git`, no install, no login and no network request.
 - The action reads `PATH` to find a tool. It reads no credential file and no `settings.json`.
 
+Not verified: that `pi --version` with `PI_CODING_AGENT_DIR` set writes nothing outside that directory and opens no network connection.
+
 ## What it compares
 
 The requirements come from `runtime` in `config/manifest.json`.
 
-| Tool | Requirement in this release | Rule |
-| --- | --- | --- |
-| Pi | `1.0.2` | The installed version text is equal to the pin. |
-| Node | `>=22.22.0 <23` | The version is inside the range. |
-| Python | `>=3.11` | The version is inside the range. |
+| Tool | Manifest key | Requirement in this release | Rule |
+| --- | --- | --- | --- |
+| Pi | `piVersion` | `1.1.0` | The tested version. An installed version with the same text gives `match`. |
+| Pi | `piAcceptedRange` | `>=1.1.0 <1.2` | The accepted range. Another version inside the range gives `untested_in_range`. |
+| Node | `nodeRange` | `>=24.0.0 <25` | The version is inside the range. |
+| Python | `pythonRange` | `>=3.11` | The version is inside the range. |
+
+A Pi version outside the accepted range gives `mismatch`. The kit tests ran on the tested version only.
+
+A prerelease of the lower bound or of the upper bound is outside the range. For example, `1.1.0-rc.1` and `1.2.0-rc.1` give `mismatch`.
 
 ## Output
 
-The report has one entry for each tool: `installed`, `required` and `status`.
+The report has one entry for each tool: `installed`, `required` and `status`. The Pi entry also has `tested` and `acceptedRange`. Its `required` value is equal to `tested`.
 
 <Capture id="tenant-pi/cmd-check-runtime" />
 
@@ -63,20 +70,36 @@ The capture comes from the capture container. A tool that the container does not
 
 | Status | Meaning | `installed` |
 | --- | --- | --- |
-| `match` | The version satisfies the requirement. | The version |
+| `match` | Pi has the exact tested version. Node or Python is inside its range. | The version |
+| `untested_in_range` | Pi is inside the accepted range, but it is not the tested version. Only Pi has this status. | The version |
 | `mismatch` | The version is readable and does not satisfy the requirement. | The version |
 | `missing` | The system cannot find or cannot start the executable. | `null` |
 | `unparsed` | The command gives no usable version: unknown output, an error exit, or a timeout. | `null` |
+
+Not verified: an output with `untested_in_range`, `mismatch` or `unparsed` from a real Pi. The site has no capture of them.
+
+## The report as a file
+
+[`plan`](/tenant-pi/use/commands/plan/) and [`generate`](/tenant-pi/use/commands/generate/) do not run this action. They read its report from a file.
+
+1. Send the output of `check-runtime` to a file in the private directory.
+2. Give the file to `plan` or `generate` with the option `--runtime-report`.
+
+[Stage 4](/tenant-pi/install/stage-4-plan/#the-runtime-report) shows both commands with real output.
+
+- Make the report in the shell that starts Pi.
+- Make the report again after each change of Node or Pi. The kit cannot find an old report.
+- The file holds the report also when the exit code is 1.
 
 ## Exit codes
 
 | Exit code | Meaning |
 | --- | --- |
-| 0 | All three tools have the status `match`. |
-| 1 | One tool or more has another status. The report is on standard output. |
+| 0 | Node and Python have the status `match`. Pi has the status `match` or `untested_in_range`. |
+| 1 | One tool or more has the status `mismatch`, `missing` or `unparsed`. The report is on standard output. |
 | 2 | Bad input, or the removal of the temporary directory fails. Bad input starts no process. |
 
-Exit code 0 means only that three version numbers agree with the manifest. It does not prove that the profile runs.
+Exit code 0 means only that the versions satisfy the rules of the manifest. It does not prove that the profile runs.
 
 ## Common refusals
 
@@ -89,6 +112,8 @@ Exit code 0 means only that three version numbers agree with the manifest. It do
 
 - The action checks the tools that the current shell finds. Run it in the shell that starts Pi.
 - The action does not check `npm` or Git.
+- The action does not check the Herdr application. Use [`check-herdr`](/tenant-pi/use/commands/check-herdr/) for the `herdr` command.
+- The action compares only the version of the Pi package. It does not see the versions of the packages that Pi depends on.
 - The action does not install or change a version. A `mismatch` is your decision.
 
 ## Reference file

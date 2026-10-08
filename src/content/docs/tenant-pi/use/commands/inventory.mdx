@@ -2,7 +2,7 @@
 title: inventory
 description: List the package sources and the extension, skill and prompt names of one profile directory.
 sidebar:
-  order: 10
+  order: 16
 ---
 
 import Capture from '@/components/Capture.astro';
@@ -10,7 +10,7 @@ import DocVersion from '@/components/DocVersion.astro';
 
 <DocVersion project="tenant-pi" />
 
-`inventory` prints the resource names of one profile directory. It prints names only: no file content and no settings value. It works on a profile that the kit did not generate.
+`inventory` prints the resource names of one profile directory. It prints names and package sources only: no file content and no other settings value. It works on a profile that the kit did not generate.
 
 ```sh
 python3 scripts/tenant_pi.py inventory --dir "$HOME/.pi/profiles/main"
@@ -36,6 +36,13 @@ Use it to see the difference between a candidate and an older profile. Run it on
 
 The action lists exactly three directories. It does not enter a subdirectory.
 
+Two more paths get one status check each. The action opens no file for them, and it checks a path only when `settings.json` declares the part.
+
+| Path | When | Result |
+| --- | --- | --- |
+| `<local package>/skills/herdr/SKILL.md` | A local package entry has `skills/herdr` in its `skills` filter. | `coordination.herdrSkill` is `readable` or `not_readable`. |
+| `<dir>/npm/node_modules/@juicesharp/rpiv-ask-user-question/package.json` | A package entry names the npm package of the question extension. | `coordination.questionExtension` is `installed` or `declared`. |
+
 `auth.json`, `models.json`, `.tenant-pi/choices.json`, sessions and memory stores stay unopened. The action writes nothing and starts no process.
 
 ## Output
@@ -51,6 +58,21 @@ The directory `hand-made` in the capture is a profile that the kit did not gener
 | `packages` | One entry for each item of `settings.packages`, in the order of the file. |
 | `extensions`, `skills`, `prompts` | One `name` and `kind` for each direct entry, in name order. |
 | `summary` | The counts of the four lists. |
+| `coordination` | Five separate results for the Herdr skill and the question extension. |
+
+The block `coordination` has these keys:
+
+| Key | Value | Meaning |
+| --- | --- | --- |
+| `herdrSkill` | `not_declared`, `readable` or `not_readable` | `readable`: the skill file of the declared package is a readable regular file. It does not prove that Pi loads the skill. |
+| `questionExtension` | `not_declared`, `declared` or `installed` | `declared`: `settings.json` names the package, and Pi did not install it yet. `installed`: the file `package.json` of the package exists below `<dir>/npm/`. |
+| `herdrCli` | Always `not_checked` | The action starts no process. Use [`check-herdr`](/tenant-pi/use/commands/check-herdr/). |
+| `herdrSession` | Always `not_run` | No kit action starts a Herdr session. |
+| `questionUi` | Always `unverified` | No kit action opens a question dialog. |
+
+The profile of the capture declares neither part, so both results are `not_declared`.
+
+Not verified: an inventory with `not_readable` or `installed`.
 
 A package entry has one of these forms:
 
@@ -65,7 +87,7 @@ The report shows a source only in one of these forms: an absolute path, `npm:<na
 
 `kind` is `file`, `dir`, `symlink` or `other`. The action never reads or prints the target of a symbolic link.
 
-Warning: a package source prints as the file holds it. Read the `packages` list before you share an inventory.
+Warning: a package source and the name of a filter key print as the file holds them. Read the `packages` list before you share an inventory.
 
 ## Exit codes
 
@@ -80,7 +102,8 @@ Warning: a package source prints as the file holds it. Read the `packages` list 
 | --- | --- |
 | `absolute_path: inventory.dir` | `--dir` is relative, or it has a segment that the path rule refuses. |
 | `settings_missing: inventory.dir` | The directory or its `settings.json` does not exist. |
-| `read_or_json: inventory.dir.settings.json` | A path component is a symbolic link, or the file is not JSON. |
+| `input_path_unsafe: inventory.dir.settings.json` | A path component is a symbolic link or is not a directory. |
+| `invalid_json: inventory.dir.settings.json` | The file is not JSON. The error object also has `line` and `column`. |
 | `input_too_large: inventory.dir.settings.json` | `settings.json` is larger than 1 MiB. |
 | `read_or_json: inventory.dir.<name>` | The resource directory `<name>` is a symbolic link or a file. |
 
@@ -91,4 +114,4 @@ Warning: a package source prints as the file holds it. Read the `packages` list 
 
 ## Reference file
 
-`docs/profile-inventory.md` in the project repository.
+`docs/profile-inventory.md` and `docs/herdr-setup.md` in the project repository.

@@ -1,0 +1,8 @@
+{
+  "title": "The baseline of the live profile",
+  "stage": 8,
+  "order": 1190,
+  "command": "python3 scripts/tenant_pi.py baseline --dir \"$HOME/.pi/agent\" --out \"$HOME/.config/tenant-pi/live-baseline.json\"",
+  "setup": [],
+  "mode": "manual"
+}

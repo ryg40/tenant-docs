@@ -23,7 +23,7 @@ flowchart LR
     end
     subgraph kit["Kit: a clone of tenant-pi"]
         manifest["config/manifest.json<br/>reviewed modules and pins"]
-        cli["scripts/tenant_pi.py<br/>validate, plan, generate"]
+        cli["scripts/tenant_pi.py<br/>17 actions, for example<br/>validate, plan, generate"]
     end
     subgraph profile["Generated profile: a new directory"]
         settings["settings.json"]
@@ -41,7 +41,7 @@ flowchart LR
 | Part | What it is | Who owns it |
 | --- | --- | --- |
 | Private directory | A directory outside the kit that only you can read. It holds the overlay and your records. | You |
-| Overlay | The JSON file with your choices: the target directory, the modules, the model roles. | You |
+| Overlay | The JSON file with your choices: the target directory, the components, the model roles. | You |
 | Kit | A clone of the tenant-pi repository. It holds reviewed source and no value of yours. | The tenant-pi project |
 | Generated profile | A new directory that the kit writes one time. Pi uses it when you launch Pi with this profile. | You |
 | Live profile | `~/.pi/agent`, the profile that Pi uses by default. The kit never writes into it. | You |
@@ -52,12 +52,14 @@ flowchart LR
 - You want each choice of a profile in one file that a tool can check.
 - You want to read each install command before you run it.
 - You are an agent that installs a profile for a user. The file `INSTALL.md` of the kit is your guide.
+- You have a base install, and you want to change it. The file `POST_INSTALL.md` of the kit is your guide.
 
 You must know how to use a shell and a text editor.
 
 ## What the kit never does
 
-- It never writes into a profile that exists. It writes only into a new directory.
+- It never writes into a profile that exists. It writes a profile only into a new directory.
+- It never puts a target, a launcher file or a private directory into an LLM Wiki vault.
 - It installs no package. It does not run `npm`, `pip`, `git` or a system package manager.
 - It stores no credential. It does not write, print or resolve a secret value.
 - It edits no shell startup file, and it does not change `PATH`.
@@ -65,6 +67,7 @@ You must know how to use a shell and a text editor.
 - It opens no network connection, and it makes no model call.
 - It does not copy auth, sessions or memory between profiles.
 - It runs `pi` in one case only: `pi --version` in the action `check-runtime`, with an empty temporary profile directory.
+- Only two actions start a process: `check-runtime` and `check-herdr`. Each one reads a version.
 
 The kit prints the install commands and the launch command as display text. You read them and run them by hand.
 
@@ -77,7 +80,10 @@ A profile directory separates configuration. It is not a sandbox of the operatin
 - The offline stages 1 to 5 are tested.
 - Not verified: a complete run on a clean client, with authentication and a model reply.
 - No optional module has the label `ready` in this release.
-- The kit pins Pi `1.0.2`, Node `>=22.22.0 <23` and Python `>=3.11`.
+- The kit tests with Pi `1.1.0`, and it accepts Pi `>=1.1.0 <1.2`.
+- The kit requires Node `>=24.0.0 <25` and Python `>=3.11`.
+- The kit has 27 components: the core and 26 optional ones. The sample overlay enables the core only.
+- The checklist of the components marks a recommended set. That set holds the two local memory modules `wiki` and `hermes`.
 
 ## Platforms that are not qualified
 

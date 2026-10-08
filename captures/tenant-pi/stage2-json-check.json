@@ -1,0 +1,8 @@
+{
+  "title": "Check the syntax of the overlay",
+  "stage": 2,
+  "order": 230,
+  "command": "python3 -m json.tool \"$HOME/.config/tenant-pi/overlay.json\" >/dev/null && echo \"JSON valid\"",
+  "setup": [],
+  "mode": "scripted"
+}

@@ -1,0 +1,14 @@
+{
+    "added": [],
+    "dir": "/home/alex/.pi/profiles/hand-made",
+    "directoryModified": false,
+    "modified": [
+        "prompts"
+    ],
+    "now": "present",
+    "recordedAt": "<UTC time>",
+    "removed": [],
+    "result": "changed",
+    "scope": "Compares the name, kind, size and modification time of each entry at all levels, and names the direct entries only. Opens no file. Covers the time after recordedAt only.",
+    "was": "present"
+}

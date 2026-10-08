@@ -1,0 +1,40 @@
+usage: tenant_pi.py compose-plan [-h] [--account ACCOUNT] --uid UID --gid GID
+                                 --public-key PUBLIC_KEY [--ssh-port SSH_PORT]
+                                 [--projects-dir PROJECTS_DIR] --gateway-url
+                                 GATEWAY_URL [--key-var KEY_VAR]
+                                 [--enable ENABLE] [--provider PROVIDER]
+                                 --model MODEL [--thinking THINKING]
+                                 --private-dir PRIVATE_DIR [--clone CLONE]
+                                 [--write] [--manifest MANIFEST]
+
+options:
+  -h, --help            show this help message and exit
+  --account ACCOUNT     account name of the seat (default: pi)
+  --uid UID             UID of the account: the UID of the user (id -u)
+  --gid GID             GID of the account: the GID of the user (id -g)
+  --public-key PUBLIC_KEY
+                        absolute path of the SSH public key file of the user
+  --ssh-port SSH_PORT   port on this machine that receives the SSH connections
+                        (default: 2222)
+  --projects-dir PROJECTS_DIR
+                        absolute path of the optional projects directory
+  --gateway-url GATEWAY_URL
+                        credential-free HTTPS URL of the gateway; it ends in
+                        /v1
+  --key-var KEY_VAR     name of the variable that holds the gateway key
+                        (default: TENANTEXT_LITELLM_API_KEY)
+  --enable ENABLE       component ID to enable; repeat for more components
+  --provider PROVIDER   provider of the interactive role (default: litellm-
+                        codex)
+  --model MODEL         model of the interactive role: codex-auto/luna, codex-
+                        auto/sol or codex-auto/astra
+  --thinking THINKING   thinking level of the interactive role (default: high)
+  --private-dir PRIVATE_DIR
+                        absolute path of the existing private directory,
+                        outside the clone
+  --clone CLONE         absolute path of the kit clone (default: this clone)
+  --write               write overlay.json, seat.env, compose.env,
+                        authorized_keys and registry.json into the private
+                        directory; each must be absent
+  --manifest MANIFEST   reviewed kit manifest (override remains strictly
+                        validated)

@@ -1,0 +1,9 @@
+{
+  "title": "Print the text of the results file",
+  "order": 675,
+  "command": "python3 scripts/tenant_pi.py results \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\" \\\n  --facts \"$HOME/.config/tenant-pi/results-facts.json\" \\\n  --target \"$HOME/.pi/profiles/main\" | \\\n  sed '/^## The account/q'",
+  "setup": [
+    "printf '%s\\n' '{\"schemaVersion\": 1, \"date\": \"2030-01-01\", \"installingAgent\": \"EXAMPLE_AGENT\", \"status\": \"stopped\", \"lastStage\": \"Stage 5: generate\", \"nextStep\": \"Install Pi, then do the first launch.\", \"account\": {\"name\": \"alex\", \"createdByInstall\": false, \"openShell\": \"su - alex\"}, \"places\": {\"node\": \"24.21.0\", \"launchers\": [{\"target\": \"/home/alex/.pi/profiles/main\", \"path\": \"/home/alex/.config/tenant-pi/launch-main.sh\"}]}, \"stages\": [{\"stage\": \"Stage 5: generate\", \"state\": \"done\", \"note\": null}, {\"stage\": \"Stage 6: install the dependencies\", \"state\": \"not_run\", \"note\": \"Pi is not installed.\"}], \"checks\": [{\"name\": \"Check 3: the model reply\", \"state\": \"not_run\", \"note\": null}], \"wikiVault\": {\"path\": null, \"existedBefore\": false, \"kept\": false}, \"notes\": [\"The capture container has no network access.\"]}' > \"$HOME/.config/tenant-pi/results-facts.json\""
+  ],
+  "mode": "scripted"
+}

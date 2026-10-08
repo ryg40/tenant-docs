@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action check-baseline",
+  "order": 172,
+  "command": "python3 scripts/tenant_pi.py check-baseline --help",
+  "setup": [],
+  "mode": "scripted"
+}

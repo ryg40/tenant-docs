@@ -1,0 +1,10 @@
+{
+  "title": "Report an LLM Wiki vault that exists",
+  "order": 655,
+  "command": "python3 scripts/tenant_pi.py check-wiki-vault | \\\n  python3 -m json.tool",
+  "setup": [
+    "mkdir -p \"$HOME/.llm-wiki\"",
+    "printf '{}\\n' > \"$HOME/.llm-wiki/config.json\""
+  ],
+  "mode": "scripted"
+}

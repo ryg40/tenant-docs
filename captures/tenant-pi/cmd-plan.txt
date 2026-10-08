@@ -3,8 +3,16 @@
         "launchDisplayOnly": "env -u PI_CODING_AGENT_SESSION_DIR PI_CODING_AGENT_DIR=/home/alex/.pi/profiles/main-2026-10-05 pi --no-approve",
         "launchStatus": "not_runnable_until_generation_succeeds",
         "launcherDisplayOnly": "/home/alex/.config/tenant-pi/launch-main-2026-10-05.sh",
+        "piInstall": {
+            "change": null,
+            "command": "npm install --global -- @earendil-works/pi-coding-agent@1.1.0",
+            "installed": null,
+            "required": "1.1.0",
+            "status": "installed_version_unknown",
+            "warning": "global_install_replaces_pi_for_all_profiles"
+        },
         "setupDisplayOnly": [
-            "npm install --global -- @earendil-works/pi-coding-agent@1.0.2"
+            "npm install --global -- @earendil-works/pi-coding-agent@1.1.0"
         ]
     },
     "files": [
@@ -48,11 +56,11 @@
         },
         {
             "code": "node_runtime_unverified",
-            "subject": ">=22.22.0 <23"
+            "subject": ">=24.0.0 <25"
         },
         {
             "code": "core_runtime_unverified",
-            "subject": "@earendil-works/pi-coding-agent@1.0.2"
+            "subject": "@earendil-works/pi-coding-agent@1.1.0"
         }
     ],
     "routeSetup": [],
@@ -75,32 +83,37 @@
             "enabled": false,
             "prerequisites": [
                 {
-                    "code": "package_source_subdir_unsupported",
-                    "status": "blocked",
+                    "code": "local_package_load",
+                    "status": "met",
+                    "subject": "promptr"
+                },
+                {
+                    "code": "pi_line_build_and_tests",
+                    "status": "met",
                     "subject": "promptr"
                 },
                 {
                     "code": "build_step_required",
-                    "status": "blocked",
-                    "subject": "promptr"
-                },
-                {
-                    "code": "qualified_pi_line_mismatch",
-                    "status": "blocked",
+                    "status": "open",
                     "subject": "promptr"
                 },
                 {
                     "code": "host_module_dependency",
-                    "status": "blocked",
-                    "subject": "@earendil-works/pi-tui@0.87.1"
+                    "status": "open",
+                    "subject": "@earendil-works/pi-tui@1.1.0"
+                },
+                {
+                    "code": "private_renderer_adapters",
+                    "status": "open",
+                    "subject": "promptr"
                 },
                 {
                     "code": "automatic_dispatch_path_unverified",
-                    "status": "blocked",
+                    "status": "open",
                     "subject": "promptr"
                 }
             ],
-            "status": "blocked"
+            "status": "unverified"
         }
     }
 }

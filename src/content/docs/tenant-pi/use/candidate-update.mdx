@@ -13,6 +13,8 @@ import DocVersion from '@/components/DocVersion.astro';
 
 The kit never updates a profile in place. Each change makes a new profile directory, a candidate. You compare the candidate with the old one. Then you switch by hand.
 
+This page has the loop in detail. The file `POST_INSTALL.md` of the kit clone has the short form: one section for each task after an install, with its commands.
+
 ## The loop
 
 ```mermaid
@@ -52,7 +54,7 @@ flowchart LR
     end
     subgraph dirsOld["Old candidate: ~/.pi/profiles/main"]
         dirsOldFiles["settings.json<br/>.tenant-pi/"]
-        dirsOldState["auth.json, sessions/, npm/<br/>Pi wrote these"]
+        dirsOldState["auth.json, sessions/, bin/, npm/<br/>Pi wrote these"]
     end
     subgraph dirsNew["New candidate: ~/.pi/profiles/main-2026-10-05"]
         dirsNewFiles["settings.json<br/>.tenant-pi/"]
@@ -67,7 +69,7 @@ flowchart LR
 
 - The overlay is the only source of a candidate. `generate` copies nothing from the old candidate.
 - `generate` refuses a target that exists. So the old candidate cannot change.
-- Pi writes `auth.json`, `sessions/` and `npm/` into a candidate at run time. The kit copies none of them.
+- Pi writes `auth.json`, `models-store.json`, `sessions/` and `bin/` into a candidate at run time. It writes `npm/` for a declared npm package. The kit copies none of them.
 - Each candidate has its own launcher file.
 
 ## One pass in a recording
@@ -89,6 +91,8 @@ You need these three things:
 - One candidate that exists. The examples use `~/.pi/profiles/main`.
 
 Run each command from the kit clone.
+
+Write each path as an absolute path. The kit refuses `~`. A path with `"$HOME/..."` in double quotes is correct in a command, because the shell expands it.
 
 ## Step 1: get the new inputs
 
@@ -132,6 +136,12 @@ Change nothing else when your choices stay the same.
    <Capture id="tenant-pi/cmd-list" />
 
 Use the same `--registry`, `--local-dir` and `--require-role` options as for the old candidate.
+
+The selection comes from the overlay. So a new candidate keeps each enabled component, and its `settings.json` has the same package entries.
+
+The regeneration writes into the new target only. It does not write into the old candidate, into `~/.pi/agent` or into a shared directory of your account.
+
+To see the measured versions of Node and Pi in the output, give `--runtime-report` to `generate`. See [`check-runtime`](/tenant-pi/use/commands/check-runtime/#the-report-as-a-file).
 
 `list` shows the kit commit and the generation time of each candidate. It marks no candidate as current. The directory `hand-made` in the capture is a profile that the kit did not generate.
 
@@ -209,14 +219,26 @@ Do nothing. The next candidate does not have the change.
 
 A switch is a launch choice. The kit moves no file.
 
-1. Do stages 6 and 7 of the [install](/tenant-pi/install/) for the new candidate: the packages and the authentication.
-2. Run the launcher file of the new candidate.
+1. Record a baseline of the live profile with [`baseline`](/tenant-pi/use/commands/baseline/), in a new file.
+2. Do stages 6 and 7 of the [install](/tenant-pi/install/) for the new candidate: the packages and the authentication.
+3. Run the launcher file of the new candidate.
 
    ```sh
    "$HOME/.config/tenant-pi/launch-main-2026-10-05.sh"
    ```
 
-3. To go back, run the launcher file of the old candidate.
+4. Compare the live profile with the new baseline with [`check-baseline`](/tenant-pi/use/commands/check-baseline/).
+5. To go back, run the launcher file of the old candidate.
+
+Record the baseline before the first Pi command that names the new candidate. The result `unchanged` then shows that the launch wrote nothing into `~/.pi/agent`.
+
+Warning: do not run the `npm install --global` line of the plan when Pi is installed. That line replaces Pi for each profile.
+
+With the component `wiki`, record a second baseline of the vault at the same time.
+
+Not verified: the comparison of a vault. The guide of the release says that the first start of the extension makes the directory `meta/qmd/`. The result is then `changed` with only `meta` in `modified`.
+
+Not verified: a switch to a candidate with an optional component. The capture session is core only.
 
 The launcher file holds the launch line of the plan:
 
@@ -227,6 +249,8 @@ The line sets `PI_CODING_AGENT_DIR` for one `pi` process. It removes `PI_CODING_
 Limits of a switch:
 
 - The kit copies no login, sessions, memory or packages between candidates.
+- With the component `questions`, [`inventory`](/tenant-pi/use/commands/inventory/#output) shows `coordination.questionExtension` as `declared` for the new candidate. Not verified: the value `installed` after the `pi install` line of the plan.
+- All candidates of one account share the `pi` command, Node, the kit clone, the vault `~/.llm-wiki` and the keyring of the operating system.
 - A switch back is not a data rollback. Data that a session wrote into a candidate stays there.
 - The live profile `~/.pi/agent` stays untouched. To replace it is your decision, and the kit does not do it.
 - Old candidates stay on disk. The kit deletes nothing.
@@ -237,7 +261,12 @@ Warning: `rm -rf` of the wrong directory deletes `auth.json`, sessions and memor
 
 ## After Pi changes a profile
 
-Pi can write `settings.json` of a profile on its own. Examples are `pi update --extensions`, `pi install`, `/model` and a settings change in the interface.
+Pi can write `settings.json` of a profile on its own. Examples are `/model`, a settings change in the interface and a `pi install` of a new source.
+
+- `pi install` does not write `settings.json` when the source text is the same as the declared text. Use each source as the plan prints it.
+- `pi update --extensions` does not write `settings.json`. It moves an installed npm package without a version to the newest version, in place.
+
+Not verified: these two statements about Pi `1.1.0`. They come from the guide of the release.
 
 After each such operation:
 
@@ -255,7 +284,9 @@ The drift stays visible on purpose. The kit does not hide it and does not revert
 
 These files are in the project repository:
 
+- `POST_INSTALL.md`: one section for each task after an install.
 - `docs/guides/candidate-update.md`: the guide of the loop.
+- `docs/directory-baseline.md`: the baseline of a directory.
 - `docs/candidate-compare.md`: the report, the markers and the drift.
 - `docs/carry.md`: the patches and the reasons.
 - `docs/accepted-drift.md`: the `unmanaged` list.

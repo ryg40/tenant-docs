@@ -1,0 +1,17 @@
+{
+  "title": "Compare the directory with its baseline",
+  "order": 645,
+  "command": "python3 scripts/tenant_pi.py check-baseline \\\n  --dir \"$HOME/.pi/profiles/hand-made\" \\\n  --baseline \"$HOME/.config/tenant-pi/hand-made-baseline.json\" | \\\n  python3 -m json.tool",
+  "setup": [
+    "sleep 1",
+    "touch \"$HOME/.pi/profiles/hand-made/prompts/plan.md\""
+  ],
+  "replace": [
+    {
+      "what": "the time of the baseline",
+      "match": "\"recordedAt\": ?\"([0-9TZ:.+-]+)\"",
+      "with": "<UTC time>"
+    }
+  ],
+  "mode": "scripted"
+}

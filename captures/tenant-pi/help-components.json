@@ -1,0 +1,7 @@
+{
+  "title": "The help of the action components",
+  "order": 178,
+  "command": "python3 scripts/tenant_pi.py components --help",
+  "setup": [],
+  "mode": "scripted"
+}

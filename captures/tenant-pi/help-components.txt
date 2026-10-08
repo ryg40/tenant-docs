@@ -1,0 +1,14 @@
+usage: tenant_pi.py components [-h] [--format {json,text}] [--overlay OVERLAY]
+                               [--select SELECT] [--manifest MANIFEST]
+
+options:
+  -h, --help            show this help message and exit
+  --format {json,text}  json (default): the checklist as data; text: the
+                        numbered list for a person
+  --overlay OVERLAY     explicit local JSON choices file; the marks are then
+                        its selection.enable
+  --select SELECT       component IDs or checklist numbers, separated by
+                        commas; prints the selection object of an overlay and
+                        writes no file
+  --manifest MANIFEST   reviewed kit manifest (override remains strictly
+                        validated)

@@ -1,0 +1,115 @@
+---
+title: remote-plan
+description: Print the SSH command lines for an install on a remote Linux host. The kit runs none of them.
+sidebar:
+  order: 17
+---
+
+import Capture from '@/components/Capture.astro';
+import DocVersion from '@/components/DocVersion.astro';
+
+<DocVersion project="tenant-pi" />
+
+`remote-plan` prints the SSH command lines of the stages of an install on a remote Linux host. The action is display only: the kit runs none of the lines. You read each line and run the lines that you approve in your terminal.
+
+```sh
+python3 scripts/tenant_pi.py remote-plan --ssh-target build-host \
+  --remote-user alex --remote-home /home/alex
+```
+
+Not verified: an install on a remote host with these lines. No line of the plan ran through a real SSH connection.
+
+## Options
+
+<Capture id="tenant-pi/help-remote-plan" />
+
+| Option | Meaning |
+| --- | --- |
+| `--ssh-target <target>` | Required. A host alias, a host name or an IPv4 address, with an optional `<user>@`. It has no port, no option and no space. An IPv6 address gives `ssh_target: remote-plan.ssh_target`. |
+| `--remote-user <name>` | Required. The account on the remote host that owns the install. |
+| `--remote-home <path>` | Required. The absolute home directory of that account. |
+
+A port or a jump host belongs to your SSH configuration. Give the host alias of that configuration as the target.
+
+## What it reads
+
+The action reads only its three options.
+
+- It starts no process, and it does not run `ssh`.
+- It opens no file. It reads no SSH key, no SSH configuration and no credential.
+- It reads no environment value and opens no network connection.
+- It writes nothing.
+
+## Output
+
+<Capture id="tenant-pi/cmd-remote-plan" />
+
+| Key | Content |
+| --- | --- |
+| `runs` | Always `false`. The action runs no line. |
+| `sshTarget`, `remoteUser`, `remoteHome` | The three given values. |
+| `paths` | The clone, the private directory, the profile and the Herdr configuration directory, below the remote home. |
+| `hostKeyChecking` | Always `unchanged`. No line changes the host key check of SSH. |
+| `stages` | The ordered list of the stages. |
+
+Each stage has these keys:
+
+| Key | Content |
+| --- | --- |
+| `stage` | The name of the stage. |
+| `argv` | The list `ssh`, `--`, the target and one remote command. |
+| `display` | The same list as one line for a POSIX shell. |
+| `changes` | `true` when the remote command changes the remote host. |
+| `approval` | Only with `"changes": true`. The value is `user_approval_required`. |
+
+The plan has 11 stages:
+
+| Stage | Remote command | Changes the host |
+| --- | --- | --- |
+| `identity` | A test of the account name, of `HOME` and of the system name. | No |
+| `home-owner` | The owner of the home directory. | No |
+| `tools` | The versions of Node, npm, Python and Git. | No |
+| `herdr` | The path and the version of the `herdr` command. | No |
+| `check-runtime` | [`check-runtime`](/tenant-pi/use/commands/check-runtime/) in the remote clone. | No |
+| `check-herdr` | [`check-herdr`](/tenant-pi/use/commands/check-herdr/) in the remote clone. | No |
+| `herdr-skill-files` | A test that the Herdr skill file of the clone is readable. | No |
+| `init-private` | [`init-private`](/tenant-pi/use/commands/init-private/) with the private directory and the profile. | Yes |
+| `plan` | [`plan`](/tenant-pi/use/commands/plan/) with the overlay of the private directory. | No |
+| `generate` | [`generate`](/tenant-pi/use/commands/generate/) with the overlay and the profile. | Yes |
+| `inventory` | [`inventory`](/tenant-pi/use/commands/inventory/) with the profile. | No |
+
+## Rules of the lines
+
+- No line has an SSH option. Your SSH configuration, your keys and your known hosts stay in force.
+- `--` ends the SSH options. So SSH never reads the target as an option.
+- The action quotes each argument of a remote command for a POSIX shell. A path with a space stays one argument.
+- No line installs or updates Herdr, creates an account or uses `sudo`.
+- The plan has no clone step. The kit does not know the address of your copy of the repository.
+
+Warning: a line with `"changes": true` writes on the remote host. Read the line before you run it.
+
+## Exit codes
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | The plan is on standard output. |
+| 2 | The action refuses the input. Standard error has one JSON object with the rule and the field. |
+
+## Common refusals
+
+| Diagnostic | Cause |
+| --- | --- |
+| `ssh_target: remote-plan.ssh_target` | The target has a port, an option, a space or another character that the rule refuses. |
+| `remote_user: remote-plan.remote_user` | The account name does not have the form of a Linux account name. |
+| `ssh_user_mismatch: remote-plan.ssh_target` | The target names another account than `--remote-user`. |
+| `absolute_path: remote-plan.remote_home` | The home directory is not an absolute path, or it has `/` at its end. |
+
+## Limits
+
+- The stage `plan` has no runtime report, and the stage `generate` has no launcher file. Add the options when you run the lines by hand.
+- A remote command through SSH does not read the files of an interactive shell. Not verified: a Node from a version manager is on `PATH` for these lines.
+- Not verified: a login shell of the remote account that is not a POSIX shell.
+
+## Reference file
+
+`docs/herdr-setup.md` in the project repository, section "The remote plan".

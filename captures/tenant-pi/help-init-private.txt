@@ -1,4 +1,5 @@
 usage: tenant_pi.py init-private [-h] --dir DIR [--overlay OVERLAY]
+                                 [--target TARGET]
 
 options:
   -h, --help         show this help message and exit
@@ -6,3 +7,5 @@ options:
                      exists
   --overlay OVERLAY  overlay whose target the directory must stay outside of;
                      repeat for more overlays
+  --target TARGET    absolute path of the new profile directory; the new
+                     overlay gets it as target.agentDir

@@ -1,0 +1,1 @@
+{"baseline":{"complete":true,"fileCreated":true,"mode":"0600","path":"/home/alex/.config/tenant-pi/live-baseline.json","warnings":[]},"dir":"/home/alex/.pi/agent","present":false,"recordedAt":"2026-10-08T21:00:09Z","summary":{"below":0,"entries":0}}

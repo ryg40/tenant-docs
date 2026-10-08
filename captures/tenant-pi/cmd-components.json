@@ -1,0 +1,7 @@
+{
+  "title": "The checklist with the marks of the overlay",
+  "order": 660,
+  "command": "python3 scripts/tenant_pi.py components --format text \\\n  --overlay \"$HOME/.config/tenant-pi/overlay.json\"",
+  "setup": [],
+  "mode": "scripted"
+}

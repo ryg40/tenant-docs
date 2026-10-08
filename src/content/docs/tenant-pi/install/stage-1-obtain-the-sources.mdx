@@ -35,7 +35,7 @@ flowchart LR
 | Git is installed. | `git --version` prints a version. |
 | Python 3.11 or later is installed as `python3`. | `python3 --version` prints `3.11` or a later version. |
 | The directory `~/tenant-pi` does not exist. | `ls -d "$HOME/tenant-pi"` reports that the directory does not exist. |
-| You can read the tenant-pi repository on GitHub. | `git ls-remote https://github.com/ryg40/tenant-pi.git` prints a list of refs. The repository is private at this time, so you need a GitHub account with access. |
+| You can read the tenant-pi repository on GitHub. | `git ls-remote https://github.com/ryg40/tenant-pi.git` prints a list of refs. The repository is public. |
 | You did the steps of [Before Stage 1](/tenant-pi/install/#before-stage-1). | Your notes hold the result. |
 
 ## Steps
@@ -85,8 +85,11 @@ flowchart LR
 - The exit code of step 3 can be 1. The section [The runtime check](#the-runtime-check) gives the cause.
 - The frame of step 3 shows the run in a clean container. The button below the frame plays the recording.
 - The placeholder `<seconds>` in the frame replaces the run time of the tests.
-- The container of the frame has Node. So the frame shows `match` for `node`, and the tests print `OK (skipped=1)`.
-- On a client with no Node, the tests print `OK (skipped=4)`, and the status of `node` is `missing`. That is normal.
+- The container of the frame has Node 24, no Docker and no Pi. Its user is not `root`.
+- So the frame shows `match` for `node` and `missing` for `pi`, and the tests print `OK (skipped=4)`.
+- Three of the skipped tests need Docker. One skipped test needs the user `root`.
+- The number of skipped tests can differ on your client. A skipped test is not a failure.
+- On a client with no Node, the status of `node` is `missing`. That is normal.
 - The release is a tag. The publish command of tenant-pi pushes the branch `portable` under the name `main`. So the branch of your clone can have the name `main`.
 
 ## The runtime check
@@ -95,12 +98,17 @@ The runtime check compares the installed Pi, Node and Python with the versions t
 
 | Status | Meaning | What to do in this stage |
 | --- | --- | --- |
-| `match` | The version satisfies the requirement. | Nothing. |
+| `match` | The version satisfies the requirement. For Pi, it is the tested version. | Nothing. |
+| `untested_in_range` | Only for Pi: the version is in the accepted range, but it is not the tested version. | Write it down. Keep the installed Pi. |
 | `mismatch` | The tool is installed in another version. | Write it down. Stage 6 has the options. |
 | `missing` | The shell cannot find the tool. | Write it down. Stage 6 installs it. |
 | `unparsed` | The tool gave no version that the kit can read. | Write it down. Stage 6 has the options. |
 
-The exit code is 1 when a status is not `match`. In this stage, that is a finding and not a failure. On a clean client, `pi` is `missing`, and the exit code is 1. On a client with no Node, `node` is `missing` too.
+The exit code is 1 when a status is `mismatch`, `missing` or `unparsed`. In this stage, that is a finding and not a failure. On a clean client, `pi` is `missing`, and the exit code is 1. On a client with no Node, `node` is `missing` too.
+
+For Pi, the check has two values. The key `tested` is the version that the tests of the kit ran on. The key `acceptedRange` is the range that the kit accepts. The status `untested_in_range` does not change the exit code.
+
+Not verified: an output with `untested_in_range`. The frames of this guide show no Pi in the accepted range.
 
 The status of `python` must be `match`. The kit commands of stages 2 to 5 need Python 3.11 or later.
 
@@ -125,6 +133,6 @@ Do not move the clone later, and do not delete it. A profile with a package of t
 | Two tests of `test_publish_rules` fail. | The directory is a copy without Git data, for example an archive. | Get the kit with `git clone`. |
 | The publish check prints `unreviewed_file: repository inventory`. | The clone holds a file that Git does not track. `pytest` writes `.pytest_cache/`, for example. | Remove the untracked file. Run the tests with `unittest`, not with `pytest`. |
 | `git clone` stops because the directory exists. | `~/tenant-pi` exists and is not empty. | Use another directory name. Then use that name in each later command. |
-| The runtime check exits with code 1. | A status is not `match`. | Read the statuses. Continue when `python` is `match`. |
+| The runtime check exits with code 1. | A status is `mismatch`, `missing` or `unparsed`. | Read the statuses. Continue when `python` is `match`. |
 | `git describe --tags` prints another name, or an error. | The clone is not the release that this page describes. | A command or an output can differ from this guide. Read the `--help` of an action when a step fails. |
 | `python3 --version` prints a version below 3.11. | The kit needs Python 3.11 or later. | Install Python 3.11 or later. Then run the stage again. |

@@ -1,0 +1,28 @@
+ 1 [x] core (locked) | tested
+ 2 [x] model-routing | tested
+ 3 [x] tenantext | extension: tenantext | unverified
+ 4 [x] codex-accounts | extension: codex-accounts | unverified | needs: TENANTEXT_LITELLM_BASE_URL, TENANTEXT_LITELLM_API_KEY
+ 5 [x] slopscore | extension: slopscore | unverified
+ 6 [x] context-meter | extension: context-meter | unverified
+ 7 [x] ops-footer | extension: ops-footer | unverified | requires: context-meter
+ 8 [x] copilot-usage | extension: copilot-usage | unverified
+ 9 [x] anthropic-usage | extension: anthropic-usage | unverified
+10 [x] doctor | extension: doctor | unverified | needs: TENANTEXT_LITELLM_BASE_URL
+11 [x] resources | extension: resources | unverified
+12 [ ] herdr | skill: herdr | unverified | needs: host_tool_required
+13 [ ] herdr-relay | skill: herdr-relay | unverified | requires: herdr | needs: host_tool_required
+14 [x] coordinator-skills | skills: grilling, grill-me, wayfinder, research, prototype, domain-modeling, to-spec, to-tickets, pr, show-me, retro, get-status, writing-for-agents | unverified | needs: GITEA_TOKEN, host_tool_required
+15 [x] knowledge-skills | skills: okf-knowledge-base, open-knowledge-write-skill, open-knowledge-discovery, open-knowledge | unverified | needs: host_tool_required
+16 [x] slopscore-pr | skill: slopscore-pr | unverified | needs: host_tool_required
+17 [ ] tracker-site | skill: tracker-site | unverified | needs: host_tool_required
+18 [ ] promptr | extension: promptr | unverified | needs: build_step_required
+19 [ ] promptr-generate-task-prompt | skill: promptr-generate-task-prompt | unverified | requires: promptr
+20 [ ] promptr-handoff | skill: promptr-handoff | unverified | requires: promptr
+21 [ ] promptr-openknowledge-project-pages | skill: openknowledge-project-pages | unverified | requires: promptr | needs: host_service_required
+22 [ ] promptr-watch-herdr-agents | skill: watch-herdr-agents | unverified | requires: promptr | needs: host_tool_required
+23 [ ] mcp | extension: pi-mcp-adapter | tested | needs: inputs.mcpFile, 1 setup line
+24 [ ] questions | extension: @juicesharp/rpiv-ask-user-question | unverified | needs: 2 setup lines
+25 [x] hermes | extension: pi-hermes-memory | tested | needs: consent.memoryCapture, memory.hermes, peer_override_required, native_addon_unverified, 2 setup lines
+26 [x] wiki | extension: llm-wiki | tested | needs: consent.memoryCapture, memory.wiki, peer_override_required, 2 setup lines
+27 [ ] openviking | extension: openviking-pi | unverified | needs: consent.memoryCapture, consent.remoteMemoryWrites, memory.openviking, install_step_required, server_required, 1 setup line
+Answer `ok` to keep the marks, or name the numbers to switch on and the numbers to switch off. A locked component stays on.
